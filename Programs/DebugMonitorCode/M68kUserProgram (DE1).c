@@ -16,8 +16,8 @@
 // The working 68k system SOF file posted on canvas that you can use for your pre-lab
 // is based around Dram so #define accordingly before building
 
-//#define StartOfExceptionVectorTable 0x08030000
-#define StartOfExceptionVectorTable 0x0B000000
+ #define StartOfExceptionVectorTable 0x08030000
+// #define StartOfExceptionVectorTable 0x0B000000
 
 /**********************************************************************************************
 **	Parallel port addresses
@@ -328,50 +328,111 @@ void InstallExceptionHandler( void (*function_ptr)(), int level)
 void main()
 {
     unsigned int row, i=0, count=0, counter1=1;
-    char c, text[150] ;
+    char c, text[150];
+    int values[4];
+    int PassFailFlag = 1;
+    unsigned int* baseAddressPtr = (int*)0x08020000;
+    unsigned int* addressPointer;
+    unsigned int readValue;
+    unsigned int memoryOffset;
+    unsigned int startAddress = 0;
+    unsigned int endAddress = 0;
+    unsigned int bitLength;
+    unsigned int dataSize = 0;
+    unsigned int dataPattern = 0;
+    unsigned int currAddress;
+    unsigned int addrCount;
 
-	int PassFailFlag = 1 ;
 
-    i = x = y = z = PortA_Count =0;
+    i = x = y = z = PortA_Count = 0;
     Timer1Count = Timer2Count = Timer3Count = Timer4Count = 0;
 
-    InstallExceptionHandler(PIA_ISR, 25) ;          // install interrupt handler for PIAs 1 and 2 on level 1 IRQ
-    InstallExceptionHandler(ACIA_ISR, 26) ;		    // install interrupt handler for ACIA on level 2 IRQ
-    InstallExceptionHandler(Timer_ISR, 27) ;		// install interrupt handler for Timers 1-4 on level 3 IRQ
-    InstallExceptionHandler(Key2PressISR, 28) ;	    // install interrupt handler for Key Press 2 on DE1 board for level 4 IRQ
-    InstallExceptionHandler(Key1PressISR, 29) ;	    // install interrupt handler for Key Press 1 on DE1 board for level 5 IRQ
+    InstallExceptionHandler(PIA_ISR, 25);
+    InstallExceptionHandler(ACIA_ISR, 26);
+    InstallExceptionHandler(Timer_ISR, 27);
+    InstallExceptionHandler(Key2PressISR, 28);
+    InstallExceptionHandler(Key1PressISR, 29);
 
-    Timer1Data = 0x10;		// program time delay into timers 1-4
+    Timer1Data = 0x10;
     Timer2Data = 0x20;
     Timer3Data = 0x15;
     Timer4Data = 0x25;
 
-    Timer1Control = 3;		// write 3 to control register to Bit0 = 1 (enable interrupt from timers) 1 - 4 and allow them to count Bit 1 = 1
+    Timer1Control = 3;
     Timer2Control = 3;
     Timer3Control = 3;
     Timer4Control = 3;
 
-    Init_LCD();             // initialise the LCD display to use a parallel data interface and 2 lines of display
-    Init_RS232() ;          // initialise the RS232 port for use with hyper terminal
+    Init_LCD();
+    Init_RS232();
 
-/*************************************************************************************************
-**  Test of scanf function
-*************************************************************************************************/
-
-    scanflush() ;                       // flush any text that may have been typed ahead
+    scanflush();
     printf("\r\nEnter Integer: ") ;
     scanf("%d", &i) ;
     printf("You entered %d", i) ;
 
-    sprintf(text, "Hello CPEN 412 Student") ;
-    LCDLine1Message(text) ;
+    sprintf(text, "Hello CPEN 412 Student");
+    LCDLine1Message(text);
 
-    printf("\r\nHello CPEN 412 Student\r\nYour LEDs should be Flashing") ;
-    printf("\r\nYour LCD should be displaying") ;
+    printf("\r\nHello CPEN 412 Student\r\nYour LEDs should be Flashing");
+    printf("\r\nYour LCD should be displaying");
 
-    while(1)
-        ;
+    // Memory test loop
+    // for (memoryOffset = 0; memoryOffset < 0xFFFF; memoryOffset += 8) {
+    //     addressPointer = (int*)(0x08020000 + memoryOffset);
+    //     *addressPointer = memoryOffset;
+    //     readValue = *addressPointer;
 
-   // programs should NOT exit as there is nothing to Exit TO !!!!!!
-   // There is no OS - just press the reset button to end program and call debug
+    //     sprintf(text, "Address: 0x%p Value: %d\n", (void*)addressPointer, readValue);
+    //     LCDLine1Message(text);
+    // }
+
+    scanflush();
+    memset(text, 0, sizeof(text));  // fills with zeros
+
+    printf("Enter what size of memory you want to read/write\n Byte = 0\n Word = 1\n Long Word = 2\n");
+    scanf("%d", &dataSize);
+
+    printf("Enter which data pattern you want to write into memory\n 0xAAAA = 0\n 0x1111 = 1\n 0xBBBB = 2\n 0x2222 = 3");
+    scanf("%d", &dataPattern);
+
+    if (dataSize == 0) {
+        printf("Enter which data pattern you want to write into memory\n 0xAA = 0\n 0x11 = 1\n 0xBB = 2\n 0x22 = 3");
+        scanf("%d", &dataPattern);
+        bitLength = 8;
+    } else if (dataSize == 1) {
+        printf("Enter which data pattern you want to write into memory\n 0xAAAA = 0\n 0x1111 = 1\n 0xBBBB = 2\n 0x2222 = 3");
+        scanf("%d", &dataPattern);
+        bitLength = 16;
+    } else {
+        printf("Enter which data pattern you want to write into memory\n 0xAAAA_AAAA = 0\n 0x1111_1111 = 1\n 0xBBBB_BBBB = 2\n 0x2222_2222 = 3");
+        scanf("%d", &dataPattern);
+        bitLength = 32;
+    }
+
+    while (startAddress == NULL || startAddress & bitLength != 0) {
+        printf("Provide Start Address\n");
+        scanf("%x", &startAddress);
+    }
+
+    while (endAddress == NULL || endAddress & bitLength != 0) {
+        printf("Provide Start Address\n");
+        scanf("%x", &startAddress);
+    }
+
+    addrCount = 0;
+    for (currAddress = startAddress; currAddress < endAddress; currAddress += bitLength) {
+        addressPointer = (int*)(currAddress);
+        *addressPointer = dataPattern;
+
+        if (*addressPointer != dataPattern) {
+            printf("ERROR... Value written to location 0x%x == 0x%x. Value Expected: 0x%x", (void*)addressPointer, *addressPointer, dataPattern);
+        }
+
+        if (addrCount % 500) {
+            addrCount++;
+        }
+    }
+
+    while(1);
 }

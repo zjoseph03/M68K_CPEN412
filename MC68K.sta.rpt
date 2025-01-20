@@ -1,5 +1,5 @@
 Timing Analyzer report for MC68K
-Fri Jan 17 15:04:02 2025
+Sun Jan 19 17:51:54 2025
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -102,26 +102,26 @@ refer to the applicable agreement for further details.
 ; Number detected on machine ; 16          ;
 ; Maximum allowed            ; 16          ;
 ;                            ;             ;
-; Average used               ; 3.92        ;
+; Average used               ; 3.88        ;
 ; Maximum used               ; 16          ;
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     Processor 1            ; 100.0%      ;
-;     Processor 2            ;  19.5%      ;
-;     Processor 3            ;  19.5%      ;
-;     Processor 4            ;  19.5%      ;
-;     Processor 5            ;  19.5%      ;
-;     Processor 6            ;  19.5%      ;
-;     Processor 7            ;  19.5%      ;
-;     Processor 8            ;  19.5%      ;
-;     Processor 9            ;  19.5%      ;
-;     Processor 10           ;  19.5%      ;
-;     Processor 11           ;  19.4%      ;
-;     Processor 12           ;  19.4%      ;
-;     Processor 13           ;  19.4%      ;
-;     Processor 14           ;  19.4%      ;
-;     Processor 15           ;  19.4%      ;
-;     Processor 16           ;  19.4%      ;
+;     Processor 2            ;  19.2%      ;
+;     Processor 3            ;  19.2%      ;
+;     Processor 4            ;  19.2%      ;
+;     Processor 5            ;  19.2%      ;
+;     Processor 6            ;  19.2%      ;
+;     Processor 7            ;  19.2%      ;
+;     Processor 8            ;  19.2%      ;
+;     Processor 9            ;  19.2%      ;
+;     Processor 10           ;  19.2%      ;
+;     Processor 11           ;  19.2%      ;
+;     Processor 12           ;  19.2%      ;
+;     Processor 13           ;  19.2%      ;
+;     Processor 14           ;  19.2%      ;
+;     Processor 15           ;  19.2%      ;
+;     Processor 16           ;  19.1%      ;
 +----------------------------+-------------+
 
 
@@ -130,7 +130,7 @@ refer to the applicable agreement for further details.
 +---------------+--------+--------------------------+
 ; SDC File Path ; Status ; Read at                  ;
 +---------------+--------+--------------------------+
-; M68k.sdc      ; OK     ; Fri Jan 17 15:03:47 2025 ;
+; M68k.sdc      ; OK     ; Sun Jan 19 17:51:38 2025 ;
 +---------------+--------+--------------------------+
 
 
@@ -156,11 +156,11 @@ refer to the applicable agreement for further details.
 +------------+-----------------+----------------------------------------------------------------------------+------+
 ; Fmax       ; Restricted Fmax ; Clock Name                                                                 ; Note ;
 +------------+-----------------+----------------------------------------------------------------------------+------+
-; 31.56 MHz  ; 31.56 MHz       ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
+; 32.85 MHz  ; 32.85 MHz       ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
 ; 56.31 MHz  ; 56.31 MHz       ; altera_reserved_tck                                                        ;      ;
-; 143.7 MHz  ; 143.7 MHz       ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
-; 149.3 MHz  ; 149.3 MHz       ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
-; 168.15 MHz ; 168.15 MHz      ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
+; 139.57 MHz ; 139.57 MHz      ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
+; 142.41 MHz ; 142.41 MHz      ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
+; 165.04 MHz ; 165.04 MHz      ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
 +------------+-----------------+----------------------------------------------------------------------------+------+
 This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
 
@@ -176,29 +176,29 @@ HTML report is unavailable in plain text report export.
 +----------------------------------------------------------------------------+---------+---------------+
 ; Clock                                                                      ; Slack   ; End Point TNS ;
 +----------------------------------------------------------------------------+---------+---------------+
-; clk_vga                                                                    ; -15.219 ; -357.612      ;
-; clk_dram                                                                   ; -6.168  ; -22.625       ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 4.158   ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 10.206  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 14.053  ; 0.000         ;
+; clk_vga                                                                    ; -14.737 ; -355.742      ;
+; clk_dram                                                                   ; -6.069  ; -22.390       ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 4.778   ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 9.717   ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 13.941  ; 0.000         ;
 ; altera_reserved_tck                                                        ; 22.370  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 26.374  ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 26.168  ; 0.000         ;
 +----------------------------------------------------------------------------+---------+---------------+
 
 
-+-----------------------------------------------------------------------------------------------------+
-; Slow 1100mV 85C Model Hold Summary                                                                  ;
-+----------------------------------------------------------------------------+--------+---------------+
-; Clock                                                                      ; Slack  ; End Point TNS ;
-+----------------------------------------------------------------------------+--------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; -0.317 ; -0.632        ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.144  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.316  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.439  ; 0.000         ;
-; altera_reserved_tck                                                        ; 0.644  ; 0.000         ;
-; clk_vga                                                                    ; 8.600  ; 0.000         ;
-; clk_dram                                                                   ; 8.907  ; 0.000         ;
-+----------------------------------------------------------------------------+--------+---------------+
++----------------------------------------------------------------------------------------------------+
+; Slow 1100mV 85C Model Hold Summary                                                                 ;
++----------------------------------------------------------------------------+-------+---------------+
+; Clock                                                                      ; Slack ; End Point TNS ;
++----------------------------------------------------------------------------+-------+---------------+
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.096 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.188 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.231 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.304 ; 0.000         ;
+; altera_reserved_tck                                                        ; 0.468 ; 0.000         ;
+; clk_vga                                                                    ; 8.600 ; 0.000         ;
+; clk_dram                                                                   ; 8.907 ; 0.000         ;
++----------------------------------------------------------------------------+-------+---------------+
 
 
 +-----------------------------------------------------------------------------------------------------+
@@ -206,8 +206,8 @@ HTML report is unavailable in plain text report export.
 +----------------------------------------------------------------------------+--------+---------------+
 ; Clock                                                                      ; Slack  ; End Point TNS ;
 +----------------------------------------------------------------------------+--------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 33.634 ; 0.000         ;
-; altera_reserved_tck                                                        ; 59.342 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 34.704 ; 0.000         ;
+; altera_reserved_tck                                                        ; 59.537 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
@@ -216,8 +216,8 @@ HTML report is unavailable in plain text report export.
 +----------------------------------------------------------------------------+-------+---------------+
 ; Clock                                                                      ; Slack ; End Point TNS ;
 +----------------------------------------------------------------------------+-------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.399 ; 0.000         ;
-; altera_reserved_tck                                                        ; 0.808 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.460 ; 0.000         ;
+; altera_reserved_tck                                                        ; 0.687 ; 0.000         ;
 +----------------------------------------------------------------------------+-------+---------------+
 
 
@@ -231,7 +231,7 @@ HTML report is unavailable in plain text report export.
 ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 7.934  ; 0.000         ;
 ; CLOCK_50                                                                   ; 9.259  ; 0.000         ;
 ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 14.516 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 17.302 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 17.303 ; 0.000         ;
 ; altera_reserved_tck                                                        ; 29.320 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
@@ -247,11 +247,11 @@ No synchronizer chains to report.
 +------------+-----------------+----------------------------------------------------------------------------+------+
 ; Fmax       ; Restricted Fmax ; Clock Name                                                                 ; Note ;
 +------------+-----------------+----------------------------------------------------------------------------+------+
-; 31.58 MHz  ; 31.58 MHz       ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
+; 33.18 MHz  ; 33.18 MHz       ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
 ; 57.48 MHz  ; 57.48 MHz       ; altera_reserved_tck                                                        ;      ;
-; 148.79 MHz ; 148.79 MHz      ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
-; 155.21 MHz ; 155.21 MHz      ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
-; 176.43 MHz ; 176.43 MHz      ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
+; 144.74 MHz ; 144.74 MHz      ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
+; 148.19 MHz ; 148.19 MHz      ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
+; 172.44 MHz ; 172.44 MHz      ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ;      ;
 +------------+-----------------+----------------------------------------------------------------------------+------+
 This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
 
@@ -261,29 +261,29 @@ This panel reports FMAX for every clock in the design, regardless of the user-sp
 +----------------------------------------------------------------------------+---------+---------------+
 ; Clock                                                                      ; Slack   ; End Point TNS ;
 +----------------------------------------------------------------------------+---------+---------------+
-; clk_vga                                                                    ; -14.941 ; -351.161      ;
-; clk_dram                                                                   ; -5.721  ; -20.799       ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 4.165   ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 10.414  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 14.332  ; 0.000         ;
+; clk_vga                                                                    ; -14.477 ; -349.476      ;
+; clk_dram                                                                   ; -5.600  ; -20.515       ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 4.929   ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 9.953   ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 14.201  ; 0.000         ;
 ; altera_reserved_tck                                                        ; 22.552  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 26.612  ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 26.424  ; 0.000         ;
 +----------------------------------------------------------------------------+---------+---------------+
 
 
-+-----------------------------------------------------------------------------------------------------+
-; Slow 1100mV 0C Model Hold Summary                                                                   ;
-+----------------------------------------------------------------------------+--------+---------------+
-; Clock                                                                      ; Slack  ; End Point TNS ;
-+----------------------------------------------------------------------------+--------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; -0.180 ; -0.356        ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.149  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.320  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.453  ; 0.000         ;
-; altera_reserved_tck                                                        ; 0.601  ; 0.000         ;
-; clk_vga                                                                    ; 8.440  ; 0.000         ;
-; clk_dram                                                                   ; 8.779  ; 0.000         ;
-+----------------------------------------------------------------------------+--------+---------------+
++----------------------------------------------------------------------------------------------------+
+; Slow 1100mV 0C Model Hold Summary                                                                  ;
++----------------------------------------------------------------------------+-------+---------------+
+; Clock                                                                      ; Slack ; End Point TNS ;
++----------------------------------------------------------------------------+-------+---------------+
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.155 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.182 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.308 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.319 ; 0.000         ;
+; altera_reserved_tck                                                        ; 0.486 ; 0.000         ;
+; clk_vga                                                                    ; 8.440 ; 0.000         ;
+; clk_dram                                                                   ; 8.779 ; 0.000         ;
++----------------------------------------------------------------------------+-------+---------------+
 
 
 +-----------------------------------------------------------------------------------------------------+
@@ -291,8 +291,8 @@ This panel reports FMAX for every clock in the design, regardless of the user-sp
 +----------------------------------------------------------------------------+--------+---------------+
 ; Clock                                                                      ; Slack  ; End Point TNS ;
 +----------------------------------------------------------------------------+--------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 33.999 ; 0.000         ;
-; altera_reserved_tck                                                        ; 59.475 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 34.927 ; 0.000         ;
+; altera_reserved_tck                                                        ; 59.643 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
@@ -301,8 +301,8 @@ This panel reports FMAX for every clock in the design, regardless of the user-sp
 +----------------------------------------------------------------------------+-------+---------------+
 ; Clock                                                                      ; Slack ; End Point TNS ;
 +----------------------------------------------------------------------------+-------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.435 ; 0.000         ;
-; altera_reserved_tck                                                        ; 0.746 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.493 ; 0.000         ;
+; altera_reserved_tck                                                        ; 0.637 ; 0.000         ;
 +----------------------------------------------------------------------------+-------+---------------+
 
 
@@ -316,8 +316,8 @@ This panel reports FMAX for every clock in the design, regardless of the user-sp
 ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 7.993  ; 0.000         ;
 ; CLOCK_50                                                                   ; 9.293  ; 0.000         ;
 ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 14.585 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 17.380 ; 0.000         ;
-; altera_reserved_tck                                                        ; 29.317 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 17.379 ; 0.000         ;
+; altera_reserved_tck                                                        ; 29.304 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
@@ -332,29 +332,29 @@ No synchronizer chains to report.
 +----------------------------------------------------------------------------+--------+---------------+
 ; Clock                                                                      ; Slack  ; End Point TNS ;
 +----------------------------------------------------------------------------+--------+---------------+
-; clk_vga                                                                    ; -9.291 ; -217.125      ;
-; clk_dram                                                                   ; -0.046 ; -0.046        ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 10.404 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 13.939 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 16.356 ; 0.000         ;
+; clk_vga                                                                    ; -8.954 ; -215.647      ;
+; clk_dram                                                                   ; 0.062  ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 10.686 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 13.578 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 16.457 ; 0.000         ;
 ; altera_reserved_tck                                                        ; 24.519 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 29.062 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 28.910 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
-+-----------------------------------------------------------------------------------------------------+
-; Fast 1100mV 85C Model Hold Summary                                                                  ;
-+----------------------------------------------------------------------------+--------+---------------+
-; Clock                                                                      ; Slack  ; End Point TNS ;
-+----------------------------------------------------------------------------+--------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; -0.086 ; -0.171        ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.214  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.261  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.283  ; 0.000         ;
-; altera_reserved_tck                                                        ; 0.303  ; 0.000         ;
-; clk_vga                                                                    ; 4.543  ; 0.000         ;
-; clk_dram                                                                   ; 5.025  ; 0.000         ;
-+----------------------------------------------------------------------------+--------+---------------+
++----------------------------------------------------------------------------------------------------+
+; Fast 1100mV 85C Model Hold Summary                                                                 ;
++----------------------------------------------------------------------------+-------+---------------+
+; Clock                                                                      ; Slack ; End Point TNS ;
++----------------------------------------------------------------------------+-------+---------------+
+; altera_reserved_tck                                                        ; 0.182 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.196 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.214 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.276 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.282 ; 0.000         ;
+; clk_vga                                                                    ; 4.543 ; 0.000         ;
+; clk_dram                                                                   ; 5.025 ; 0.000         ;
++----------------------------------------------------------------------------+-------+---------------+
 
 
 +-----------------------------------------------------------------------------------------------------+
@@ -362,8 +362,8 @@ No synchronizer chains to report.
 +----------------------------------------------------------------------------+--------+---------------+
 ; Clock                                                                      ; Slack  ; End Point TNS ;
 +----------------------------------------------------------------------------+--------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 35.863 ; 0.000         ;
-; altera_reserved_tck                                                        ; 60.269 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 36.660 ; 0.000         ;
+; altera_reserved_tck                                                        ; 60.439 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
@@ -372,8 +372,8 @@ No synchronizer chains to report.
 +----------------------------------------------------------------------------+-------+---------------+
 ; Clock                                                                      ; Slack ; End Point TNS ;
 +----------------------------------------------------------------------------+-------+---------------+
-; altera_reserved_tck                                                        ; 0.410 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.474 ; 0.000         ;
+; altera_reserved_tck                                                        ; 0.334 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.503 ; 0.000         ;
 +----------------------------------------------------------------------------+-------+---------------+
 
 
@@ -388,7 +388,7 @@ No synchronizer chains to report.
 ; CLOCK_50                                                                   ; 9.150  ; 0.000         ;
 ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 15.562 ; 0.000         ;
 ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 18.173 ; 0.000         ;
-; altera_reserved_tck                                                        ; 29.119 ; 0.000         ;
+; altera_reserved_tck                                                        ; 29.144 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
@@ -403,29 +403,29 @@ No synchronizer chains to report.
 +----------------------------------------------------------------------------+--------+---------------+
 ; Clock                                                                      ; Slack  ; End Point TNS ;
 +----------------------------------------------------------------------------+--------+---------------+
-; clk_vga                                                                    ; -8.768 ; -205.852      ;
-; clk_dram                                                                   ; 0.403  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 11.219 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 14.522 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 16.721 ; 0.000         ;
+; clk_vga                                                                    ; -8.476 ; -204.647      ;
+; clk_dram                                                                   ; 0.494  ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 11.469 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 14.170 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 16.780 ; 0.000         ;
 ; altera_reserved_tck                                                        ; 24.766 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 29.490 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 29.368 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
-+-----------------------------------------------------------------------------------------------------+
-; Fast 1100mV 0C Model Hold Summary                                                                   ;
-+----------------------------------------------------------------------------+--------+---------------+
-; Clock                                                                      ; Slack  ; End Point TNS ;
-+----------------------------------------------------------------------------+--------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; -0.067 ; -0.134        ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.161  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.221  ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.253  ; 0.000         ;
-; altera_reserved_tck                                                        ; 0.271  ; 0.000         ;
-; clk_vga                                                                    ; 4.223  ; 0.000         ;
-; clk_dram                                                                   ; 4.718  ; 0.000         ;
-+----------------------------------------------------------------------------+--------+---------------+
++----------------------------------------------------------------------------------------------------+
+; Fast 1100mV 0C Model Hold Summary                                                                  ;
++----------------------------------------------------------------------------+-------+---------------+
+; Clock                                                                      ; Slack ; End Point TNS ;
++----------------------------------------------------------------------------+-------+---------------+
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.135 ; 0.000         ;
+; altera_reserved_tck                                                        ; 0.167 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.174 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.184 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.221 ; 0.000         ;
+; clk_vga                                                                    ; 4.223 ; 0.000         ;
+; clk_dram                                                                   ; 4.718 ; 0.000         ;
++----------------------------------------------------------------------------+-------+---------------+
 
 
 +-----------------------------------------------------------------------------------------------------+
@@ -433,8 +433,8 @@ No synchronizer chains to report.
 +----------------------------------------------------------------------------+--------+---------------+
 ; Clock                                                                      ; Slack  ; End Point TNS ;
 +----------------------------------------------------------------------------+--------+---------------+
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 36.361 ; 0.000         ;
-; altera_reserved_tck                                                        ; 60.489 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 37.046 ; 0.000         ;
+; altera_reserved_tck                                                        ; 60.646 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
@@ -443,8 +443,8 @@ No synchronizer chains to report.
 +----------------------------------------------------------------------------+-------+---------------+
 ; Clock                                                                      ; Slack ; End Point TNS ;
 +----------------------------------------------------------------------------+-------+---------------+
-; altera_reserved_tck                                                        ; 0.354 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.407 ; 0.000         ;
+; altera_reserved_tck                                                        ; 0.287 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.438 ; 0.000         ;
 +----------------------------------------------------------------------------+-------+---------------+
 
 
@@ -458,8 +458,8 @@ No synchronizer chains to report.
 ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 8.916  ; 0.000         ;
 ; CLOCK_50                                                                   ; 9.112  ; 0.000         ;
 ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 15.585 ; 0.000         ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 18.200 ; 0.000         ;
-; altera_reserved_tck                                                        ; 29.130 ; 0.000         ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 18.201 ; 0.000         ;
+; altera_reserved_tck                                                        ; 29.131 ; 0.000         ;
 +----------------------------------------------------------------------------+--------+---------------+
 
 
@@ -469,32 +469,32 @@ No synchronizer chains to report.
 No synchronizer chains to report.
 
 
-+--------------------------------------------------------------------------------------------------------------------------------------------+
-; Multicorner Timing Analysis Summary                                                                                                        ;
-+-----------------------------------------------------------------------------+----------+--------+----------+---------+---------------------+
-; Clock                                                                       ; Setup    ; Hold   ; Recovery ; Removal ; Minimum Pulse Width ;
-+-----------------------------------------------------------------------------+----------+--------+----------+---------+---------------------+
-; Worst-case Slack                                                            ; -15.219  ; -0.317 ; 33.634   ; 0.354   ; 0.974               ;
-;  CLOCK_50                                                                   ; N/A      ; N/A    ; N/A      ; N/A     ; 9.112               ;
-;  altera_reserved_tck                                                        ; 22.370   ; 0.271  ; 59.342   ; 0.354   ; 29.119              ;
-;  clk_dram                                                                   ; -6.168   ; 4.718  ; N/A      ; N/A     ; N/A                 ;
-;  clk_vga                                                                    ; -15.219  ; 4.223  ; N/A      ; N/A     ; N/A                 ;
-;  inst7|clockgen_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]   ; N/A      ; N/A    ; N/A      ; N/A     ; 0.974               ;
-;  inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 4.158    ; -0.317 ; 33.634   ; 0.399   ; 17.302              ;
-;  inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 26.374   ; 0.253  ; N/A      ; N/A     ; 14.516              ;
-;  inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 10.206   ; 0.221  ; N/A      ; N/A     ; 7.449               ;
-;  inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 14.053   ; 0.144  ; N/A      ; N/A     ; 7.934               ;
-; Design-wide TNS                                                             ; -380.237 ; -0.632 ; 0.0      ; 0.0     ; 0.0                 ;
-;  CLOCK_50                                                                   ; N/A      ; N/A    ; N/A      ; N/A     ; 0.000               ;
-;  altera_reserved_tck                                                        ; 0.000    ; 0.000  ; 0.000    ; 0.000   ; 0.000               ;
-;  clk_dram                                                                   ; -22.625  ; 0.000  ; N/A      ; N/A     ; N/A                 ;
-;  clk_vga                                                                    ; -357.612 ; 0.000  ; N/A      ; N/A     ; N/A                 ;
-;  inst7|clockgen_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]   ; N/A      ; N/A    ; N/A      ; N/A     ; 0.000               ;
-;  inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.000    ; -0.632 ; 0.000    ; 0.000   ; 0.000               ;
-;  inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.000    ; 0.000  ; N/A      ; N/A     ; 0.000               ;
-;  inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.000    ; 0.000  ; N/A      ; N/A     ; 0.000               ;
-;  inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.000    ; 0.000  ; N/A      ; N/A     ; 0.000               ;
-+-----------------------------------------------------------------------------+----------+--------+----------+---------+---------------------+
++-------------------------------------------------------------------------------------------------------------------------------------------+
+; Multicorner Timing Analysis Summary                                                                                                       ;
++-----------------------------------------------------------------------------+----------+-------+----------+---------+---------------------+
+; Clock                                                                       ; Setup    ; Hold  ; Recovery ; Removal ; Minimum Pulse Width ;
++-----------------------------------------------------------------------------+----------+-------+----------+---------+---------------------+
+; Worst-case Slack                                                            ; -14.737  ; 0.096 ; 34.704   ; 0.287   ; 0.974               ;
+;  CLOCK_50                                                                   ; N/A      ; N/A   ; N/A      ; N/A     ; 9.112               ;
+;  altera_reserved_tck                                                        ; 22.370   ; 0.167 ; 59.537   ; 0.287   ; 29.131              ;
+;  clk_dram                                                                   ; -6.069   ; 4.718 ; N/A      ; N/A     ; N/A                 ;
+;  clk_vga                                                                    ; -14.737  ; 4.223 ; N/A      ; N/A     ; N/A                 ;
+;  inst7|clockgen_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]   ; N/A      ; N/A   ; N/A      ; N/A     ; 0.974               ;
+;  inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 4.778    ; 0.096 ; 34.704   ; 0.438   ; 17.303              ;
+;  inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 26.168   ; 0.182 ; N/A      ; N/A     ; 14.516              ;
+;  inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 9.717    ; 0.221 ; N/A      ; N/A     ; 7.449               ;
+;  inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 13.941   ; 0.135 ; N/A      ; N/A     ; 7.934               ;
+; Design-wide TNS                                                             ; -378.132 ; 0.0   ; 0.0      ; 0.0     ; 0.0                 ;
+;  CLOCK_50                                                                   ; N/A      ; N/A   ; N/A      ; N/A     ; 0.000               ;
+;  altera_reserved_tck                                                        ; 0.000    ; 0.000 ; 0.000    ; 0.000   ; 0.000               ;
+;  clk_dram                                                                   ; -22.390  ; 0.000 ; N/A      ; N/A     ; N/A                 ;
+;  clk_vga                                                                    ; -355.742 ; 0.000 ; N/A      ; N/A     ; N/A                 ;
+;  inst7|clockgen_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]   ; N/A      ; N/A   ; N/A      ; N/A     ; 0.000               ;
+;  inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.000    ; 0.000 ; 0.000    ; 0.000   ; 0.000               ;
+;  inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.000    ; 0.000 ; N/A      ; N/A     ; 0.000               ;
+;  inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.000    ; 0.000 ; N/A      ; N/A     ; 0.000               ;
+;  inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 0.000    ; 0.000 ; N/A      ; N/A     ; 0.000               ;
++-----------------------------------------------------------------------------+----------+-------+----------+---------+---------------------+
 
 
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -1690,17 +1690,17 @@ No synchronizer chains to report.
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
 ; From Clock                                                                 ; To Clock                                                                   ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
-; altera_reserved_tck                                                        ; altera_reserved_tck                                                        ; 2592     ; 48       ; 38       ; 2        ;
+; altera_reserved_tck                                                        ; altera_reserved_tck                                                        ; 2620     ; 50       ; 38       ; 2        ;
 ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; clk_dram                                                                   ; 2        ; 6        ; 0        ; 0        ;
 ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; clk_dram                                                                   ; 4        ; 0        ; 0        ; 0        ;
 ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; clk_vga                                                                    ; 25       ; 0        ; 0        ; 0        ;
 ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; clk_vga                                                                    ; 0        ; 24       ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 13954    ; 120479   ; 236229   ; 31072614 ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0        ; 0        ; 8        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 13685    ; 119492   ; 236636   ; 31113814 ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0        ; 0        ; 7        ; 0        ;
 ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 168      ; 0        ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 3402     ; 0        ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 295      ; 0        ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 544      ; 0        ; 0        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 3198     ; 0        ; 0        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 278      ; 0        ; 0        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 541      ; 0        ; 0        ; 0        ;
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
 Entries labeled "false path" only account for clock-to-clock false paths and not path-based false paths. As a result, actual path counts may be lower than reported.
 
@@ -1710,17 +1710,17 @@ Entries labeled "false path" only account for clock-to-clock false paths and not
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
 ; From Clock                                                                 ; To Clock                                                                   ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
-; altera_reserved_tck                                                        ; altera_reserved_tck                                                        ; 2592     ; 48       ; 38       ; 2        ;
+; altera_reserved_tck                                                        ; altera_reserved_tck                                                        ; 2620     ; 50       ; 38       ; 2        ;
 ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; clk_dram                                                                   ; 2        ; 6        ; 0        ; 0        ;
 ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; clk_dram                                                                   ; 4        ; 0        ; 0        ; 0        ;
 ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; clk_vga                                                                    ; 25       ; 0        ; 0        ; 0        ;
 ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; clk_vga                                                                    ; 0        ; 24       ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 13954    ; 120479   ; 236229   ; 31072614 ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0        ; 0        ; 8        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 13685    ; 119492   ; 236636   ; 31113814 ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 0        ; 0        ; 7        ; 0        ;
 ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk ; 168      ; 0        ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 3402     ; 0        ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 295      ; 0        ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 544      ; 0        ; 0        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 3198     ; 0        ; 0        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk ; 278      ; 0        ; 0        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk ; 541      ; 0        ; 0        ; 0        ;
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
 Entries labeled "false path" only account for clock-to-clock false paths and not path-based false paths. As a result, actual path counts may be lower than reported.
 
@@ -1730,8 +1730,8 @@ Entries labeled "false path" only account for clock-to-clock false paths and not
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
 ; From Clock                                                                 ; To Clock                                                                   ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
-; altera_reserved_tck                                                        ; altera_reserved_tck                                                        ; 67       ; 0        ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 14       ; 0        ; 0        ; 110      ;
+; altera_reserved_tck                                                        ; altera_reserved_tck                                                        ; 70       ; 0        ; 0        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 16       ; 0        ; 0        ; 109      ;
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
 Entries labeled "false path" only account for clock-to-clock false paths and not path-based false paths. As a result, actual path counts may be lower than reported.
 
@@ -1741,8 +1741,8 @@ Entries labeled "false path" only account for clock-to-clock false paths and not
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
 ; From Clock                                                                 ; To Clock                                                                   ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
-; altera_reserved_tck                                                        ; altera_reserved_tck                                                        ; 67       ; 0        ; 0        ; 0        ;
-; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 14       ; 0        ; 0        ; 110      ;
+; altera_reserved_tck                                                        ; altera_reserved_tck                                                        ; 70       ; 0        ; 0        ; 0        ;
+; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk ; 16       ; 0        ; 0        ; 109      ;
 +----------------------------------------------------------------------------+----------------------------------------------------------------------------+----------+----------+----------+----------+
 Entries labeled "false path" only account for clock-to-clock false paths and not path-based false paths. As a result, actual path counts may be lower than reported.
 
@@ -1767,9 +1767,9 @@ No non-DPA dedicated SERDES Receiver circuitry present in device or used in desi
 ; Illegal Clocks                  ; 0     ; 0    ;
 ; Unconstrained Clocks            ; 1     ; 1    ;
 ; Unconstrained Input Ports       ; 15    ; 15   ;
-; Unconstrained Input Port Paths  ; 1106  ; 1106 ;
+; Unconstrained Input Port Paths  ; 1107  ; 1107 ;
 ; Unconstrained Output Ports      ; 140   ; 140  ;
-; Unconstrained Output Port Paths ; 1783  ; 1783 ;
+; Unconstrained Output Port Paths ; 1786  ; 1786 ;
 +---------------------------------+-------+------+
 
 
@@ -2139,7 +2139,7 @@ No non-DPA dedicated SERDES Receiver circuitry present in device or used in desi
 Info: *******************************************************************
 Info: Running Quartus Prime Timing Analyzer
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Fri Jan 17 15:03:44 2025
+    Info: Processing started: Sun Jan 19 17:51:34 2025
 Info: Command: quartus_sta MC68K -c MC68K
 Info: qsta_default_script.tcl version: #1
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
@@ -2213,36 +2213,36 @@ Info: Found TIMING_ANALYZER_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS = ON
 Info: Analyzing Slow 1100mV 85C Model
 Critical Warning (332148): Timing requirements not met
     Info (11105): For recommendations on closing timing, run Report Timing Closure Recommendations in the Timing Analyzer.
-Info (332146): Worst-case setup slack is -15.219
+Info (332146): Worst-case setup slack is -14.737
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):   -15.219            -357.612 clk_vga 
-    Info (332119):    -6.168             -22.625 clk_dram 
-    Info (332119):     4.158               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    10.206               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    14.053               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):   -14.737            -355.742 clk_vga 
+    Info (332119):    -6.069             -22.390 clk_dram 
+    Info (332119):     4.778               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     9.717               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    13.941               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):    22.370               0.000 altera_reserved_tck 
-    Info (332119):    26.374               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case hold slack is -0.317
+    Info (332119):    26.168               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.096
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    -0.317              -0.632 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.144               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.316               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.439               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.644               0.000 altera_reserved_tck 
+    Info (332119):     0.096               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.188               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.231               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.304               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.468               0.000 altera_reserved_tck 
     Info (332119):     8.600               0.000 clk_vga 
     Info (332119):     8.907               0.000 clk_dram 
-Info (332146): Worst-case recovery slack is 33.634
+Info (332146): Worst-case recovery slack is 34.704
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    33.634               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    59.342               0.000 altera_reserved_tck 
-Info (332146): Worst-case removal slack is 0.399
+    Info (332119):    34.704               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    59.537               0.000 altera_reserved_tck 
+Info (332146): Worst-case removal slack is 0.460
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.399               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.808               0.000 altera_reserved_tck 
+    Info (332119):     0.460               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.687               0.000 altera_reserved_tck 
 Info (332146): Worst-case minimum pulse width slack is 0.974
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
@@ -2251,7 +2251,7 @@ Info (332146): Worst-case minimum pulse width slack is 0.974
     Info (332119):     7.934               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     9.259               0.000 CLOCK_50 
     Info (332119):    14.516               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    17.302               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    17.303               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):    29.320               0.000 altera_reserved_tck 
 Warning (18330): Ignoring Synchronizer Identification setting Off, and using Auto instead.
 Info: Analyzing Slow 1100mV 0C Model
@@ -2269,36 +2269,36 @@ Info (332097): The following timing edges are non-unate.  The Timing Analyzer wi
 Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in the Timing Analyzer to see clock uncertainties.
 Critical Warning (332148): Timing requirements not met
     Info (11105): For recommendations on closing timing, run Report Timing Closure Recommendations in the Timing Analyzer.
-Info (332146): Worst-case setup slack is -14.941
+Info (332146): Worst-case setup slack is -14.477
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):   -14.941            -351.161 clk_vga 
-    Info (332119):    -5.721             -20.799 clk_dram 
-    Info (332119):     4.165               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    10.414               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    14.332               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):   -14.477            -349.476 clk_vga 
+    Info (332119):    -5.600             -20.515 clk_dram 
+    Info (332119):     4.929               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     9.953               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    14.201               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):    22.552               0.000 altera_reserved_tck 
-    Info (332119):    26.612               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case hold slack is -0.180
+    Info (332119):    26.424               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.155
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    -0.180              -0.356 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.149               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.320               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.453               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.601               0.000 altera_reserved_tck 
+    Info (332119):     0.155               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.182               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.308               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.319               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.486               0.000 altera_reserved_tck 
     Info (332119):     8.440               0.000 clk_vga 
     Info (332119):     8.779               0.000 clk_dram 
-Info (332146): Worst-case recovery slack is 33.999
+Info (332146): Worst-case recovery slack is 34.927
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    33.999               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    59.475               0.000 altera_reserved_tck 
-Info (332146): Worst-case removal slack is 0.435
+    Info (332119):    34.927               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    59.643               0.000 altera_reserved_tck 
+Info (332146): Worst-case removal slack is 0.493
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.435               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.746               0.000 altera_reserved_tck 
+    Info (332119):     0.493               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.637               0.000 altera_reserved_tck 
 Info (332146): Worst-case minimum pulse width slack is 1.048
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
@@ -2307,8 +2307,8 @@ Info (332146): Worst-case minimum pulse width slack is 1.048
     Info (332119):     7.993               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     9.293               0.000 CLOCK_50 
     Info (332119):    14.585               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    17.380               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    29.317               0.000 altera_reserved_tck 
+    Info (332119):    17.379               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    29.304               0.000 altera_reserved_tck 
 Warning (18330): Ignoring Synchronizer Identification setting Off, and using Auto instead.
 Info: Analyzing Fast 1100mV 85C Model
 Info (334003): Started post-fitting delay annotation
@@ -2325,36 +2325,36 @@ Info (332097): The following timing edges are non-unate.  The Timing Analyzer wi
 Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in the Timing Analyzer to see clock uncertainties.
 Critical Warning (332148): Timing requirements not met
     Info (11105): For recommendations on closing timing, run Report Timing Closure Recommendations in the Timing Analyzer.
-Info (332146): Worst-case setup slack is -9.291
+Info (332146): Worst-case setup slack is -8.954
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    -9.291            -217.125 clk_vga 
-    Info (332119):    -0.046              -0.046 clk_dram 
-    Info (332119):    10.404               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    13.939               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    16.356               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    -8.954            -215.647 clk_vga 
+    Info (332119):     0.062               0.000 clk_dram 
+    Info (332119):    10.686               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    13.578               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    16.457               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):    24.519               0.000 altera_reserved_tck 
-    Info (332119):    29.062               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case hold slack is -0.086
+    Info (332119):    28.910               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.182
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    -0.086              -0.171 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.182               0.000 altera_reserved_tck 
+    Info (332119):     0.196               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     0.214               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.261               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.283               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.303               0.000 altera_reserved_tck 
+    Info (332119):     0.276               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.282               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     4.543               0.000 clk_vga 
     Info (332119):     5.025               0.000 clk_dram 
-Info (332146): Worst-case recovery slack is 35.863
+Info (332146): Worst-case recovery slack is 36.660
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    35.863               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    60.269               0.000 altera_reserved_tck 
-Info (332146): Worst-case removal slack is 0.410
+    Info (332119):    36.660               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    60.439               0.000 altera_reserved_tck 
+Info (332146): Worst-case removal slack is 0.334
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.410               0.000 altera_reserved_tck 
-    Info (332119):     0.474               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.334               0.000 altera_reserved_tck 
+    Info (332119):     0.503               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
 Info (332146): Worst-case minimum pulse width slack is 1.314
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
@@ -2364,7 +2364,7 @@ Info (332146): Worst-case minimum pulse width slack is 1.314
     Info (332119):     9.150               0.000 CLOCK_50 
     Info (332119):    15.562               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):    18.173               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    29.119               0.000 altera_reserved_tck 
+    Info (332119):    29.144               0.000 altera_reserved_tck 
 Warning (18330): Ignoring Synchronizer Identification setting Off, and using Auto instead.
 Info: Analyzing Fast 1100mV 0C Model
 Warning (332060): Node: Video_Controller800x480:inst1|GraphicsLCD_Controller_Verilog:inst5|V_Clock was determined to be a clock but was found without an associated clock assignment.
@@ -2379,36 +2379,36 @@ Info (332097): The following timing edges are non-unate.  The Timing Analyzer wi
 Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in the Timing Analyzer to see clock uncertainties.
 Critical Warning (332148): Timing requirements not met
     Info (11105): For recommendations on closing timing, run Report Timing Closure Recommendations in the Timing Analyzer.
-Info (332146): Worst-case setup slack is -8.768
+Info (332146): Worst-case setup slack is -8.476
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    -8.768            -205.852 clk_vga 
-    Info (332119):     0.403               0.000 clk_dram 
-    Info (332119):    11.219               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    14.522               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    16.721               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    -8.476            -204.647 clk_vga 
+    Info (332119):     0.494               0.000 clk_dram 
+    Info (332119):    11.469               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    14.170               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    16.780               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):    24.766               0.000 altera_reserved_tck 
-    Info (332119):    29.490               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case hold slack is -0.067
+    Info (332119):    29.368               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.135
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    -0.067              -0.134 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.161               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.135               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.167               0.000 altera_reserved_tck 
+    Info (332119):     0.174               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.184               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     0.221               0.000 inst7|clockgen_inst|altera_pll_i|general[2].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.253               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):     0.271               0.000 altera_reserved_tck 
     Info (332119):     4.223               0.000 clk_vga 
     Info (332119):     4.718               0.000 clk_dram 
-Info (332146): Worst-case recovery slack is 36.361
+Info (332146): Worst-case recovery slack is 37.046
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    36.361               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    60.489               0.000 altera_reserved_tck 
-Info (332146): Worst-case removal slack is 0.354
+    Info (332119):    37.046               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    60.646               0.000 altera_reserved_tck 
+Info (332146): Worst-case removal slack is 0.287
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.354               0.000 altera_reserved_tck 
-    Info (332119):     0.407               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.287               0.000 altera_reserved_tck 
+    Info (332119):     0.438               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
 Info (332146): Worst-case minimum pulse width slack is 1.341
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
@@ -2417,15 +2417,15 @@ Info (332146): Worst-case minimum pulse width slack is 1.341
     Info (332119):     8.916               0.000 inst7|clockgen_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     9.112               0.000 CLOCK_50 
     Info (332119):    15.585               0.000 inst7|clockgen_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    18.200               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-    Info (332119):    29.130               0.000 altera_reserved_tck 
+    Info (332119):    18.201               0.000 inst7|clockgen_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):    29.131               0.000 altera_reserved_tck 
 Warning (18330): Ignoring Synchronizer Identification setting Off, and using Auto instead.
 Info (332102): Design is not fully constrained for setup requirements
 Info (332102): Design is not fully constrained for hold requirements
 Info: Quartus Prime Timing Analyzer was successful. 0 errors, 41 warnings
-    Info: Peak virtual memory: 5526 megabytes
-    Info: Processing ended: Fri Jan 17 15:04:02 2025
-    Info: Elapsed time: 00:00:18
-    Info: Total CPU time (on all processors): 00:00:52
+    Info: Peak virtual memory: 5521 megabytes
+    Info: Processing ended: Sun Jan 19 17:51:54 2025
+    Info: Elapsed time: 00:00:20
+    Info: Total CPU time (on all processors): 00:00:51
 
 

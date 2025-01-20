@@ -148,7 +148,7 @@ refer to the applicable agreement for further details.
 (symbol
 	(rect 416 80 632 208)
 	(text "OnChipRom16KWord" (rect 27 0 173 16)(font "Arial" (font_size 10)))
-	(text "inst11" (rect 8 112 36 129)(font "Intel Clear" ))
+	(text "inst11" (rect 8 112 37 124)(font "Arial" ))
 	(port
 		(pt 0 32)
 		(input)
