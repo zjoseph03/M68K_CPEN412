@@ -57,8 +57,8 @@ go_main         jsr       _main
 ; //
 ; // The working 68k system SOF file posted on canvas that you can use for your pre-lab
 ; // is based around Dram so #define accordingly before building
-; // #define StartOfExceptionVectorTable 0x08030000
-; #define StartOfExceptionVectorTable 0x0B000000
+; #define StartOfExceptionVectorTable 0x08030000
+; // #define StartOfExceptionVectorTable 0x0B000000
 ; /**********************************************************************************************
 ; **	Parallel port addresses
 ; **********************************************************************************************/
@@ -480,7 +480,7 @@ _LCDLine2Message:
 _InstallExceptionHandler:
        link      A6,#-4
 ; volatile long int *RamVectorAddress = (volatile long int *)(StartOfExceptionVectorTable) ;   // pointer to the Ram based interrupt vector table created in Cstart in debug monitor
-       move.l    #184549376,-4(A6)
+       move.l    #134414336,-4(A6)
 ; RamVectorAddress[level] = (long int *)(function_ptr);                       // install the address of our function into the exception table
        move.l    -4(A6),A0
        move.l    12(A6),D0

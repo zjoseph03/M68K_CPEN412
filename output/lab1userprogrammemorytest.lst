@@ -1,6 +1,6 @@
 680x0 MACRO ASSEMBLER   Version 5.00   (c) 1992-2005 Peter J. Fondse
 
-Date: 20 Jan 2025      Time: 14:37:01          Source: C:\M68KV6.0 - 800BY480\OUTPUT\LAB1USERPROGRAMMEMORYTEST.SRC
+Date: 22 Jan 2025      Time: 13:41:07          Source: C:\M68KV6.0 - 800BY480\OUTPUT\LAB1USERPROGRAMMEMORYTEST.SRC
 
                        1          section   code
                        2   **********************************************************************************************************
@@ -69,8 +69,8 @@ Date: 20 Jan 2025      Time: 14:37:01          Source: C:\M68KV6.0 - 800BY480\OU
                       57   ; //
                       58   ; // The working 68k system SOF file posted on canvas that you can use for your pre-lab
                       59   ; // is based around Dram so #define accordingly before building
-                      60   ; // #define StartOfExceptionVectorTable 0x08030000
-                      61   ; #define StartOfExceptionVectorTable 0x0B000000
+                      60   ; #define StartOfExceptionVectorTable 0x08030000
+                      61   ; // #define StartOfExceptionVectorTable 0x0B000000
                       62   ; /**********************************************************************************************
                       63   ; **	Parallel port addresses
                       64   ; **********************************************************************************************/
@@ -545,7 +545,7 @@ Date: 20 Jan 2025      Time: 14:37:01          Source: C:\M68KV6.0 - 800BY480\OU
                      480   _InstallExceptionHandler:
 08000268  4E56 FFFC  481          link      A6,#-4
                      482   ; volatile long int *RamVectorAddress = (volatile long int *)(StartOfExceptionVectorTable) ;   // pointer to the Ram based interrupt vector table created in Cstart in debug monitor
-0800026C  2D7C 0B00  483          move.l    #184549376,-4(A6)
+0800026C  2D7C 0803  483          move.l    #134414336,-4(A6)
 08000270  0000 FFFC 
                      484   ; RamVectorAddress[level] = (long int *)(function_ptr);                       // install the address of our function into the exception table
 08000274  206E FFFC  485          move.l    -4(A6),A0

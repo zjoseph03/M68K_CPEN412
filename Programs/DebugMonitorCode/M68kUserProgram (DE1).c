@@ -16,8 +16,8 @@
 // The working 68k system SOF file posted on canvas that you can use for your pre-lab
 // is based around Dram so #define accordingly before building
 
-// #define StartOfExceptionVectorTable 0x08030000
-#define StartOfExceptionVectorTable 0x0B000000
+#define StartOfExceptionVectorTable 0x08030000
+// #define StartOfExceptionVectorTable 0x0B000000
 
 /**********************************************************************************************
 **	Parallel port addresses
