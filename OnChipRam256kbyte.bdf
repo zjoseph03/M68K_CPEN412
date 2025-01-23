@@ -307,7 +307,7 @@ refer to the applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 464 104 664 216)
+	(rect 480 104 680 216)
 	(text "SramBlockDecoder_Verilog" (rect 5 0 138 12)(font "Arial" ))
 	(text "inst1" (rect 8 96 31 108)(font "Arial" ))
 	(port
@@ -612,25 +612,9 @@ refer to the applicable agreement for further details.
 	)
 )
 (connector
-	(pt 312 152)
-	(pt 464 152)
-)
-(connector
-	(text "Address[16..0]" (rect 408 120 479 132)(font "Arial" )(invisible))
-	(pt 464 136)
-	(pt 408 136)
-	(bus)
-)
-(connector
 	(text "Address[16..0]" (rect 322 8 393 20)(font "Arial" )(invisible))
 	(pt 312 24)
 	(pt 408 24)
-	(bus)
-)
-(connector
-	(text "Address[16..0]" (rect 392 -71 404 0)(font "Arial" )(vertical)(invisible))
-	(pt 408 24)
-	(pt 408 136)
 	(bus)
 )
 (connector
@@ -704,40 +688,12 @@ refer to the applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 664 136)
-	(pt 1576 136)
-)
-(connector
-	(pt 1336 152)
-	(pt 664 152)
-)
-(connector
 	(pt 1608 512)
 	(pt 1336 512)
 )
 (connector
-	(pt 1336 152)
-	(pt 1336 512)
-)
-(connector
-	(pt 1136 168)
-	(pt 664 168)
-)
-(connector
-	(pt 1136 840)
-	(pt 1136 168)
-)
-(connector
 	(pt 1136 840)
 	(pt 1600 840)
-)
-(connector
-	(pt 904 184)
-	(pt 664 184)
-)
-(connector
-	(pt 904 184)
-	(pt 904 1120)
 )
 (connector
 	(pt 904 1120)
@@ -1050,10 +1006,6 @@ refer to the applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 1576 136)
-	(pt 1576 200)
-)
-(connector
 	(pt 1456 216)
 	(pt 1600 216)
 )
@@ -1132,11 +1084,6 @@ refer to the applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 408 136)
-	(pt 408 296)
-	(bus)
-)
-(connector
 	(pt 408 296)
 	(pt 408 608)
 	(bus)
@@ -1158,6 +1105,59 @@ refer to the applicable agreement for further details.
 	(pt 1520 328)
 	(pt 1520 640)
 	(bus)
+)
+(connector
+	(pt 1576 136)
+	(pt 680 136)
+)
+(connector
+	(pt 1336 152)
+	(pt 680 152)
+)
+(connector
+	(pt 1336 512)
+	(pt 1336 152)
+)
+(connector
+	(pt 1136 168)
+	(pt 680 168)
+)
+(connector
+	(pt 1136 840)
+	(pt 1136 168)
+)
+(connector
+	(pt 904 184)
+	(pt 680 184)
+)
+(connector
+	(pt 904 1120)
+	(pt 904 184)
+)
+(connector
+	(pt 1576 200)
+	(pt 1576 136)
+)
+(connector
+	(text "Address[16..0]" (rect 392 -71 404 0)(font "Arial" )(vertical)(invisible))
+	(pt 408 24)
+	(pt 408 136)
+	(bus)
+)
+(connector
+	(pt 408 136)
+	(pt 408 296)
+	(bus)
+)
+(connector
+	(text "Address[16..0]" (rect 424 120 495 132)(font "Arial" )(invisible))
+	(pt 408 136)
+	(pt 480 136)
+	(bus)
+)
+(connector
+	(pt 312 152)
+	(pt 480 152)
 )
 (junction (pt 408 136))
 (junction (pt 2832 104))

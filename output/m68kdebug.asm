@@ -3586,13 +3586,15 @@ menu_24:
        jsr       _toupper
        addq.w    #4,A7
        move.b    D0,D3
-; if(c1 == (char)('M'))                    // memory test
+; if(c1 == (char)('M')) {
        cmp.b     #77,D3
        bne.s     menu_28
+; // printf("TESTTESTTEST\n");                    // memory test
 ; MemoryTest() ;
        jsr       _MemoryTest
        bra.s     menu_33
 menu_28:
+; }
 ; else if( c1 == (char)('S'))              // Switch Test command
        cmp.b     #83,D3
        bne.s     menu_30
@@ -3987,38 +3989,155 @@ EnterString_3:
        unlk      A6
        rts
 ; }
-; void MemoryTest(void)
-; {
+; void MemoryTest(void) {
        xdef      _MemoryTest
 _MemoryTest:
-       link      A6,#-24
-; unsigned int *RamPtr, counter1=1 ;
-       move.l    #1,-18(A6)
-; register unsigned int i ;
-; unsigned int Start, End ;
-; char c ;
-; printf("\r\nStart Address: ") ;
+       link      A6,#-64
+       movem.l   D2/D3/D4/D5/A2/A3,-(A7)
+       lea       _printf.L,A2
+       lea       _scanf.L,A3
+; const unsigned long int patterns[][4] = {
+       lea       -64(A6),A0
+       lea       MemoryTest_patterns.L,A1
+       moveq     #11,D0
+       move.l    (A1)+,(A0)+
+       dbra      D0,*-2
+; {0xA1, 0xB2, 0xC3, 0xD4},
+; {0xABCD, 0x1234, 0xA1B2, 0xC3D4},
+; {0xABCD1234, 0xAABBCCDD, 0x11223344, 0x76543210}
+; };
+; unsigned int dataSize = 0, pattern = 0, bitLen = 0, start = 0, end = 0;
+       clr.l     -16(A6)
+       clr.l     -12(A6)
+       clr.l     D2
+       clr.l     -8(A6)
+       clr.l     -4(A6)
+; unsigned int addr = 0, *ptr = 0, data = 0;
+       clr.l     D5
+       clr.l     D4
+       clr.l     D3
+; printf("Memory size (0=Byte, 1=Word, 2=Long):\n");
        pea       @m68kde~2_144.L
-       jsr       _printf
+       jsr       (A2)
        addq.w    #4,A7
-; Start = Get8HexDigits(0) ;
-       clr.l     -(A7)
-       jsr       _Get8HexDigits
-       addq.w    #4,A7
-       move.l    D0,-10(A6)
-; printf("\r\nEnd Address: ") ;
+; scanf("%u", &dataSize);
+       pea       -16(A6)
        pea       @m68kde~2_145.L
-       jsr       _printf
+       jsr       (A3)
+       addq.w    #8,A7
+; printf("Pattern (0-3):\n");
+       pea       @m68kde~2_146.L
+       jsr       (A2)
        addq.w    #4,A7
-; End = Get8HexDigits(0) ;
-       clr.l     -(A7)
-       jsr       _Get8HexDigits
+; scanf("%u", &pattern);
+       pea       -12(A6)
+       pea       @m68kde~2_145.L
+       jsr       (A3)
+       addq.w    #8,A7
+; bitLen = 8 << dataSize;
+       moveq     #8,D0
+       ext.w     D0
+       ext.l     D0
+       move.l    -16(A6),D1
+       lsl.l     D1,D0
+       move.l    D0,D2
+; data = patterns[dataSize][pattern];
+       move.l    -16(A6),D0
+       lsl.l     #4,D0
+       lea       -64(A6,D0.L),A0
+       move.l    -12(A6),D0
+       lsl.l     #2,D0
+       move.l    0(A0,D0.L),D3
+; while (start < 0x08020000 || start > 0x08030000 - bitLen || start % bitLen) {
+MemoryTest_1:
+       move.l    -8(A6),D0
+       cmp.l     #134348800,D0
+       blo.s     MemoryTest_7
+       move.l    #134414336,D0
+       sub.l     D2,D0
+       cmp.l     -8(A6),D0
+       bhs.s     MemoryTest_5
+MemoryTest_7:
+       moveq     #1,D0
+       bra.s     MemoryTest_6
+MemoryTest_5:
+       clr.l     D0
+MemoryTest_6:
+       tst.l     D0
+       bne.s     MemoryTest_4
+       move.l    -8(A6),-(A7)
+       move.l    D2,-(A7)
+       jsr       ULDIV
+       move.l    4(A7),D0
+       addq.w    #8,A7
+       tst.l     D0
+       beq.s     MemoryTest_3
+MemoryTest_4:
+; printf("Start Address (hex):\n0x");
+       pea       @m68kde~2_147.L
+       jsr       (A2)
        addq.w    #4,A7
-       move.l    D0,-6(A6)
+; scanf("%x", &start);
+       pea       -8(A6)
+       pea       @m68kde~2_148.L
+       jsr       (A3)
+       addq.w    #8,A7
+       bra       MemoryTest_1
+MemoryTest_3:
+; }
+; while (end > 0x08030000 - bitLen || end < start + bitLen) {
+MemoryTest_8:
+       move.l    #134414336,D0
+       sub.l     D2,D0
+       cmp.l     -4(A6),D0
+       blo.s     MemoryTest_11
+       move.l    -8(A6),D0
+       add.l     D2,D0
+       cmp.l     -4(A6),D0
+       bls.s     MemoryTest_10
+MemoryTest_11:
+; printf("End Address (hex):\n0x");
+       pea       @m68kde~2_149.L
+       jsr       (A2)
+       addq.w    #4,A7
+; scanf("%x", &end);
+       pea       -4(A6)
+       pea       @m68kde~2_148.L
+       jsr       (A3)
+       addq.w    #8,A7
+       bra       MemoryTest_8
+MemoryTest_10:
+; }
+; for (addr = start; addr < end; addr += bitLen) {
+       move.l    -8(A6),D5
+MemoryTest_12:
+       cmp.l     -4(A6),D5
+       bhs.s     MemoryTest_14
+; ptr = (unsigned int*)addr;
+       move.l    D5,D4
+; *ptr = data;
+       move.l    D4,A0
+       move.l    D3,(A0)
+; if (*ptr != data) {
+       move.l    D4,A0
+       cmp.l     (A0),D3
+       beq.s     MemoryTest_15
+; printf("ERROR: 0x%x != 0x%x\n", *ptr, data);
+       move.l    D3,-(A7)
+       move.l    D4,A0
+       move.l    (A0),-(A7)
+       pea       @m68kde~2_150.L
+       jsr       (A2)
+       add.w     #12,A7
+MemoryTest_15:
+       add.l     D2,D5
+       bra       MemoryTest_12
+MemoryTest_14:
+       movem.l   (A7)+,D2/D3/D4/D5/A2/A3
        unlk      A6
        rts
-; // TODO
-; // add your code to test memory here using 32 bit reads and writes of data between the start and end of memory
+; }
+; }
 ; }
 ; void main(void)
 ; {
@@ -4031,10 +4150,10 @@ _main:
 ; char c ;
 ; int i, j ;
 ; char *BugMessage = "DE1-68k Bug V1.77";
-       lea       @m68kde~2_146.L,A0
+       lea       @m68kde~2_151.L,A0
        move.l    A0,D3
 ; char *CopyrightMessage = "Copyright (C) PJ Davies 2016";
-       lea       @m68kde~2_147.L,A0
+       lea       @m68kde~2_152.L,A0
        move.l    A0,-4(A6)
 ; KillAllBreakPoints() ;
        jsr       _KillAllBreakPoints
@@ -4233,11 +4352,11 @@ main_7:
 ; LoadFromFlashChip();
        jsr       _LoadFromFlashChip
 ; printf("\r\nRunning.....") ;
-       pea       @m68kde~2_148.L
+       pea       @m68kde~2_153.L
        jsr       (A3)
        addq.w    #4,A7
 ; Oline1("Running.....") ;
-       pea       @m68kde~2_149.L
+       pea       @m68kde~2_154.L
        jsr       _Oline1
        addq.w    #4,A7
 ; GoFlag = 1;
@@ -4253,17 +4372,17 @@ main_9:
        jsr       _Oline0
        addq.w    #4,A7
 ; Oline1("By: PJ Davies") ;
-       pea       @m68kde~2_150.L
+       pea       @m68kde~2_155.L
        jsr       _Oline1
        addq.w    #4,A7
 ; printf("\r\n%s", BugMessage) ;
        move.l    D3,-(A7)
-       pea       @m68kde~2_151.L
+       pea       @m68kde~2_156.L
        jsr       (A3)
        addq.w    #8,A7
 ; printf("\r\n%s", CopyrightMessage) ;
        move.l    -4(A6),-(A7)
-       pea       @m68kde~2_151.L
+       pea       @m68kde~2_156.L
        jsr       (A3)
        addq.w    #8,A7
 ; menu();
@@ -4384,7 +4503,7 @@ _Decode2BitOperandSize:
        tst.w     D3
        bne.s     Decode2BitOperandSize_1
 ; strcatInstruction(".B ") ;
-       pea       @m68kde~2_152.L
+       pea       @m68kde~2_157.L
        jsr       (A2)
        addq.w    #4,A7
 ; DataSize = 1 ;
@@ -4396,7 +4515,7 @@ Decode2BitOperandSize_1:
        cmp.w     #1,D3
        bne.s     Decode2BitOperandSize_3
 ; strcatInstruction(".W ") ;
-       pea       @m68kde~2_153.L
+       pea       @m68kde~2_158.L
        jsr       (A2)
        addq.w    #4,A7
 ; DataSize = 1 ;
@@ -4406,7 +4525,7 @@ Decode2BitOperandSize_3:
 ; }
 ; else {
 ; strcatInstruction(".L ") ;
-       pea       @m68kde~2_154.L
+       pea       @m68kde~2_159.L
        jsr       (A2)
        addq.w    #4,A7
 ; DataSize = 2 ;
@@ -4502,7 +4621,7 @@ _DecodeBWLDataAfterOpCodeForMove:
        move.w    2(A0),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_155.L
+       pea       @m68kde~2_160.L
        move.l    A2,-(A7)
        jsr       (A3)
        add.w     #12,A7
@@ -4516,7 +4635,7 @@ DecodeBWLDataAfterOpCodeForMove_1:
        move.w    2(A0),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_155.L
+       pea       @m68kde~2_160.L
        move.l    A2,-(A7)
        jsr       (A3)
        add.w     #12,A7
@@ -4538,7 +4657,7 @@ DecodeBWLDataAfterOpCodeForMove_3:
        or.l      D0,D1
        move.l    (A7)+,D0
        move.l    D1,-(A7)
-       pea       @m68kde~2_155.L
+       pea       @m68kde~2_160.L
        move.l    A2,-(A7)
        jsr       (A3)
        add.w     #12,A7
@@ -4587,7 +4706,7 @@ DecodeBWLDataAfterOpCode_3:
        move.w    2(A0),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_155.L
+       pea       @m68kde~2_160.L
        move.l    A2,-(A7)
        jsr       (A3)
        add.w     #12,A7
@@ -4609,7 +4728,7 @@ DecodeBWLDataAfterOpCode_6:
        move.w    2(A0),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_155.L
+       pea       @m68kde~2_160.L
        move.l    A2,-(A7)
        jsr       (A3)
        add.w     #12,A7
@@ -4636,7 +4755,7 @@ DecodeBWLDataAfterOpCode_9:
        or.l      D0,D1
        move.l    (A7)+,D0
        move.l    D1,-(A7)
-       pea       @m68kde~2_155.L
+       pea       @m68kde~2_160.L
        move.l    A2,-(A7)
        jsr       (A3)
        add.w     #12,A7
@@ -4659,7 +4778,7 @@ DecodeBWLDataAfterOpCode_7:
        move.w    2(A0),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_155.L
+       pea       @m68kde~2_160.L
        move.l    A2,-(A7)
        jsr       (A3)
        add.w     #12,A7
@@ -4840,7 +4959,7 @@ Decode6BitEA_11:
        cmp.b     #2,D5
        bne.s     Decode6BitEA_13
 ; strcatInstruction("(") ;
-       pea       @m68kde~2_156.L
+       pea       @m68kde~2_161.L
        jsr       (A2)
        addq.w    #4,A7
 ; Decode3BitAddressRegister(OperandRegister) ;
@@ -4850,7 +4969,7 @@ Decode6BitEA_11:
        jsr       _Decode3BitAddressRegister
        addq.w    #4,A7
 ; strcatInstruction(")") ;
-       pea       @m68kde~2_157.L
+       pea       @m68kde~2_162.L
        jsr       (A2)
        addq.w    #4,A7
        bra       Decode6BitEA_44
@@ -4860,7 +4979,7 @@ Decode6BitEA_13:
        cmp.b     #3,D5
        bne.s     Decode6BitEA_15
 ; strcatInstruction("(") ;
-       pea       @m68kde~2_156.L
+       pea       @m68kde~2_161.L
        jsr       (A2)
        addq.w    #4,A7
 ; Decode3BitAddressRegister(OperandRegister) ;
@@ -4870,7 +4989,7 @@ Decode6BitEA_13:
        jsr       _Decode3BitAddressRegister
        addq.w    #4,A7
 ; strcatInstruction(")+") ;
-       pea       @m68kde~2_158.L
+       pea       @m68kde~2_163.L
        jsr       (A2)
        addq.w    #4,A7
        bra       Decode6BitEA_44
@@ -4880,7 +4999,7 @@ Decode6BitEA_15:
        cmp.b     #4,D5
        bne.s     Decode6BitEA_17
 ; strcatInstruction("-(") ;
-       pea       @m68kde~2_159.L
+       pea       @m68kde~2_164.L
        jsr       (A2)
        addq.w    #4,A7
 ; Decode3BitAddressRegister(OperandRegister) ;
@@ -4890,7 +5009,7 @@ Decode6BitEA_15:
        jsr       _Decode3BitAddressRegister
        addq.w    #4,A7
 ; strcatInstruction(")") ;
-       pea       @m68kde~2_157.L
+       pea       @m68kde~2_162.L
        jsr       (A2)
        addq.w    #4,A7
        bra       Decode6BitEA_44
@@ -4904,7 +5023,7 @@ Decode6BitEA_17:
        move.l    D3,-(A7)
        ext.l     D2
        move.l    D2,-(A7)
-       pea       @m68kde~2_160.L
+       pea       @m68kde~2_165.L
        move.l    A3,-(A7)
        jsr       (A4)
        add.w     #16,A7
@@ -4931,7 +5050,7 @@ Decode6BitEA_19:
        ext.w     D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_161.L
+       pea       @m68kde~2_166.L
        move.l    A3,-(A7)
        jsr       (A4)
        add.w     #16,A7
@@ -4947,14 +5066,14 @@ Decode6BitEA_19:
        and.w     #32768,D0
        bne.s     Decode6BitEA_23
 ; strcatInstruction("D") ;
-       pea       @m68kde~2_162.L
+       pea       @m68kde~2_167.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     Decode6BitEA_24
 Decode6BitEA_23:
 ; else
 ; strcatInstruction("A") ;
-       pea       @m68kde~2_163.L
+       pea       @m68kde~2_168.L
        jsr       (A2)
        addq.w    #4,A7
 Decode6BitEA_24:
@@ -4968,7 +5087,7 @@ Decode6BitEA_24:
        move.w    -2(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_164.L
+       pea       @m68kde~2_169.L
        move.l    A3,-(A7)
        jsr       (A4)
        add.w     #12,A7
@@ -4986,14 +5105,14 @@ Decode6BitEA_24:
        tst.w     D7
        bne.s     Decode6BitEA_25
 ; strcatInstruction(".W)") ;
-       pea       @m68kde~2_165.L
+       pea       @m68kde~2_170.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     Decode6BitEA_26
 Decode6BitEA_25:
 ; else
 ; strcatInstruction(".L)") ;
-       pea       @m68kde~2_166.L
+       pea       @m68kde~2_171.L
        jsr       (A2)
        addq.w    #4,A7
 Decode6BitEA_26:
@@ -5009,7 +5128,7 @@ Decode6BitEA_21:
 ; sprintf(TempString, "$%X", ExWord1) ;
        ext.l     D2
        move.l    D2,-(A7)
-       pea       @m68kde~2_167.L
+       pea       @m68kde~2_172.L
        move.l    A3,-(A7)
        jsr       (A4)
        add.w     #12,A7
@@ -5036,7 +5155,7 @@ Decode6BitEA_29:
        or.l      D0,D1
        move.l    (A7)+,D0
        move.l    D1,-(A7)
-       pea       @m68kde~2_167.L
+       pea       @m68kde~2_172.L
        move.l    A3,-(A7)
        jsr       (A4)
        add.w     #12,A7
@@ -5076,7 +5195,7 @@ Decode6BitEA_33:
 ; sprintf(TempString, "%d(PC)", ExWord1) ;
        ext.l     D2
        move.l    D2,-(A7)
-       pea       @m68kde~2_168.L
+       pea       @m68kde~2_173.L
        move.l    A3,-(A7)
        jsr       (A4)
        add.w     #12,A7
@@ -5101,7 +5220,7 @@ Decode6BitEA_37:
        ext.w     D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_169.L
+       pea       @m68kde~2_174.L
        move.l    A3,-(A7)
        jsr       (A4)
        add.w     #12,A7
@@ -5117,14 +5236,14 @@ Decode6BitEA_37:
        and.w     #32768,D0
        bne.s     Decode6BitEA_41
 ; strcatInstruction("D") ;
-       pea       @m68kde~2_162.L
+       pea       @m68kde~2_167.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     Decode6BitEA_42
 Decode6BitEA_41:
 ; else
 ; strcatInstruction("A") ;
-       pea       @m68kde~2_163.L
+       pea       @m68kde~2_168.L
        jsr       (A2)
        addq.w    #4,A7
 Decode6BitEA_42:
@@ -5138,7 +5257,7 @@ Decode6BitEA_42:
        move.w    -2(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_164.L
+       pea       @m68kde~2_169.L
        move.l    A3,-(A7)
        jsr       (A4)
        add.w     #12,A7
@@ -5156,14 +5275,14 @@ Decode6BitEA_42:
        tst.w     D7
        bne.s     Decode6BitEA_43
 ; strcatInstruction(".W)") ;
-       pea       @m68kde~2_165.L
+       pea       @m68kde~2_170.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     Decode6BitEA_44
 Decode6BitEA_43:
 ; else
 ; strcatInstruction(".L)") ;
-       pea       @m68kde~2_166.L
+       pea       @m68kde~2_171.L
        jsr       (A2)
        addq.w    #4,A7
 Decode6BitEA_44:
@@ -5205,7 +5324,7 @@ _Decode3BitOperandMode:
        jsr       _Decode6BitEA
        add.w     #16,A7
 ; strcatInstruction(",") ;
-       pea       @m68kde~2_170.L
+       pea       @m68kde~2_175.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 ; Decode3BitDataRegister(*OpCode) ;
@@ -5227,7 +5346,7 @@ Decode3BitOperandMode_1:
        jsr       _Decode3BitDataRegister
        addq.w    #4,A7
 ; strcatInstruction(",") ;
-       pea       @m68kde~2_170.L
+       pea       @m68kde~2_175.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,0,0) ;
@@ -5256,7 +5375,7 @@ _DecodeBranchCondition:
        cmp.w     #4,D2
        bne.s     DecodeBranchCondition_1
 ; strcatInstruction("CC") ;
-       pea       @m68kde~2_171.L
+       pea       @m68kde~2_176.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5265,7 +5384,7 @@ DecodeBranchCondition_1:
        cmp.w     #5,D2
        bne.s     DecodeBranchCondition_3
 ; strcatInstruction("CS") ;
-       pea       @m68kde~2_172.L
+       pea       @m68kde~2_177.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5274,7 +5393,7 @@ DecodeBranchCondition_3:
        cmp.w     #7,D2
        bne.s     DecodeBranchCondition_5
 ; strcatInstruction("EQ") ;
-       pea       @m68kde~2_173.L
+       pea       @m68kde~2_178.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5283,7 +5402,7 @@ DecodeBranchCondition_5:
        cmp.w     #12,D2
        bne.s     DecodeBranchCondition_7
 ; strcatInstruction("GE") ;
-       pea       @m68kde~2_174.L
+       pea       @m68kde~2_179.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5292,7 +5411,7 @@ DecodeBranchCondition_7:
        cmp.w     #14,D2
        bne.s     DecodeBranchCondition_9
 ; strcatInstruction("GT") ;
-       pea       @m68kde~2_175.L
+       pea       @m68kde~2_180.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5301,7 +5420,7 @@ DecodeBranchCondition_9:
        cmp.w     #2,D2
        bne.s     DecodeBranchCondition_11
 ; strcatInstruction("HI") ;
-       pea       @m68kde~2_176.L
+       pea       @m68kde~2_181.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5310,7 +5429,7 @@ DecodeBranchCondition_11:
        cmp.w     #15,D2
        bne.s     DecodeBranchCondition_13
 ; strcatInstruction("LE") ;
-       pea       @m68kde~2_177.L
+       pea       @m68kde~2_182.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5319,7 +5438,7 @@ DecodeBranchCondition_13:
        cmp.w     #3,D2
        bne.s     DecodeBranchCondition_15
 ; strcatInstruction("LS") ;
-       pea       @m68kde~2_178.L
+       pea       @m68kde~2_183.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5328,7 +5447,7 @@ DecodeBranchCondition_15:
        cmp.w     #13,D2
        bne.s     DecodeBranchCondition_17
 ; strcatInstruction("LT") ;
-       pea       @m68kde~2_179.L
+       pea       @m68kde~2_184.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5337,7 +5456,7 @@ DecodeBranchCondition_17:
        cmp.w     #11,D2
        bne.s     DecodeBranchCondition_19
 ; strcatInstruction("MI") ;
-       pea       @m68kde~2_180.L
+       pea       @m68kde~2_185.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5346,7 +5465,7 @@ DecodeBranchCondition_19:
        cmp.w     #6,D2
        bne.s     DecodeBranchCondition_21
 ; strcatInstruction("NE") ;
-       pea       @m68kde~2_181.L
+       pea       @m68kde~2_186.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5355,7 +5474,7 @@ DecodeBranchCondition_21:
        cmp.w     #10,D2
        bne.s     DecodeBranchCondition_23
 ; strcatInstruction("PL") ;
-       pea       @m68kde~2_182.L
+       pea       @m68kde~2_187.L
        jsr       (A2)
        addq.w    #4,A7
        bra       DecodeBranchCondition_30
@@ -5364,7 +5483,7 @@ DecodeBranchCondition_23:
        cmp.w     #9,D2
        bne.s     DecodeBranchCondition_25
 ; strcatInstruction("VS") ;
-       pea       @m68kde~2_183.L
+       pea       @m68kde~2_188.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     DecodeBranchCondition_30
@@ -5373,7 +5492,7 @@ DecodeBranchCondition_25:
        cmp.w     #8,D2
        bne.s     DecodeBranchCondition_27
 ; strcatInstruction("VC") ;
-       pea       @m68kde~2_184.L
+       pea       @m68kde~2_189.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     DecodeBranchCondition_30
@@ -5382,14 +5501,14 @@ DecodeBranchCondition_27:
        tst.w     D2
        bne.s     DecodeBranchCondition_29
 ; strcatInstruction("RA") ;
-       pea       @m68kde~2_185.L
+       pea       @m68kde~2_190.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     DecodeBranchCondition_30
 DecodeBranchCondition_29:
 ; else
 ; strcatInstruction("SR");
-       pea       @m68kde~2_186.L
+       pea       @m68kde~2_191.L
        jsr       (A2)
        addq.w    #4,A7
 DecodeBranchCondition_30:
@@ -5432,7 +5551,7 @@ _DisassembleInstruction:
 ; short int Mask, DoneSlash;
 ; int i;
 ; strcpyInstruction("Unknown") ;
-       pea       @m68kde~2_187.L
+       pea       @m68kde~2_192.L
        jsr       (A3)
        addq.w    #4,A7
 ; /////////////////////////////////////////////////////////////////////////////////
@@ -5473,7 +5592,7 @@ _DisassembleInstruction:
        move.w    -34(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_188.L
+       pea       @m68kde~2_193.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #16,A7
@@ -5487,7 +5606,7 @@ DisassembleInstruction_3:
        move.w    -34(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_189.L
+       pea       @m68kde~2_194.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #16,A7
@@ -5521,14 +5640,14 @@ DisassembleInstruction_9:
        cmp.w     #3,D3
        bne.s     DisassembleInstruction_10
 ; strcpyInstruction("ADDA.W ") ;
-       pea       @m68kde~2_190.L
+       pea       @m68kde~2_195.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_11
 DisassembleInstruction_10:
 ; else
 ; strcpyInstruction("ADDA.L ") ;
-       pea       @m68kde~2_191.L
+       pea       @m68kde~2_196.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_11:
@@ -5547,7 +5666,7 @@ DisassembleInstruction_11:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_192.L
+       pea       @m68kde~2_197.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -5560,7 +5679,7 @@ DisassembleInstruction_7:
 ; }
 ; else {
 ; strcpyInstruction("ADD") ;
-       pea       @m68kde~2_193.L
+       pea       @m68kde~2_198.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode3BitOperandMode(OpCode) ;
@@ -5654,7 +5773,7 @@ DisassembleInstruction_25:
        cmp.w     #1536,D0
        bne.s     DisassembleInstruction_26
 ; strcpyInstruction("ADDI") ;
-       pea       @m68kde~2_194.L
+       pea       @m68kde~2_199.L
        jsr       (A3)
        addq.w    #4,A7
        bra       DisassembleInstruction_36
@@ -5666,7 +5785,7 @@ DisassembleInstruction_26:
        cmp.w     #512,D0
        bne.s     DisassembleInstruction_28
 ; strcpyInstruction("ANDI") ;
-       pea       @m68kde~2_195.L
+       pea       @m68kde~2_200.L
        jsr       (A3)
        addq.w    #4,A7
        bra       DisassembleInstruction_36
@@ -5678,7 +5797,7 @@ DisassembleInstruction_28:
        cmp.w     #3072,D0
        bne.s     DisassembleInstruction_30
 ; strcpyInstruction("CMPI") ;
-       pea       @m68kde~2_196.L
+       pea       @m68kde~2_201.L
        jsr       (A3)
        addq.w    #4,A7
        bra       DisassembleInstruction_36
@@ -5690,7 +5809,7 @@ DisassembleInstruction_30:
        cmp.w     #2560,D0
        bne.s     DisassembleInstruction_32
 ; strcpyInstruction("EORI") ;
-       pea       @m68kde~2_197.L
+       pea       @m68kde~2_202.L
        jsr       (A3)
        addq.w    #4,A7
        bra       DisassembleInstruction_36
@@ -5701,7 +5820,7 @@ DisassembleInstruction_32:
        and.w     #65280,D0
        bne.s     DisassembleInstruction_34
 ; strcpyInstruction("ORI") ;
-       pea       @m68kde~2_198.L
+       pea       @m68kde~2_203.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_36
@@ -5713,7 +5832,7 @@ DisassembleInstruction_34:
        cmp.w     #1024,D0
        bne.s     DisassembleInstruction_36
 ; strcpyInstruction("SUBI") ;
-       pea       @m68kde~2_199.L
+       pea       @m68kde~2_204.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_36:
@@ -5730,7 +5849,7 @@ DisassembleInstruction_36:
        jsr       _DecodeBWLDataAfterOpCode
        addq.w    #4,A7
 ; strcatInstruction(",") ;
-       pea       @m68kde~2_170.L
+       pea       @m68kde~2_175.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,DataSize,0) ;                                         // decode EA
@@ -5758,7 +5877,7 @@ DisassembleInstruction_12:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_200.L
+       pea       @m68kde~2_205.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -5776,7 +5895,7 @@ DisassembleInstruction_38:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("ADDQ") ;
-       pea       @m68kde~2_201.L
+       pea       @m68kde~2_206.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode);                                  // add .b, .w, .l size indicator to instruction string
@@ -5794,7 +5913,7 @@ DisassembleInstruction_38:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_202.L
+       pea       @m68kde~2_207.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -5833,7 +5952,7 @@ DisassembleInstruction_40:
        beq       DisassembleInstruction_44
 ; {
 ; strcpyInstruction("ADDX") ;
-       pea       @m68kde~2_203.L
+       pea       @m68kde~2_208.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode);                                  // add .b, .w, .l size indicator to instruction string
@@ -5861,7 +5980,7 @@ DisassembleInstruction_40:
        and.w     #7,D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_204.L
+       pea       @m68kde~2_209.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #16,A7
@@ -5881,7 +6000,7 @@ DisassembleInstruction_46:
        and.w     #7,D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_205.L
+       pea       @m68kde~2_210.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #16,A7
@@ -5915,7 +6034,7 @@ DisassembleInstruction_44:
        cmp.w     #16,D3
        beq.s     DisassembleInstruction_50
 ; strcpyInstruction("AND") ;
-       pea       @m68kde~2_206.L
+       pea       @m68kde~2_211.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode3BitOperandMode(OpCode) ;
@@ -5939,7 +6058,7 @@ DisassembleInstruction_50:
        and.w     #255,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_207.L
+       pea       @m68kde~2_212.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -6071,14 +6190,14 @@ DisassembleInstruction_71:
        cmp.w     #256,D0
        bne.s     DisassembleInstruction_76
 ; strcpyInstruction("ASL") ;
-       pea       @m68kde~2_208.L
+       pea       @m68kde~2_213.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_77
 DisassembleInstruction_76:
 ; else
 ; strcpyInstruction("ASR") ;
-       pea       @m68kde~2_209.L
+       pea       @m68kde~2_214.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_77:
@@ -6096,14 +6215,14 @@ DisassembleInstruction_77:
        cmp.w     #256,D0
        bne.s     DisassembleInstruction_80
 ; strcpyInstruction("LSL") ;
-       pea       @m68kde~2_210.L
+       pea       @m68kde~2_215.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_81
 DisassembleInstruction_80:
 ; else
 ; strcpyInstruction("LSR") ;
-       pea       @m68kde~2_211.L
+       pea       @m68kde~2_216.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_81:
@@ -6121,14 +6240,14 @@ DisassembleInstruction_81:
        cmp.w     #256,D0
        bne.s     DisassembleInstruction_84
 ; strcpyInstruction("ROL") ;
-       pea       @m68kde~2_212.L
+       pea       @m68kde~2_217.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_85
 DisassembleInstruction_84:
 ; else
 ; strcpyInstruction("ROR") ;
-       pea       @m68kde~2_213.L
+       pea       @m68kde~2_218.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_85:
@@ -6146,14 +6265,14 @@ DisassembleInstruction_85:
        cmp.w     #256,D0
        bne.s     DisassembleInstruction_88
 ; strcpyInstruction("ROXL") ;
-       pea       @m68kde~2_214.L
+       pea       @m68kde~2_219.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_89
 DisassembleInstruction_88:
 ; else
 ; strcpyInstruction("ROXR") ;
-       pea       @m68kde~2_215.L
+       pea       @m68kde~2_220.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_89:
@@ -6187,14 +6306,14 @@ DisassembleInstruction_72:
        cmp.w     #256,D0
        bne.s     DisassembleInstruction_92
 ; strcpyInstruction("ASL") ;
-       pea       @m68kde~2_208.L
+       pea       @m68kde~2_213.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_93
 DisassembleInstruction_92:
 ; else
 ; strcpyInstruction("ASR") ;
-       pea       @m68kde~2_209.L
+       pea       @m68kde~2_214.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_93:
@@ -6212,14 +6331,14 @@ DisassembleInstruction_93:
        cmp.w     #256,D0
        bne.s     DisassembleInstruction_96
 ; strcpyInstruction("LSL") ;
-       pea       @m68kde~2_210.L
+       pea       @m68kde~2_215.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_97
 DisassembleInstruction_96:
 ; else
 ; strcpyInstruction("LSR") ;
-       pea       @m68kde~2_211.L
+       pea       @m68kde~2_216.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_97:
@@ -6237,14 +6356,14 @@ DisassembleInstruction_97:
        cmp.w     #256,D0
        bne.s     DisassembleInstruction_100
 ; strcpyInstruction("ROL") ;
-       pea       @m68kde~2_212.L
+       pea       @m68kde~2_217.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_101
 DisassembleInstruction_100:
 ; else
 ; strcpyInstruction("ROR") ;
-       pea       @m68kde~2_213.L
+       pea       @m68kde~2_218.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_101:
@@ -6262,14 +6381,14 @@ DisassembleInstruction_101:
        cmp.w     #256,D0
        bne.s     DisassembleInstruction_104
 ; strcpyInstruction("ROXL") ;
-       pea       @m68kde~2_214.L
+       pea       @m68kde~2_219.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_105
 DisassembleInstruction_104:
 ; else
 ; strcpyInstruction("ROXR") ;
-       pea       @m68kde~2_215.L
+       pea       @m68kde~2_220.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_105:
@@ -6298,7 +6417,7 @@ DisassembleInstruction_105:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_216.L
+       pea       @m68kde~2_221.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #16,A7
@@ -6321,7 +6440,7 @@ DisassembleInstruction_106:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_204.L
+       pea       @m68kde~2_209.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #16,A7
@@ -6355,7 +6474,7 @@ DisassembleInstruction_73:
        and.w     #15,D0
        move.b    D0,-23(A6)
 ; strcpyInstruction("B") ;
-       pea       @m68kde~2_217.L
+       pea       @m68kde~2_222.L
        jsr       (A3)
        addq.w    #4,A7
 ; DecodeBranchCondition(Condition) ;
@@ -6385,7 +6504,7 @@ DisassembleInstruction_73:
        move.l    (A7)+,D0
        addq.l    #2,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_167.L
+       pea       @m68kde~2_172.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6405,7 +6524,7 @@ DisassembleInstruction_110:
        move.l    (A7)+,D0
        addq.l    #2,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_167.L
+       pea       @m68kde~2_172.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6428,7 +6547,7 @@ DisassembleInstruction_108:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("BCHG ") ;
-       pea       @m68kde~2_218.L
+       pea       @m68kde~2_223.L
        jsr       (A3)
        addq.w    #4,A7
 ; sprintf(TempString, "D%d,", (*OpCode >> 9) & (unsigned short int)(0x0007)) ;
@@ -6439,7 +6558,7 @@ DisassembleInstruction_108:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_219.L
+       pea       @m68kde~2_224.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6466,7 +6585,7 @@ DisassembleInstruction_112:
        cmp.w     #2112,D0
        bne       DisassembleInstruction_114
 ; strcpyInstruction("BCHG ") ;
-       pea       @m68kde~2_218.L
+       pea       @m68kde~2_223.L
        jsr       (A3)
        addq.w    #4,A7
 ; sprintf(TempString, "#$%X,", OpCode[1]) ;
@@ -6474,7 +6593,7 @@ DisassembleInstruction_112:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_220.L
+       pea       @m68kde~2_225.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6505,7 +6624,7 @@ DisassembleInstruction_114:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("BCLR ") ;
-       pea       @m68kde~2_221.L
+       pea       @m68kde~2_226.L
        jsr       (A3)
        addq.w    #4,A7
 ; sprintf(TempString, "D%d,", (*OpCode >> 9) & (unsigned short int)(0x0007)) ;
@@ -6516,7 +6635,7 @@ DisassembleInstruction_114:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_219.L
+       pea       @m68kde~2_224.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6543,7 +6662,7 @@ DisassembleInstruction_116:
        cmp.w     #2176,D0
        bne       DisassembleInstruction_118
 ; strcpyInstruction("BCLR ") ;
-       pea       @m68kde~2_221.L
+       pea       @m68kde~2_226.L
        jsr       (A3)
        addq.w    #4,A7
 ; sprintf(TempString, "#$%X,", OpCode[1]) ;
@@ -6551,7 +6670,7 @@ DisassembleInstruction_116:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_220.L
+       pea       @m68kde~2_225.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6582,7 +6701,7 @@ DisassembleInstruction_118:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("BSET ") ;
-       pea       @m68kde~2_222.L
+       pea       @m68kde~2_227.L
        jsr       (A3)
        addq.w    #4,A7
 ; sprintf(TempString, "D%d,", (*OpCode >> 9) & (unsigned short int)(0x0007)) ;
@@ -6593,7 +6712,7 @@ DisassembleInstruction_118:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_219.L
+       pea       @m68kde~2_224.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6620,7 +6739,7 @@ DisassembleInstruction_120:
        cmp.w     #2240,D0
        bne       DisassembleInstruction_122
 ; strcpyInstruction("BSET ") ;
-       pea       @m68kde~2_222.L
+       pea       @m68kde~2_227.L
        jsr       (A3)
        addq.w    #4,A7
 ; sprintf(TempString, "#$%X,", OpCode[1]) ;
@@ -6628,7 +6747,7 @@ DisassembleInstruction_120:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_220.L
+       pea       @m68kde~2_225.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6659,7 +6778,7 @@ DisassembleInstruction_122:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("BTST ") ;
-       pea       @m68kde~2_223.L
+       pea       @m68kde~2_228.L
        jsr       (A3)
        addq.w    #4,A7
 ; sprintf(TempString, "D%d,", (*OpCode >> 9) & (unsigned short int)(0x0007)) ;
@@ -6670,7 +6789,7 @@ DisassembleInstruction_122:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_219.L
+       pea       @m68kde~2_224.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6697,7 +6816,7 @@ DisassembleInstruction_124:
        cmp.w     #2048,D0
        bne       DisassembleInstruction_126
 ; strcpyInstruction("BTST ") ;
-       pea       @m68kde~2_223.L
+       pea       @m68kde~2_228.L
        jsr       (A3)
        addq.w    #4,A7
 ; sprintf(TempString, "#$%X,", OpCode[1]) ;
@@ -6705,7 +6824,7 @@ DisassembleInstruction_124:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_220.L
+       pea       @m68kde~2_225.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6736,7 +6855,7 @@ DisassembleInstruction_126:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("CHK ") ;
-       pea       @m68kde~2_224.L
+       pea       @m68kde~2_229.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,0,0) ;
@@ -6754,7 +6873,7 @@ DisassembleInstruction_126:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_225.L
+       pea       @m68kde~2_230.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6776,7 +6895,7 @@ DisassembleInstruction_128:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("CLR") ;
-       pea       @m68kde~2_226.L
+       pea       @m68kde~2_231.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode) ;
@@ -6823,14 +6942,14 @@ DisassembleInstruction_136:
        cmp.w     #3,D3
        bne.s     DisassembleInstruction_137
 ; strcpyInstruction("CMPA.W ") ;
-       pea       @m68kde~2_227.L
+       pea       @m68kde~2_232.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_138
 DisassembleInstruction_137:
 ; else
 ; strcpyInstruction("CMPA.L ") ;
-       pea       @m68kde~2_228.L
+       pea       @m68kde~2_233.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_138:
@@ -6849,7 +6968,7 @@ DisassembleInstruction_138:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_229.L
+       pea       @m68kde~2_234.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -6862,7 +6981,7 @@ DisassembleInstruction_134:
 ; }
 ; else {
 ; strcpyInstruction("CMP") ;
-       pea       @m68kde~2_230.L
+       pea       @m68kde~2_235.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode3BitOperandMode(OpCode) ;
@@ -6897,7 +7016,7 @@ DisassembleInstruction_135:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("CMPM") ;
-       pea       @m68kde~2_231.L
+       pea       @m68kde~2_236.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode) ;
@@ -6920,7 +7039,7 @@ DisassembleInstruction_135:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_232.L
+       pea       @m68kde~2_237.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #16,A7
@@ -6944,7 +7063,7 @@ DisassembleInstruction_141:
 ; InstructionSize = 2;
        move.l    #2,(A2)
 ; strcpy(Instruction,"DB") ;
-       pea       @m68kde~2_233.L
+       pea       @m68kde~2_238.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -6980,7 +7099,7 @@ DisassembleInstruction_141:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_234.L
+       pea       @m68kde~2_239.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #20,A7
@@ -7003,7 +7122,7 @@ DisassembleInstruction_143:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"DIVS ") ;
-       pea       @m68kde~2_235.L
+       pea       @m68kde~2_240.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7015,7 +7134,7 @@ DisassembleInstruction_143:
        jsr       _Decode6BitEA
        add.w     #16,A7
 ; strcatInstruction(",") ;
-       pea       @m68kde~2_170.L
+       pea       @m68kde~2_175.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 ; Decode3BitDataRegister(*OpCode) ;
@@ -7040,7 +7159,7 @@ DisassembleInstruction_145:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"DIVU ") ;
-       pea       @m68kde~2_236.L
+       pea       @m68kde~2_241.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7052,7 +7171,7 @@ DisassembleInstruction_145:
        jsr       _Decode6BitEA
        add.w     #16,A7
 ; strcatInstruction(",") ;
-       pea       @m68kde~2_170.L
+       pea       @m68kde~2_175.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 ; Decode3BitDataRegister(*OpCode) ;
@@ -7099,7 +7218,7 @@ DisassembleInstruction_147:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("EOR") ;
-       pea       @m68kde~2_237.L
+       pea       @m68kde~2_242.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode3BitOperandMode(OpCode);
@@ -7125,7 +7244,7 @@ DisassembleInstruction_151:
        and.w     #255,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_238.L
+       pea       @m68kde~2_243.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -7148,7 +7267,7 @@ DisassembleInstruction_153:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_239.L
+       pea       @m68kde~2_244.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -7194,7 +7313,7 @@ DisassembleInstruction_155:
        move.w    -16(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_240.L
+       pea       @m68kde~2_245.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #16,A7
@@ -7214,7 +7333,7 @@ DisassembleInstruction_159:
        move.w    -16(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_241.L
+       pea       @m68kde~2_246.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #16,A7
@@ -7234,7 +7353,7 @@ DisassembleInstruction_161:
        move.w    -16(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_242.L
+       pea       @m68kde~2_247.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #16,A7
@@ -7254,7 +7373,7 @@ DisassembleInstruction_163:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"EXT") ;
-       pea       @m68kde~2_243.L
+       pea       @m68kde~2_248.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7265,14 +7384,14 @@ DisassembleInstruction_163:
        cmp.w     #192,D0
        bne.s     DisassembleInstruction_167
 ; strcatInstruction(".L ") ;
-       pea       @m68kde~2_154.L
+       pea       @m68kde~2_159.L
        jsr       _strcatInstruction
        addq.w    #4,A7
        bra.s     DisassembleInstruction_168
 DisassembleInstruction_167:
 ; else
 ; strcatInstruction(".W ") ;
-       pea       @m68kde~2_153.L
+       pea       @m68kde~2_158.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 DisassembleInstruction_168:
@@ -7296,7 +7415,7 @@ DisassembleInstruction_165:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"ILLEGAL ($4AFC)") ;
-       pea       @m68kde~2_244.L
+       pea       @m68kde~2_249.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7315,7 +7434,7 @@ DisassembleInstruction_169:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"JMP ") ;
-       pea       @m68kde~2_245.L
+       pea       @m68kde~2_250.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7341,7 +7460,7 @@ DisassembleInstruction_171:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"JSR ") ;
-       pea       @m68kde~2_246.L
+       pea       @m68kde~2_251.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7367,7 +7486,7 @@ DisassembleInstruction_173:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"LEA ") ;
-       pea       @m68kde~2_247.L
+       pea       @m68kde~2_252.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7386,7 +7505,7 @@ DisassembleInstruction_173:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_229.L
+       pea       @m68kde~2_234.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -7409,7 +7528,7 @@ DisassembleInstruction_175:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"LINK ") ;
-       pea       @m68kde~2_248.L
+       pea       @m68kde~2_253.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7423,7 +7542,7 @@ DisassembleInstruction_175:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_249.L
+       pea       @m68kde~2_254.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #16,A7
@@ -7526,7 +7645,7 @@ DisassembleInstruction_191:
        cmp.w     #1,D0
        bne.s     DisassembleInstruction_195
 ; strcpyInstruction("MOVE.B ") ;
-       pea       @m68kde~2_250.L
+       pea       @m68kde~2_255.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_198
@@ -7536,14 +7655,14 @@ DisassembleInstruction_195:
        cmp.w     #2,D0
        bne.s     DisassembleInstruction_197
 ; strcpyInstruction("MOVE.L ") ;
-       pea       @m68kde~2_251.L
+       pea       @m68kde~2_256.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_198
 DisassembleInstruction_197:
 ; else
 ; strcpyInstruction("MOVE.W ") ;
-       pea       @m68kde~2_252.L
+       pea       @m68kde~2_257.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_198:
@@ -7555,7 +7674,7 @@ DisassembleInstruction_198:
        jsr       _Decode6BitEA
        add.w     #16,A7
 ; strcatInstruction(",") ;
-       pea       @m68kde~2_170.L
+       pea       @m68kde~2_175.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 ; // tell next function how many words lie between opcode and destination, could be 1 or 2 e.g. with # addressing move.bwl #$data,<EA>
@@ -7584,7 +7703,7 @@ DisassembleInstruction_193:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"MOVE ") ;
-       pea       @m68kde~2_253.L
+       pea       @m68kde~2_258.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7596,7 +7715,7 @@ DisassembleInstruction_193:
        jsr       _Decode6BitEA
        add.w     #16,A7
 ; strcatInstruction(",CCR") ;
-       pea       @m68kde~2_254.L
+       pea       @m68kde~2_259.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 DisassembleInstruction_199:
@@ -7614,7 +7733,7 @@ DisassembleInstruction_199:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"MOVE SR,") ;
-       pea       @m68kde~2_255.L
+       pea       @m68kde~2_260.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7640,7 +7759,7 @@ DisassembleInstruction_201:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"MOVE ") ;
-       pea       @m68kde~2_253.L
+       pea       @m68kde~2_258.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7652,7 +7771,7 @@ DisassembleInstruction_201:
        jsr       _Decode6BitEA
        add.w     #16,A7
 ; strcatInstruction(",SR") ;
-       pea       @m68kde~2_256.L
+       pea       @m68kde~2_261.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 DisassembleInstruction_203:
@@ -7684,7 +7803,7 @@ DisassembleInstruction_203:
        move.w    -22(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_257.L
+       pea       @m68kde~2_262.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -7695,7 +7814,7 @@ DisassembleInstruction_207:
        move.w    -22(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_258.L
+       pea       @m68kde~2_263.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -7730,7 +7849,7 @@ DisassembleInstruction_208:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpy(Instruction,"MOVEM") ;
-       pea       @m68kde~2_259.L
+       pea       @m68kde~2_264.L
        pea       _Instruction.L
        jsr       _strcpy
        addq.w    #8,A7
@@ -7742,14 +7861,14 @@ DisassembleInstruction_208:
        and.w     #64,D0
        bne.s     DisassembleInstruction_213
 ; strcatInstruction(".W ") ;
-       pea       @m68kde~2_153.L
+       pea       @m68kde~2_158.L
        jsr       _strcatInstruction
        addq.w    #4,A7
        bra.s     DisassembleInstruction_214
 DisassembleInstruction_213:
 ; else
 ; strcatInstruction(".L ") ;
-       pea       @m68kde~2_154.L
+       pea       @m68kde~2_159.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 DisassembleInstruction_214:
@@ -7787,7 +7906,7 @@ DisassembleInstruction_217:
        bne.s     DisassembleInstruction_224
 ; sprintf(TempString, "D%d", i) ;
        move.l    D4,-(A7)
-       pea       @m68kde~2_260.L
+       pea       @m68kde~2_265.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -7799,7 +7918,7 @@ DisassembleInstruction_224:
 ; else
 ; sprintf(TempString, "/D%d", i) ;
        move.l    D4,-(A7)
-       pea       @m68kde~2_261.L
+       pea       @m68kde~2_266.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -7815,7 +7934,7 @@ DisassembleInstruction_222:
        move.l    D4,D1
        subq.l    #8,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_262.L
+       pea       @m68kde~2_267.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -7829,7 +7948,7 @@ DisassembleInstruction_226:
        move.l    D4,D1
        subq.l    #8,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_263.L
+       pea       @m68kde~2_268.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -7850,7 +7969,7 @@ DisassembleInstruction_220:
 DisassembleInstruction_219:
 ; }
 ; strcatInstruction(",") ;
-       pea       @m68kde~2_170.L
+       pea       @m68kde~2_175.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,0,0) ;
@@ -7873,7 +7992,7 @@ DisassembleInstruction_215:
        jsr       _Decode6BitEA
        add.w     #16,A7
 ; strcatInstruction(",") ;
-       pea       @m68kde~2_170.L
+       pea       @m68kde~2_175.L
        jsr       _strcatInstruction
        addq.w    #4,A7
 ; Mask = 0x0001 ;                     // bit 0 = 1
@@ -7899,7 +8018,7 @@ DisassembleInstruction_228:
        bne.s     DisassembleInstruction_235
 ; sprintf(TempString, "D%d", i) ;
        move.l    D4,-(A7)
-       pea       @m68kde~2_260.L
+       pea       @m68kde~2_265.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -7911,7 +8030,7 @@ DisassembleInstruction_235:
 ; else
 ; sprintf(TempString, "/D%d", i) ;
        move.l    D4,-(A7)
-       pea       @m68kde~2_261.L
+       pea       @m68kde~2_266.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -7927,7 +8046,7 @@ DisassembleInstruction_233:
        move.l    D4,D1
        subq.l    #8,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_262.L
+       pea       @m68kde~2_267.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -7941,7 +8060,7 @@ DisassembleInstruction_237:
        move.l    D4,D1
        subq.l    #8,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_263.L
+       pea       @m68kde~2_268.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -8009,7 +8128,7 @@ DisassembleInstruction_230:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_264.L
+       pea       @m68kde~2_269.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #20,A7
@@ -8028,7 +8147,7 @@ DisassembleInstruction_241:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_265.L
+       pea       @m68kde~2_270.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #20,A7
@@ -8047,7 +8166,7 @@ DisassembleInstruction_243:
        move.l    D1,-(A7)
        and.l     #65535,D5
        move.l    D5,-(A7)
-       pea       @m68kde~2_266.L
+       pea       @m68kde~2_271.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #20,A7
@@ -8066,7 +8185,7 @@ DisassembleInstruction_245:
        move.l    D1,-(A7)
        and.l     #65535,D5
        move.l    D5,-(A7)
-       pea       @m68kde~2_267.L
+       pea       @m68kde~2_272.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #20,A7
@@ -8099,7 +8218,7 @@ DisassembleInstruction_247:
        and.w     #255,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_268.L
+       pea       @m68kde~2_273.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #16,A7
@@ -8125,7 +8244,7 @@ DisassembleInstruction_249:
        and.w     #7,D0
        move.w    D0,D5
 ; strcpyInstruction("MULS ");
-       pea       @m68kde~2_269.L
+       pea       @m68kde~2_274.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,0,0) ;
@@ -8138,7 +8257,7 @@ DisassembleInstruction_249:
 ; sprintf(TempString, ",D%d", DataRegister) ;
        and.l     #65535,D5
        move.l    D5,-(A7)
-       pea       @m68kde~2_225.L
+       pea       @m68kde~2_230.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -8168,7 +8287,7 @@ DisassembleInstruction_251:
        and.w     #7,D0
        move.w    D0,D5
 ; strcpyInstruction("MULU ");
-       pea       @m68kde~2_270.L
+       pea       @m68kde~2_275.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,0,0) ;
@@ -8181,7 +8300,7 @@ DisassembleInstruction_251:
 ; sprintf(TempString, ",D%d", DataRegister) ;
        and.l     #65535,D5
        move.l    D5,-(A7)
-       pea       @m68kde~2_225.L
+       pea       @m68kde~2_230.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -8204,7 +8323,7 @@ DisassembleInstruction_253:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("NBCD ");
-       pea       @m68kde~2_271.L
+       pea       @m68kde~2_276.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,0,0);
@@ -8237,7 +8356,7 @@ DisassembleInstruction_255:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("NEG");
-       pea       @m68kde~2_272.L
+       pea       @m68kde~2_277.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode) ;
@@ -8278,7 +8397,7 @@ DisassembleInstruction_259:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("NEGX");
-       pea       @m68kde~2_273.L
+       pea       @m68kde~2_278.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode) ;
@@ -8310,7 +8429,7 @@ DisassembleInstruction_263:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("NOP");
-       pea       @m68kde~2_274.L
+       pea       @m68kde~2_279.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_265:
@@ -8336,7 +8455,7 @@ DisassembleInstruction_265:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("NOT");
-       pea       @m68kde~2_275.L
+       pea       @m68kde~2_280.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode) ;
@@ -8385,7 +8504,7 @@ DisassembleInstruction_275:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("OR") ;
-       pea       @m68kde~2_276.L
+       pea       @m68kde~2_281.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode3BitOperandMode(OpCode) ;
@@ -8409,7 +8528,7 @@ DisassembleInstruction_273:
        and.w     #255,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_277.L
+       pea       @m68kde~2_282.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -8433,7 +8552,7 @@ DisassembleInstruction_276:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_278.L
+       pea       @m68kde~2_283.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -8452,7 +8571,7 @@ DisassembleInstruction_278:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("PEA ");
-       pea       @m68kde~2_279.L
+       pea       @m68kde~2_284.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,0,0);
@@ -8476,7 +8595,7 @@ DisassembleInstruction_280:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; sprintf(Instruction, "RESET");
-       pea       @m68kde~2_280.L
+       pea       @m68kde~2_285.L
        pea       _Instruction.L
        jsr       (A5)
        addq.w    #8,A7
@@ -8494,7 +8613,7 @@ DisassembleInstruction_282:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; sprintf(Instruction, "RTE");
-       pea       @m68kde~2_281.L
+       pea       @m68kde~2_286.L
        pea       _Instruction.L
        jsr       (A5)
        addq.w    #8,A7
@@ -8512,7 +8631,7 @@ DisassembleInstruction_284:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("RTR");
-       pea       @m68kde~2_282.L
+       pea       @m68kde~2_287.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_286:
@@ -8529,7 +8648,7 @@ DisassembleInstruction_286:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("RTS");
-       pea       @m68kde~2_283.L
+       pea       @m68kde~2_288.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_288:
@@ -8550,7 +8669,7 @@ DisassembleInstruction_288:
        move.w    2(A0),D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_284.L
+       pea       @m68kde~2_289.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -8597,7 +8716,7 @@ DisassembleInstruction_290:
        move.w    -34(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_285.L
+       pea       @m68kde~2_290.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #16,A7
@@ -8611,7 +8730,7 @@ DisassembleInstruction_294:
        move.w    -34(A6),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_286.L
+       pea       @m68kde~2_291.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #16,A7
@@ -8647,7 +8766,7 @@ DisassembleInstruction_295:
        and.w     #15,D0
        move.b    D0,-23(A6)
 ; strcpyInstruction("S") ;
-       pea       @m68kde~2_287.L
+       pea       @m68kde~2_292.L
        jsr       (A3)
        addq.w    #4,A7
 ; DecodeBranchCondition(Condition) ;
@@ -8695,14 +8814,14 @@ DisassembleInstruction_304:
        cmp.w     #3,D3
        bne.s     DisassembleInstruction_305
 ; strcpyInstruction("SUBA.W ") ;
-       pea       @m68kde~2_288.L
+       pea       @m68kde~2_293.L
        jsr       (A3)
        addq.w    #4,A7
        bra.s     DisassembleInstruction_306
 DisassembleInstruction_305:
 ; else
 ; strcpyInstruction("SUBA.L ") ;
-       pea       @m68kde~2_289.L
+       pea       @m68kde~2_294.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_306:
@@ -8721,7 +8840,7 @@ DisassembleInstruction_306:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_192.L
+       pea       @m68kde~2_197.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -8734,7 +8853,7 @@ DisassembleInstruction_302:
 ; }
 ; else {
 ; strcpyInstruction("SUB") ;
-       pea       @m68kde~2_290.L
+       pea       @m68kde~2_295.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode3BitOperandMode(OpCode) ;
@@ -8767,7 +8886,7 @@ DisassembleInstruction_303:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("SUBQ") ;
-       pea       @m68kde~2_291.L
+       pea       @m68kde~2_296.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode);                                  // add .b, .w, .l size indicator to instruction string
@@ -8785,7 +8904,7 @@ DisassembleInstruction_303:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_202.L
+       pea       @m68kde~2_207.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #12,A7
@@ -8826,7 +8945,7 @@ DisassembleInstruction_309:
        beq       DisassembleInstruction_313
 ; {
 ; strcpyInstruction("SUBX") ;
-       pea       @m68kde~2_292.L
+       pea       @m68kde~2_297.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode);                                  // add .b, .w, .l size indicator to instruction string
@@ -8854,7 +8973,7 @@ DisassembleInstruction_309:
        and.w     #7,D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_293.L
+       pea       @m68kde~2_298.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #16,A7
@@ -8874,7 +8993,7 @@ DisassembleInstruction_315:
        and.w     #7,D1
        ext.l     D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_294.L
+       pea       @m68kde~2_299.L
        move.l    A4,-(A7)
        jsr       (A5)
        add.w     #16,A7
@@ -8906,7 +9025,7 @@ DisassembleInstruction_313:
 ; sprintf(Instruction, "SWAP D%d", DataRegister) ;
        and.l     #65535,D5
        move.l    D5,-(A7)
-       pea       @m68kde~2_295.L
+       pea       @m68kde~2_300.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -8931,7 +9050,7 @@ DisassembleInstruction_317:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("TAS ") ;
-       pea       @m68kde~2_296.L
+       pea       @m68kde~2_301.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode6BitEA(OpCode,0,0,0) ;
@@ -8959,7 +9078,7 @@ DisassembleInstruction_321:
        and.w     #15,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_297.L
+       pea       @m68kde~2_302.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -8977,7 +9096,7 @@ DisassembleInstruction_323:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("TRAPV") ;
-       pea       @m68kde~2_298.L
+       pea       @m68kde~2_303.L
        jsr       (A3)
        addq.w    #4,A7
 DisassembleInstruction_325:
@@ -9009,7 +9128,7 @@ DisassembleInstruction_325:
 ; InstructionSize = 1;
        move.l    #1,(A2)
 ; strcpyInstruction("TST") ;
-       pea       @m68kde~2_299.L
+       pea       @m68kde~2_304.L
        jsr       (A3)
        addq.w    #4,A7
 ; Decode2BitOperandSize(*OpCode) ;
@@ -9047,7 +9166,7 @@ DisassembleInstruction_329:
        and.w     #7,D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~2_300.L
+       pea       @m68kde~2_305.L
        pea       _Instruction.L
        jsr       (A5)
        add.w     #12,A7
@@ -9588,335 +9707,353 @@ DisassembleInstruction_331:
        dc.b      103,32,40,69,83,67,32,116,111,32,101,110,100
        dc.b      41,32,58,0
 @m68kde~2_144:
-       dc.b      13,10,83,116,97,114,116,32,65,100,100,114,101
-       dc.b      115,115,58,32,0
+       dc.b      77,101,109,111,114,121,32,115,105,122,101,32
+       dc.b      40,48,61,66,121,116,101,44,32,49,61,87,111,114
+       dc.b      100,44,32,50,61,76,111,110,103,41,58,10,0
 @m68kde~2_145:
-       dc.b      13,10,69,110,100,32,65,100,100,114,101,115,115
-       dc.b      58,32,0
+       dc.b      37,117,0
 @m68kde~2_146:
+       dc.b      80,97,116,116,101,114,110,32,40,48,45,51,41
+       dc.b      58,10,0
+@m68kde~2_147:
+       dc.b      83,116,97,114,116,32,65,100,100,114,101,115
+       dc.b      115,32,40,104,101,120,41,58,10,48,120,0
+@m68kde~2_148:
+       dc.b      37,120,0
+@m68kde~2_149:
+       dc.b      69,110,100,32,65,100,100,114,101,115,115,32
+       dc.b      40,104,101,120,41,58,10,48,120,0
+@m68kde~2_150:
+       dc.b      69,82,82,79,82,58,32,48,120,37,120,32,33,61
+       dc.b      32,48,120,37,120,10,0
+@m68kde~2_151:
        dc.b      68,69,49,45,54,56,107,32,66,117,103,32,86,49
        dc.b      46,55,55,0
-@m68kde~2_147:
+@m68kde~2_152:
        dc.b      67,111,112,121,114,105,103,104,116,32,40,67
        dc.b      41,32,80,74,32,68,97,118,105,101,115,32,50,48
        dc.b      49,54,0
-@m68kde~2_148:
+@m68kde~2_153:
        dc.b      13,10,82,117,110,110,105,110,103,46,46,46,46
        dc.b      46,0
-@m68kde~2_149:
+@m68kde~2_154:
        dc.b      82,117,110,110,105,110,103,46,46,46,46,46,0
-@m68kde~2_150:
+@m68kde~2_155:
        dc.b      66,121,58,32,80,74,32,68,97,118,105,101,115
        dc.b      0
-@m68kde~2_151:
-       dc.b      13,10,37,115,0
-@m68kde~2_152:
-       dc.b      46,66,32,0
-@m68kde~2_153:
-       dc.b      46,87,32,0
-@m68kde~2_154:
-       dc.b      46,76,32,0
-@m68kde~2_155:
-       dc.b      35,36,37,88,0
 @m68kde~2_156:
-       dc.b      40,0
+       dc.b      13,10,37,115,0
 @m68kde~2_157:
-       dc.b      41,0
+       dc.b      46,66,32,0
 @m68kde~2_158:
-       dc.b      41,43,0
+       dc.b      46,87,32,0
 @m68kde~2_159:
-       dc.b      45,40,0
+       dc.b      46,76,32,0
 @m68kde~2_160:
-       dc.b      37,100,40,65,37,100,41,0
+       dc.b      35,36,37,88,0
 @m68kde~2_161:
-       dc.b      37,100,40,65,37,100,44,0
+       dc.b      40,0
 @m68kde~2_162:
-       dc.b      68,0
+       dc.b      41,0
 @m68kde~2_163:
-       dc.b      65,0
+       dc.b      41,43,0
 @m68kde~2_164:
-       dc.b      37,100,0
+       dc.b      45,40,0
 @m68kde~2_165:
-       dc.b      46,87,41,0
+       dc.b      37,100,40,65,37,100,41,0
 @m68kde~2_166:
-       dc.b      46,76,41,0
+       dc.b      37,100,40,65,37,100,44,0
 @m68kde~2_167:
-       dc.b      36,37,88,0
+       dc.b      68,0
 @m68kde~2_168:
-       dc.b      37,100,40,80,67,41,0
+       dc.b      65,0
 @m68kde~2_169:
-       dc.b      37,100,40,80,67,44,0
+       dc.b      37,100,0
 @m68kde~2_170:
-       dc.b      44,0
+       dc.b      46,87,41,0
 @m68kde~2_171:
-       dc.b      67,67,0
+       dc.b      46,76,41,0
 @m68kde~2_172:
-       dc.b      67,83,0
+       dc.b      36,37,88,0
 @m68kde~2_173:
-       dc.b      69,81,0
+       dc.b      37,100,40,80,67,41,0
 @m68kde~2_174:
-       dc.b      71,69,0
+       dc.b      37,100,40,80,67,44,0
 @m68kde~2_175:
-       dc.b      71,84,0
+       dc.b      44,0
 @m68kde~2_176:
-       dc.b      72,73,0
+       dc.b      67,67,0
 @m68kde~2_177:
-       dc.b      76,69,0
+       dc.b      67,83,0
 @m68kde~2_178:
-       dc.b      76,83,0
+       dc.b      69,81,0
 @m68kde~2_179:
-       dc.b      76,84,0
+       dc.b      71,69,0
 @m68kde~2_180:
-       dc.b      77,73,0
+       dc.b      71,84,0
 @m68kde~2_181:
-       dc.b      78,69,0
+       dc.b      72,73,0
 @m68kde~2_182:
-       dc.b      80,76,0
+       dc.b      76,69,0
 @m68kde~2_183:
-       dc.b      86,83,0
+       dc.b      76,83,0
 @m68kde~2_184:
-       dc.b      86,67,0
+       dc.b      76,84,0
 @m68kde~2_185:
-       dc.b      82,65,0
+       dc.b      77,73,0
 @m68kde~2_186:
-       dc.b      83,82,0
+       dc.b      78,69,0
 @m68kde~2_187:
-       dc.b      85,110,107,110,111,119,110,0
+       dc.b      80,76,0
 @m68kde~2_188:
-       dc.b      65,66,67,68,32,68,37,100,44,68,37,100,0
+       dc.b      86,83,0
 @m68kde~2_189:
+       dc.b      86,67,0
+@m68kde~2_190:
+       dc.b      82,65,0
+@m68kde~2_191:
+       dc.b      83,82,0
+@m68kde~2_192:
+       dc.b      85,110,107,110,111,119,110,0
+@m68kde~2_193:
+       dc.b      65,66,67,68,32,68,37,100,44,68,37,100,0
+@m68kde~2_194:
        dc.b      65,66,67,68,32,45,40,65,37,100,41,44,45,40,65
        dc.b      37,100,41,0
-@m68kde~2_190:
-       dc.b      65,68,68,65,46,87,32,0
-@m68kde~2_191:
-       dc.b      65,68,68,65,46,76,32,0
-@m68kde~2_192:
-       dc.b      44,65,37,88,0
-@m68kde~2_193:
-       dc.b      65,68,68,0
-@m68kde~2_194:
-       dc.b      65,68,68,73,0
 @m68kde~2_195:
-       dc.b      65,78,68,73,0
+       dc.b      65,68,68,65,46,87,32,0
 @m68kde~2_196:
-       dc.b      67,77,80,73,0
+       dc.b      65,68,68,65,46,76,32,0
 @m68kde~2_197:
-       dc.b      69,79,82,73,0
+       dc.b      44,65,37,88,0
 @m68kde~2_198:
-       dc.b      79,82,73,0
+       dc.b      65,68,68,0
 @m68kde~2_199:
-       dc.b      83,85,66,73,0
+       dc.b      65,68,68,73,0
 @m68kde~2_200:
-       dc.b      65,78,68,73,32,35,36,37,88,44,83,82,0
+       dc.b      65,78,68,73,0
 @m68kde~2_201:
-       dc.b      65,68,68,81,0
+       dc.b      67,77,80,73,0
 @m68kde~2_202:
-       dc.b      35,37,49,88,44,0
+       dc.b      69,79,82,73,0
 @m68kde~2_203:
-       dc.b      65,68,68,88,0
+       dc.b      79,82,73,0
 @m68kde~2_204:
-       dc.b      68,37,88,44,68,37,88,0
+       dc.b      83,85,66,73,0
 @m68kde~2_205:
-       dc.b      45,40,65,37,88,41,44,45,40,65,37,88,41,0
+       dc.b      65,78,68,73,32,35,36,37,88,44,83,82,0
 @m68kde~2_206:
-       dc.b      65,78,68,0
+       dc.b      65,68,68,81,0
 @m68kde~2_207:
-       dc.b      65,78,68,73,32,35,36,37,50,88,44,67,67,82,0
+       dc.b      35,37,49,88,44,0
 @m68kde~2_208:
-       dc.b      65,83,76,0
+       dc.b      65,68,68,88,0
 @m68kde~2_209:
-       dc.b      65,83,82,0
+       dc.b      68,37,88,44,68,37,88,0
 @m68kde~2_210:
-       dc.b      76,83,76,0
+       dc.b      45,40,65,37,88,41,44,45,40,65,37,88,41,0
 @m68kde~2_211:
-       dc.b      76,83,82,0
+       dc.b      65,78,68,0
 @m68kde~2_212:
-       dc.b      82,79,76,0
+       dc.b      65,78,68,73,32,35,36,37,50,88,44,67,67,82,0
 @m68kde~2_213:
-       dc.b      82,79,82,0
+       dc.b      65,83,76,0
 @m68kde~2_214:
-       dc.b      82,79,88,76,0
+       dc.b      65,83,82,0
 @m68kde~2_215:
-       dc.b      82,79,88,82,0
+       dc.b      76,83,76,0
 @m68kde~2_216:
-       dc.b      35,36,37,88,44,68,37,88,0
+       dc.b      76,83,82,0
 @m68kde~2_217:
-       dc.b      66,0
+       dc.b      82,79,76,0
 @m68kde~2_218:
-       dc.b      66,67,72,71,32,0
+       dc.b      82,79,82,0
 @m68kde~2_219:
-       dc.b      68,37,100,44,0
+       dc.b      82,79,88,76,0
 @m68kde~2_220:
-       dc.b      35,36,37,88,44,0
+       dc.b      82,79,88,82,0
 @m68kde~2_221:
-       dc.b      66,67,76,82,32,0
+       dc.b      35,36,37,88,44,68,37,88,0
 @m68kde~2_222:
-       dc.b      66,83,69,84,32,0
+       dc.b      66,0
 @m68kde~2_223:
-       dc.b      66,84,83,84,32,0
+       dc.b      66,67,72,71,32,0
 @m68kde~2_224:
-       dc.b      67,72,75,32,0
+       dc.b      68,37,100,44,0
 @m68kde~2_225:
-       dc.b      44,68,37,100,0
+       dc.b      35,36,37,88,44,0
 @m68kde~2_226:
-       dc.b      67,76,82,0
+       dc.b      66,67,76,82,32,0
 @m68kde~2_227:
-       dc.b      67,77,80,65,46,87,32,0
+       dc.b      66,83,69,84,32,0
 @m68kde~2_228:
-       dc.b      67,77,80,65,46,76,32,0
+       dc.b      66,84,83,84,32,0
 @m68kde~2_229:
-       dc.b      44,65,37,100,0
+       dc.b      67,72,75,32,0
 @m68kde~2_230:
-       dc.b      67,77,80,0
+       dc.b      44,68,37,100,0
 @m68kde~2_231:
-       dc.b      67,77,80,77,0
+       dc.b      67,76,82,0
 @m68kde~2_232:
-       dc.b      40,65,37,100,41,43,44,40,65,37,100,41,43,0
+       dc.b      67,77,80,65,46,87,32,0
 @m68kde~2_233:
-       dc.b      68,66,0
+       dc.b      67,77,80,65,46,76,32,0
 @m68kde~2_234:
+       dc.b      44,65,37,100,0
+@m68kde~2_235:
+       dc.b      67,77,80,0
+@m68kde~2_236:
+       dc.b      67,77,80,77,0
+@m68kde~2_237:
+       dc.b      40,65,37,100,41,43,44,40,65,37,100,41,43,0
+@m68kde~2_238:
+       dc.b      68,66,0
+@m68kde~2_239:
        dc.b      68,37,100,44,37,43,100,40,80,67,41,32,116,111
        dc.b      32,65,100,100,114,58,36,37,88,0
-@m68kde~2_235:
-       dc.b      68,73,86,83,32,0
-@m68kde~2_236:
-       dc.b      68,73,86,85,32,0
-@m68kde~2_237:
-       dc.b      69,79,82,0
-@m68kde~2_238:
-       dc.b      69,79,82,73,32,35,36,37,50,88,44,67,67,82,0
-@m68kde~2_239:
-       dc.b      69,79,82,73,32,35,36,37,88,44,83,82,0
 @m68kde~2_240:
-       dc.b      69,88,71,32,68,37,100,44,68,37,100,0
+       dc.b      68,73,86,83,32,0
 @m68kde~2_241:
-       dc.b      69,88,71,32,65,37,100,44,65,37,100,0
+       dc.b      68,73,86,85,32,0
 @m68kde~2_242:
-       dc.b      69,88,71,32,68,37,100,44,65,37,100,0
+       dc.b      69,79,82,0
 @m68kde~2_243:
-       dc.b      69,88,84,0
+       dc.b      69,79,82,73,32,35,36,37,50,88,44,67,67,82,0
 @m68kde~2_244:
+       dc.b      69,79,82,73,32,35,36,37,88,44,83,82,0
+@m68kde~2_245:
+       dc.b      69,88,71,32,68,37,100,44,68,37,100,0
+@m68kde~2_246:
+       dc.b      69,88,71,32,65,37,100,44,65,37,100,0
+@m68kde~2_247:
+       dc.b      69,88,71,32,68,37,100,44,65,37,100,0
+@m68kde~2_248:
+       dc.b      69,88,84,0
+@m68kde~2_249:
        dc.b      73,76,76,69,71,65,76,32,40,36,52,65,70,67,41
        dc.b      0
-@m68kde~2_245:
-       dc.b      74,77,80,32,0
-@m68kde~2_246:
-       dc.b      74,83,82,32,0
-@m68kde~2_247:
-       dc.b      76,69,65,32,0
-@m68kde~2_248:
-       dc.b      76,73,78,75,32,0
-@m68kde~2_249:
-       dc.b      65,37,100,44,35,37,100,0
 @m68kde~2_250:
-       dc.b      77,79,86,69,46,66,32,0
+       dc.b      74,77,80,32,0
 @m68kde~2_251:
-       dc.b      77,79,86,69,46,76,32,0
+       dc.b      74,83,82,32,0
 @m68kde~2_252:
-       dc.b      77,79,86,69,46,87,32,0
+       dc.b      76,69,65,32,0
 @m68kde~2_253:
-       dc.b      77,79,86,69,32,0
+       dc.b      76,73,78,75,32,0
 @m68kde~2_254:
-       dc.b      44,67,67,82,0
+       dc.b      65,37,100,44,35,37,100,0
 @m68kde~2_255:
-       dc.b      77,79,86,69,32,83,82,44,0
+       dc.b      77,79,86,69,46,66,32,0
 @m68kde~2_256:
-       dc.b      44,83,82,0
+       dc.b      77,79,86,69,46,76,32,0
 @m68kde~2_257:
-       dc.b      77,79,86,69,32,85,83,80,44,65,37,100,0
+       dc.b      77,79,86,69,46,87,32,0
 @m68kde~2_258:
-       dc.b      77,79,86,69,32,65,37,100,44,85,83,80,0
+       dc.b      77,79,86,69,32,0
 @m68kde~2_259:
-       dc.b      77,79,86,69,77,0
+       dc.b      44,67,67,82,0
 @m68kde~2_260:
-       dc.b      68,37,100,0
+       dc.b      77,79,86,69,32,83,82,44,0
 @m68kde~2_261:
-       dc.b      47,68,37,100,0
+       dc.b      44,83,82,0
 @m68kde~2_262:
-       dc.b      65,37,100,0
+       dc.b      77,79,86,69,32,85,83,80,44,65,37,100,0
 @m68kde~2_263:
-       dc.b      47,65,37,100,0
+       dc.b      77,79,86,69,32,65,37,100,44,85,83,80,0
 @m68kde~2_264:
+       dc.b      77,79,86,69,77,0
+@m68kde~2_265:
+       dc.b      68,37,100,0
+@m68kde~2_266:
+       dc.b      47,68,37,100,0
+@m68kde~2_267:
+       dc.b      65,37,100,0
+@m68kde~2_268:
+       dc.b      47,65,37,100,0
+@m68kde~2_269:
        dc.b      77,79,86,69,80,46,87,32,36,37,88,40,65,37,100
        dc.b      41,44,68,37,100,0
-@m68kde~2_265:
+@m68kde~2_270:
        dc.b      77,79,86,69,80,46,76,32,36,37,88,40,65,37,100
        dc.b      41,44,68,37,100,0
-@m68kde~2_266:
+@m68kde~2_271:
        dc.b      77,79,86,69,80,46,87,32,68,37,100,44,36,37,88
        dc.b      40,65,37,100,41,0
-@m68kde~2_267:
+@m68kde~2_272:
        dc.b      77,79,86,69,80,46,76,32,68,37,100,44,36,37,88
        dc.b      40,65,37,100,41,0
-@m68kde~2_268:
-       dc.b      77,79,86,69,81,32,35,36,37,88,44,68,37,100,0
-@m68kde~2_269:
-       dc.b      77,85,76,83,32,0
-@m68kde~2_270:
-       dc.b      77,85,76,85,32,0
-@m68kde~2_271:
-       dc.b      78,66,67,68,32,0
-@m68kde~2_272:
-       dc.b      78,69,71,0
 @m68kde~2_273:
-       dc.b      78,69,71,88,0
+       dc.b      77,79,86,69,81,32,35,36,37,88,44,68,37,100,0
 @m68kde~2_274:
-       dc.b      78,79,80,0
+       dc.b      77,85,76,83,32,0
 @m68kde~2_275:
-       dc.b      78,79,84,0
+       dc.b      77,85,76,85,32,0
 @m68kde~2_276:
-       dc.b      79,82,0
+       dc.b      78,66,67,68,32,0
 @m68kde~2_277:
-       dc.b      79,82,73,32,35,36,37,50,88,44,67,67,82,0
+       dc.b      78,69,71,0
 @m68kde~2_278:
-       dc.b      79,82,73,32,32,35,36,37,88,44,83,82,0
+       dc.b      78,69,71,88,0
 @m68kde~2_279:
-       dc.b      80,69,65,32,0
+       dc.b      78,79,80,0
 @m68kde~2_280:
-       dc.b      82,69,83,69,84,0
+       dc.b      78,79,84,0
 @m68kde~2_281:
-       dc.b      82,84,69,0
+       dc.b      79,82,0
 @m68kde~2_282:
-       dc.b      82,84,82,0
+       dc.b      79,82,73,32,35,36,37,50,88,44,67,67,82,0
 @m68kde~2_283:
-       dc.b      82,84,83,0
+       dc.b      79,82,73,32,32,35,36,37,88,44,83,82,0
 @m68kde~2_284:
-       dc.b      83,84,79,80,32,35,36,37,88,0
+       dc.b      80,69,65,32,0
 @m68kde~2_285:
-       dc.b      83,66,67,68,32,68,37,100,44,68,37,100,0
+       dc.b      82,69,83,69,84,0
 @m68kde~2_286:
+       dc.b      82,84,69,0
+@m68kde~2_287:
+       dc.b      82,84,82,0
+@m68kde~2_288:
+       dc.b      82,84,83,0
+@m68kde~2_289:
+       dc.b      83,84,79,80,32,35,36,37,88,0
+@m68kde~2_290:
+       dc.b      83,66,67,68,32,68,37,100,44,68,37,100,0
+@m68kde~2_291:
        dc.b      83,66,67,68,32,45,40,65,37,100,41,44,45,40,65
        dc.b      37,100,41,0
-@m68kde~2_287:
-       dc.b      83,0
-@m68kde~2_288:
-       dc.b      83,85,66,65,46,87,32,0
-@m68kde~2_289:
-       dc.b      83,85,66,65,46,76,32,0
-@m68kde~2_290:
-       dc.b      83,85,66,0
-@m68kde~2_291:
-       dc.b      83,85,66,81,0
 @m68kde~2_292:
-       dc.b      83,85,66,88,0
+       dc.b      83,0
 @m68kde~2_293:
-       dc.b      68,37,49,88,44,68,37,49,88,0
+       dc.b      83,85,66,65,46,87,32,0
 @m68kde~2_294:
+       dc.b      83,85,66,65,46,76,32,0
+@m68kde~2_295:
+       dc.b      83,85,66,0
+@m68kde~2_296:
+       dc.b      83,85,66,81,0
+@m68kde~2_297:
+       dc.b      83,85,66,88,0
+@m68kde~2_298:
+       dc.b      68,37,49,88,44,68,37,49,88,0
+@m68kde~2_299:
        dc.b      45,40,65,37,49,88,41,44,45,40,65,37,49,88,41
        dc.b      0
-@m68kde~2_295:
-       dc.b      83,87,65,80,32,68,37,100,0
-@m68kde~2_296:
-       dc.b      84,65,83,32,0
-@m68kde~2_297:
-       dc.b      84,82,65,80,32,35,37,100,0
-@m68kde~2_298:
-       dc.b      84,82,65,80,86,0
-@m68kde~2_299:
-       dc.b      84,83,84,0
 @m68kde~2_300:
+       dc.b      83,87,65,80,32,68,37,100,0
+@m68kde~2_301:
+       dc.b      84,65,83,32,0
+@m68kde~2_302:
+       dc.b      84,82,65,80,32,35,37,100,0
+@m68kde~2_303:
+       dc.b      84,82,65,80,86,0
+@m68kde~2_304:
+       dc.b      84,83,84,0
+@m68kde~2_305:
        dc.b      85,78,76,75,32,65,37,100,0
+       section   data
+MemoryTest_patterns:
+       dc.l      161,178,195,212,43981,4660,41394,50132,-1412623820
+       dc.l      -1430532899,287454020,1985229328
        section   bss
        xdef      _i
 _i:
@@ -10035,4 +10172,6 @@ _TempString:
        xref      _sprintf
        xref      _strcat
        xref      _toupper
+       xref      _scanf
+       xref      ULDIV
        xref      _printf

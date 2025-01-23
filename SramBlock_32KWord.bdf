@@ -69,7 +69,7 @@ refer to the applicable agreement for further details.
 )
 (pin
 	(input)
-	(rect 248 496 416 512)
+	(rect 72 496 240 512)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
 	(text "UDS_L" (rect 5 0 40 12)(font "Arial" ))
 	(pt 168 8)
@@ -85,7 +85,7 @@ refer to the applicable agreement for further details.
 )
 (pin
 	(input)
-	(rect 240 448 408 464)
+	(rect 64 448 232 464)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
 	(text "LDS_L" (rect 5 0 38 12)(font "Arial" ))
 	(pt 168 8)
@@ -101,7 +101,7 @@ refer to the applicable agreement for further details.
 )
 (pin
 	(input)
-	(rect 248 544 416 560)
+	(rect 72 544 240 560)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
 	(text "WE_L" (rect 5 0 34 12)(font "Arial" ))
 	(pt 168 8)
@@ -117,7 +117,7 @@ refer to the applicable agreement for further details.
 )
 (pin
 	(input)
-	(rect 248 568 416 584)
+	(rect 72 568 240 584)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
 	(text "AS_L" (rect 5 0 30 12)(font "Arial" ))
 	(pt 168 8)
@@ -149,7 +149,7 @@ refer to the applicable agreement for further details.
 )
 (pin
 	(input)
-	(rect 208 480 416 496)
+	(rect 32 480 240 496)
 	(text "INPUT" (rect 173 0 201 10)(font "Arial" (font_size 6)))
 	(text "32kWordBlockSelect_H" (rect 5 0 120 12)(font "Arial" ))
 	(pt 208 8)
@@ -555,7 +555,7 @@ refer to the applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 416 488 464 520)
+	(rect 240 488 288 520)
 	(text "NOT" (rect 1 0 21 10)(font "Arial" (font_size 6)))
 	(text "inst11" (rect 3 21 31 38)(font "Intel Clear" ))
 	(port
@@ -580,7 +580,7 @@ refer to the applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 408 440 456 472)
+	(rect 232 440 280 472)
 	(text "NOT" (rect 1 0 21 10)(font "Arial" (font_size 6)))
 	(text "inst12" (rect 3 21 31 38)(font "Intel Clear" ))
 	(port
@@ -605,7 +605,7 @@ refer to the applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 416 560 464 592)
+	(rect 240 560 288 592)
 	(text "NOT" (rect 1 0 21 10)(font "Arial" (font_size 6)))
 	(text "inst15" (rect 3 21 31 38)(font "Intel Clear" ))
 	(port
@@ -630,7 +630,7 @@ refer to the applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 416 536 464 568)
+	(rect 240 536 288 568)
 	(text "NOT" (rect 1 0 21 10)(font "Arial" (font_size 6)))
 	(text "inst17" (rect 3 21 31 38)(font "Intel Clear" ))
 	(port
@@ -749,7 +749,7 @@ refer to the applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 728 200 776 232)
+	(rect 728 208 776 240)
 	(text "NOT" (rect 1 0 21 10)(font "Arial" (font_size 6)))
 	(text "inst6" (rect 3 21 25 38)(font "Intel Clear" ))
 	(port
@@ -778,28 +778,8 @@ refer to the applicable agreement for further details.
 	(pt 1200 448)
 )
 (connector
-	(pt 1240 240)
-	(pt 1120 240)
-)
-(connector
-	(pt 1120 240)
-	(pt 1120 400)
-)
-(connector
-	(pt 1240 272)
-	(pt 1144 272)
-)
-(connector
-	(pt 1144 272)
-	(pt 1144 416)
-)
-(connector
 	(pt 1240 288)
 	(pt 1200 288)
-)
-(connector
-	(pt 1712 776)
-	(pt 1712 848)
 )
 (connector
 	(pt 1752 864)
@@ -807,33 +787,9 @@ refer to the applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 1720 656)
-	(pt 1720 584)
-)
-(connector
-	(pt 1312 584)
-	(pt 1720 584)
-)
-(connector
-	(pt 1312 424)
-	(pt 1312 584)
-)
-(connector
-	(pt 1712 776)
-	(pt 1792 776)
-)
-(connector
 	(pt 1760 672)
 	(pt 2008 672)
 	(bus)
-)
-(connector
-	(pt 1304 264)
-	(pt 1792 264)
-)
-(connector
-	(pt 1792 264)
-	(pt 1792 776)
 )
 (connector
 	(pt 1544 768)
@@ -927,10 +883,6 @@ refer to the applicable agreement for further details.
 	(pt 944 976)
 )
 (connector
-	(pt 608 696)
-	(pt 704 696)
-)
-(connector
 	(pt 864 520)
 	(pt 840 520)
 )
@@ -995,10 +947,6 @@ refer to the applicable agreement for further details.
 	(pt 936 784)
 )
 (connector
-	(pt 704 712)
-	(pt 584 712)
-)
-(connector
 	(pt 704 664)
 	(pt 672 664)
 )
@@ -1011,30 +959,6 @@ refer to the applicable agreement for further details.
 	(pt 760 488)
 )
 (connector
-	(pt 704 680)
-	(pt 632 680)
-)
-(connector
-	(pt 632 456)
-	(pt 632 680)
-)
-(connector
-	(pt 608 552)
-	(pt 608 696)
-)
-(connector
-	(pt 608 552)
-	(pt 624 552)
-)
-(connector
-	(pt 584 576)
-	(pt 584 712)
-)
-(connector
-	(pt 584 576)
-	(pt 648 576)
-)
-(connector
 	(pt 816 688)
 	(pt 768 688)
 )
@@ -1043,134 +967,214 @@ refer to the applicable agreement for further details.
 	(pt 816 976)
 )
 (connector
-	(pt 512 552)
-	(pt 512 296)
+	(pt 528 576)
+	(pt 528 416)
 )
 (connector
-	(pt 464 552)
-	(pt 512 552)
+	(pt 704 712)
+	(pt 368 712)
 )
 (connector
-	(pt 512 552)
-	(pt 608 552)
+	(pt 368 576)
+	(pt 368 712)
 )
 (connector
-	(pt 680 296)
-	(pt 680 216)
+	(pt 528 576)
+	(pt 648 576)
 )
 (connector
-	(pt 680 216)
-	(pt 728 216)
+	(pt 288 576)
+	(pt 368 576)
 )
 (connector
-	(pt 512 296)
-	(pt 680 296)
+	(pt 368 576)
+	(pt 528 576)
 )
 (connector
-	(pt 1096 368)
-	(pt 1200 368)
+	(pt 704 696)
+	(pt 408 696)
 )
 (connector
-	(pt 1200 288)
-	(pt 1200 368)
+	(pt 408 552)
+	(pt 408 696)
 )
 (connector
-	(pt 1200 368)
-	(pt 1200 448)
+	(pt 408 552)
+	(pt 624 552)
 )
 (connector
-	(pt 776 216)
-	(pt 1096 216)
+	(pt 704 680)
+	(pt 448 680)
 )
 (connector
-	(pt 1096 216)
-	(pt 1096 368)
+	(pt 448 456)
+	(pt 448 680)
 )
 (connector
-	(pt 1240 256)
-	(pt 536 256)
+	(pt 280 456)
+	(pt 448 456)
 )
 (connector
-	(pt 536 256)
-	(pt 536 504)
+	(pt 448 456)
+	(pt 592 456)
 )
 (connector
-	(pt 464 504)
-	(pt 536 504)
+	(pt 1240 240)
+	(pt 872 240)
 )
 (connector
-	(pt 536 504)
-	(pt 760 504)
+	(pt 872 400)
+	(pt 872 240)
 )
 (connector
-	(pt 568 432)
-	(pt 1248 432)
+	(pt 1240 272)
+	(pt 896 272)
 )
 (connector
-	(pt 568 432)
-	(pt 568 456)
+	(pt 896 416)
+	(pt 896 272)
 )
 (connector
-	(pt 632 456)
-	(pt 568 456)
+	(pt 528 416)
+	(pt 896 416)
 )
 (connector
-	(pt 568 456)
-	(pt 456 456)
-)
-(connector
-	(pt 552 416)
-	(pt 552 576)
-)
-(connector
-	(pt 552 416)
-	(pt 1144 416)
-)
-(connector
-	(pt 1144 416)
+	(pt 896 416)
 	(pt 1248 416)
 )
 (connector
-	(pt 464 576)
-	(pt 552 576)
+	(pt 1240 256)
+	(pt 1232 256)
 )
 (connector
-	(pt 552 576)
-	(pt 584 576)
+	(pt 1232 256)
+	(pt 1232 208)
 )
 (connector
-	(pt 496 400)
-	(pt 496 488)
+	(pt 1232 208)
+	(pt 328 208)
 )
 (connector
-	(pt 496 400)
-	(pt 1120 400)
+	(pt 328 504)
+	(pt 328 208)
 )
 (connector
-	(pt 1120 400)
+	(pt 288 504)
+	(pt 328 504)
+)
+(connector
+	(pt 328 504)
+	(pt 760 504)
+)
+(connector
+	(pt 304 552)
+	(pt 304 224)
+)
+(connector
+	(pt 304 224)
+	(pt 728 224)
+)
+(connector
+	(pt 1200 224)
+	(pt 776 224)
+)
+(connector
+	(pt 288 552)
+	(pt 304 552)
+)
+(connector
+	(pt 304 552)
+	(pt 408 552)
+)
+(connector
+	(pt 1200 224)
+	(pt 1200 288)
+)
+(connector
+	(pt 1200 288)
+	(pt 1200 448)
+)
+(connector
+	(pt 568 488)
+	(pt 672 488)
+)
+(connector
+	(pt 568 400)
+	(pt 872 400)
+)
+(connector
+	(pt 872 400)
 	(pt 1248 400)
 )
 (connector
-	(pt 416 488)
-	(pt 496 488)
+	(pt 248 488)
+	(pt 248 496)
 )
 (connector
-	(pt 496 488)
-	(pt 672 488)
+	(pt 240 488)
+	(pt 248 488)
 )
-(junction (pt 1120 400))
-(junction (pt 1144 416))
-(junction (pt 1200 368))
+(connector
+	(pt 248 496)
+	(pt 568 496)
+)
+(connector
+	(pt 568 400)
+	(pt 568 488)
+)
+(connector
+	(pt 568 488)
+	(pt 568 496)
+)
+(connector
+	(pt 592 456)
+	(pt 592 440)
+)
+(connector
+	(pt 1240 432)
+	(pt 1240 440)
+)
+(connector
+	(pt 1248 432)
+	(pt 1240 432)
+)
+(connector
+	(pt 1240 440)
+	(pt 592 440)
+)
+(connector
+	(pt 1712 816)
+	(pt 1712 848)
+)
+(connector
+	(pt 1720 264)
+	(pt 1304 264)
+)
+(connector
+	(pt 1720 264)
+	(pt 1720 656)
+)
+(connector
+	(pt 1312 816)
+	(pt 1312 424)
+)
+(connector
+	(pt 1312 816)
+	(pt 1712 816)
+)
 (junction (pt 736 880))
 (junction (pt 680 832))
 (junction (pt 672 488))
-(junction (pt 608 552))
-(junction (pt 584 576))
-(junction (pt 512 552))
-(junction (pt 536 504))
-(junction (pt 568 456))
-(junction (pt 552 576))
-(junction (pt 496 488))
+(junction (pt 304 552))
+(junction (pt 568 488))
+(junction (pt 328 504))
+(junction (pt 528 576))
+(junction (pt 368 576))
+(junction (pt 408 552))
+(junction (pt 448 456))
+(junction (pt 872 400))
+(junction (pt 896 416))
+(junction (pt 1200 288))
 (text "Tri States are currently disabled by the Ground connection to allow simulation" (rect 1344 528 1784 542)(font "Arial" (font_size 8)))
 (text "Write enables to memory  disabled to allow compilation. Replace ground with logic once it has been designed" (rect 936 496 1553 510)(font "Arial" (font_size 8)))
 (text "You will replace this eventually with some logic" (rect 1344 544 1613 558)(font "Arial" (font_size 8)))

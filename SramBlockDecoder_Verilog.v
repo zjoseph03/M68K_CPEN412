@@ -10,35 +10,40 @@ module SramBlockDecoder_Verilog(
 );	
 
 	always@(*)	begin
+		 Block0_H = 0;
+		 Block1_H = 0;
+		 Block2_H = 0;
+		 Block3_H = 0;
+		 
 		if (SRamSelect_H) begin
 		// default block selects are inactive - override as appropriate later
 			case (Address[16:15])
 				2'b00: begin 
-					Block0_H <= 1;
-					Block1_H <= 0; 
-					Block2_H <= 0; 
-					Block3_H <= 0; 
+					Block0_H = 1;
+					Block1_H = 0; 
+					Block2_H = 0; 
+					Block3_H = 0; 
 					end
 					
 				2'b01: begin 
-					Block0_H <= 0;
-					Block1_H <= 1; 
-					Block2_H <= 0; 
-					Block3_H <= 0; 
+					Block0_H = 0;
+					Block1_H = 1; 
+					Block2_H = 0; 
+					Block3_H = 0; 
 					end
 					
 				2'b10: begin 
-					Block0_H <= 0;
-					Block1_H <= 0; 
-					Block2_H <= 1; 
-					Block3_H <= 0; 
+					Block0_H = 0;
+					Block1_H = 0; 
+					Block2_H = 1; 
+					Block3_H = 0; 
 					end
 					
 				default: begin 
-					Block0_H <= 0;
-					Block1_H <= 0; 
-					Block2_H <= 0; 
-					Block3_H <= 1; 
+					Block0_H = 0;
+					Block1_H = 0; 
+					Block2_H = 0; 
+					Block3_H = 1; 
 					end
 			endcase
 		end
