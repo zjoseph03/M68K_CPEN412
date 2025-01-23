@@ -1330,42 +1330,34 @@ void MemoryTest(void)
     memset(text, 0, sizeof(text));  // fills with zeros
 
     printf("Enter what size of memory you want to read/write\n Byte = 0\n Word = 1\n Long Word = 2\n");
-    scanf("%c", &dataSize);
+    scanf("%d", &dataSize);
 
-    if (dataSize == '0') {
+    if (dataSize == 0) {
         printf("Enter which data pattern you want to write into memory\n 0xA1 = 0\n 0xB2 = 1\n 0xC3 = 2\n 0xD4 = 3\n");
-        scanf("%c", &intBuffer);
+        scanf("%d", &intBuffer);
         switch (intBuffer) {
-            case('0'):
-                dataPattern = 0xA1;
-                break;
-            case('1'):
-                dataPattern = 0xB2;
-                break;
-            case('2'):
-                dataPattern = 0xC3;
-                break;
-            case('3'):
-                dataPattern = 0xD4;
-                break;
+            case(0):
+                dataPattern = 0xA1; break;
+            case(1):
+                dataPattern = 0xB2; break;
+            case(2):
+                dataPattern = 0xC3; break;
+            case(3):
+                dataPattern = 0xD4; break;
         }
         bitLength = 8;
-    } else if (dataSize == '1') {
+    } else if (dataSize == 1) {
         printf("Enter which data pattern you want to write into memory\n 0xABCD = 0\n 0x1234 = 1\n 0xA1B2 = 2\n 0xC3D4 = 3\n");
         scanf("%d", &intBuffer);
         switch (intBuffer) {
-            case('0'):
-                dataPattern = 0xABCD;
-                break;
-            case('1'):
-                dataPattern = 0x1234;
-                break;
-            case('2'):
-                dataPattern = 0xA1B2;
-                break;
-            case('3'):
-                dataPattern = 0xC3D4;
-                break;
+            case(0):
+                dataPattern = 0xABCD; break;
+            case(1):
+                dataPattern = 0x1234; break;
+            case(2):
+                dataPattern = 0xA1B2; break;
+            case(3):
+                dataPattern = 0xC3D4; break;
         }
         bitLength = 16;
     } else {
@@ -1373,18 +1365,14 @@ void MemoryTest(void)
         scanf("%d", &intBuffer);
 
         switch (intBuffer) {
-            case('0'):
-                dataPattern = 0xABCD1234;
-                break;
-            case('1'):
-                dataPattern = 0xAABBCCDD;
-                break;
-            case('2'):
-                dataPattern = 0x11223344;
-                break;
-            case('3'):
-                dataPattern = 0x76543210;
-                break;
+            case(0):
+                dataPattern = 0xABCD1234; break;
+            case(1):
+                dataPattern = 0xAABBCCDD; break;
+            case(2):
+                dataPattern = 0x11223344; break;
+            case(3):
+                dataPattern = 0x76543210; break;
         }
         bitLength = 32;
     }
@@ -1419,7 +1407,7 @@ void MemoryTest(void)
             }
 
             addrCount++;
-            if (addrCount % 100 == 0) {
+            if (addrCount % 1 == 0) {
                 if (dataSize == 0) {
                     printf("Address: 0x%x Value: 0x%02X\n",
                         (unsigned int)addressPointer, *addressPointer);
