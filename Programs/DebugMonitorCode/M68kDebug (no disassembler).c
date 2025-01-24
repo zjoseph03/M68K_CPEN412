@@ -1298,21 +1298,158 @@ void EnterString(void)
     *Start = 0x00;  // terminate with a null
 }
 
+// Sourced from this stack overflow post: https://stackoverflow.com/questions/7898215/how-can-i-clear-an-input-buffer-in-c
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
 void MemoryTest(void)
 {
     unsigned int *RamPtr, counter1=1 ;
     register unsigned int i ;
     unsigned int Start, End ;
-    char c ;
+    char c, text[150];
+    unsigned int* addressPointer;
+    unsigned int startAddress = NULL;
+    unsigned int endAddress = NULL;
+    unsigned int byteLength;
+    unsigned int dataSize = 0;
+    unsigned int dataPattern = 0;
+    unsigned int currAddress;
+    unsigned int addrCount;
+    unsigned int intBuffer = NULL;
+    unsigned char *startAddressPtr = NULL;
+    unsigned char *endAddressPtr = NULL;
+    unsigned short int *wordAddressPtr = NULL;
+    unsigned int *longAddressPtr = NULL;
 
-    printf("\r\nStart Address: ") ;
-    Start = Get8HexDigits(0) ;
-    printf("\r\nEnd Address: ") ;
-    End = Get8HexDigits(0) ;
+    // printf("\r\nStart Address: ") ;
+    // Start = Get8HexDigits(0) ;
+    // printf("\r\nEnd Address: ") ;
+    // End = Get8HexDigits(0) ;
 
 	// TODO
+    scanflush();
+    memset(text, 0, sizeof(text));  // fills with zeros
 
-	// add your code to test memory here using 32 bit reads and writes of data between the start and end of memory
+    printf("\nEnter what size of memory you want to read/write\n Byte = 0\n Word = 1\n Long Word = 2\n");
+    dataSize = _getch() - 48;
+    printf("\n");
+
+    if (dataSize == 0) {
+        printf("\nEnter which data pattern you want to write into memory\n 0x00 = 0\n 0xB2 = 1\n 0xC3 = 2\n 0xD4 = 3\n");
+        intBuffer = _getch() - 48;
+        // scanf("%d", &intBuffer);
+        switch (intBuffer) {
+            case(0):
+                dataPattern = 0x00; break;
+            case(1):
+                dataPattern = 0xB2; break;
+            case(2):
+                dataPattern = 0xC3; break;
+            case(3):
+                dataPattern = 0xD4; break;
+        }
+        dataPattern &= 0xFF;
+        byteLength = 1;
+    } else if (dataSize == 1) {
+        printf("\nEnter which data pattern you want to write into memory\n 0x0000 = 0\n 0x1234 = 1\n 0xA1B2 = 2\n 0xC3D4 = 3\n");
+        intBuffer = _getch() - 48;
+        switch (intBuffer) {
+            case(0):
+                dataPattern = 0x0000; break;
+            case(1):
+                dataPattern = 0x1234; break;
+            case(2):
+                dataPattern = 0xA1B2; break;
+            case(3):
+                dataPattern = 0xC3D4; break;
+        }
+        dataPattern &= 0xFFFF;
+        byteLength = 2;
+    } else {
+        printf("\nEnter which data pattern you want to write into memory\n 0x0000_0000 = 0\n 0xAABB_CCDD = 1\n 0x1122_3344 = 2\n 0x7654_3210 = 3\n");
+        intBuffer = _getch() - 48;
+
+        switch (intBuffer) {
+            case(0):
+                dataPattern = 0x00000000; break;
+            case(1):
+                dataPattern = 0xAABBCCDD; break;
+            case(2):
+                dataPattern = 0x11223344; break;
+            case(3):
+                dataPattern = 0x76543210; break;
+        }
+        byteLength = 4;
+    }
+
+    while (startAddressPtr == NULL || 
+            (unsigned int) startAddressPtr % 2 != 0 || 
+            (unsigned int) startAddressPtr < 0x08020000 || 
+            (unsigned int) startAddressPtr > 0x08030000 - byteLength) {
+        printf("\nProvide Start Address in hex (do not use 0x prefix)\n0x");
+        startAddressPtr =  Get8HexDigits(0);
+        // scanf("%x", &startAddress);
+    }
+
+    while (endAddressPtr == NULL || 
+            (unsigned int) endAddressPtr < startAddress + byteLength) {
+        printf("\nProvide End Address in hex (do not use 0x prefix)\n0x");
+        endAddressPtr =  Get8HexDigits(0);
+        //scanf("%x", &endAddress);
+    }
+
+    printf("\nStart Address 0x%08x\n", (unsigned int) startAddressPtr);
+    printf("\nEnd Address: 0x%08x\n",(unsigned int) endAddressPtr);
+
+    addrCount = 0;
+ 
+    while (startAddressPtr < endAddressPtr && ((unsigned int)endAddressPtr - (unsigned int)startAddressPtr + 1) >= (byteLength)) {
+        longAddressPtr = startAddressPtr;
+        wordAddressPtr = startAddressPtr;
+        if (dataSize == 0) {
+            *startAddressPtr = dataPattern;
+            if ((*startAddressPtr) != dataPattern) {
+                printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
+            }
+        } else if (dataSize == 1) {
+            *wordAddressPtr = dataPattern;
+            if ((*wordAddressPtr) != dataPattern) {
+                printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
+            }
+        } else {
+            *longAddressPtr = dataPattern;
+            if ((*longAddressPtr) != dataPattern) {
+                printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
+            }
+        }
+
+        // if ((*startAddressPtr) != dataPattern) {
+        //     printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
+        // }
+
+        addrCount++;
+        if (addrCount % 128 == 0) {
+            if (dataSize == 0) {
+                printf("Address: 0x%x Value: 0x%02X\n",
+                (unsigned int)startAddressPtr, *startAddressPtr);
+            }
+            else if (dataSize == 1) {
+                printf("Address: 0x%x Value: 0x%04X\n",
+                (unsigned int)wordAddressPtr, *wordAddressPtr);
+            }
+            else {
+                printf("Address: 0x%x Value: 0x%08X\n",
+                (unsigned int)longAddressPtr, *longAddressPtr);
+            }
+        }
+        startAddressPtr += byteLength;
+    }
+
+        // add your code to test memory here using 32 bit reads and writes of data between the start and end of memory
+
 }
 
 void main(void)
@@ -1397,6 +1534,7 @@ void main(void)
 
     printf("\r\n%s", BugMessage) ;
     printf("\r\n%s", CopyrightMessage) ;
+    printf("\n Student Names:\n Zachariah Joseph: 45500055 \n Umair Mazhar: 20333308\n");
 
     menu();
 }

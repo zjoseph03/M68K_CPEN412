@@ -16,8 +16,8 @@
 // The working 68k system SOF file posted on canvas that you can use for your pre-lab
 // is based around Dram so #define accordingly before building
 
-//#define StartOfExceptionVectorTable 0x08030000
-#define StartOfExceptionVectorTable 0x0B000000
+#define StartOfExceptionVectorTable 0x08030000
+// #define StartOfExceptionVectorTable 0x0B000000
 
 /**********************************************************************************************
 **	Parallel port addresses
@@ -324,54 +324,323 @@ void InstallExceptionHandler( void (*function_ptr)(), int level)
 /******************************************************************************************************************************
 * Start of user program
 ******************************************************************************************************************************/
+void MemoryTest(void)
+{
+    unsigned int *RamPtr, counter1=1 ;
+    register unsigned int i ;
+    unsigned int Start, End ;
+    char c, text[150];
+    unsigned int* addressPointer;
+    unsigned int startAddress = NULL;
+    unsigned int endAddress = NULL;
+    unsigned int bitLength;
+    unsigned int dataSize = 0;
+    unsigned int dataPattern = 0;
+    unsigned int currAddress;
+    unsigned int addrCount;
+    unsigned int intBuffer = NULL;
+
+    // printf("\r\nStart Address: ") ;
+    // Start = Get8HexDigits(0) ;
+    // printf("\r\nEnd Address: ") ;
+    // End = Get8HexDigits(0) ;
+
+	// TODO
+    scanflush();
+    memset(text, 0, sizeof(text));  // fills with zeros
+
+    printf("Enter what size of memory you want to read/write\n Byte = 0\n Word = 1\n Long Word = 2\n");
+    scanf("%d", &dataSize);
+
+    if (dataSize == 0) {
+        printf("Enter which data pattern you want to write into memory\n 0xA1 = 0\n 0xB2 = 1\n 0xC3 = 2\n 0xD4 = 3\n");
+        scanf("%d", &intBuffer);
+        switch (intBuffer) {
+            case(0):
+                dataPattern = 0xA1;
+                break;
+            case(1):
+                dataPattern = 0xB2;
+                break;
+            case(2):
+                dataPattern = 0xC3;
+                break;
+            case(3):
+                dataPattern = 0xD4;
+                break;
+        }
+        bitLength = 8;
+    } else if (dataSize == 1) {
+        printf("Enter which data pattern you want to write into memory\n 0xABCD = 0\n 0x1234 = 1\n 0xA1B2 = 2\n 0xC3D4 = 3\n");
+        scanf("%d", &intBuffer);
+        switch (intBuffer) {
+            case(0):
+                dataPattern = 0xABCD;
+                break;
+            case(1):
+                dataPattern = 0x1234;
+                break;
+            case(2):
+                dataPattern = 0xA1B2;
+                break;
+            case(3):
+                dataPattern = 0xC3D4;
+                break;
+        }
+        bitLength = 16;
+    } else {
+        printf("Enter which data pattern you want to write into memory\n 0xABCD_1234 = 0\n 0xAABB_CCDD = 1\n 0x1122_3344 = 2\n 0x7654_3210 = 3\n");
+        scanf("%d", &intBuffer);
+
+        switch (intBuffer) {
+            case(0):
+                dataPattern = 0xABCD1234;
+                break;
+            case(1):
+                dataPattern = 0xAABBCCDD;
+                break;
+            case(2):
+                dataPattern = 0x11223344;
+                break;
+            case(3):
+                dataPattern = 0x76543210;
+                break;
+        }
+        bitLength = 32;
+    }
+
+    while (startAddress == NULL || 
+            startAddress % bitLength != 0 || 
+            startAddress < 0x08020000 || 
+            startAddress > 0x08030000 - bitLength) {
+        printf("Provide Start Address in hex (do not use 0x prefix)\n0x");
+        scanf("%x", &startAddress);
+    }
+
+    while (endAddress == NULL || 
+            endAddress % bitLength != 0 || 
+            endAddress > 0x08030000 - bitLength || 
+            endAddress < startAddress + bitLength) {
+        printf("Provide End Address in hex (do not use 0x prefix)\n0x");
+        scanf("%x", &endAddress);
+    }
+
+    printf("Start Address 0x%08x\n", startAddress);
+    printf("End Address: 0x%08x\n", endAddress);
+
+    addrCount = 0;
+    for (currAddress = startAddress; currAddress < endAddress; currAddress += bitLength) {
+        if (endAddress - currAddress >= bitLength) {
+            addressPointer = (int*)(currAddress);
+            *addressPointer = dataPattern;
+
+            if (*addressPointer != dataPattern) {
+                printf("ERROR... Value written to location 0x%x == 0x%x. Value Expected: 0x%x", (void*)addressPointer, *addressPointer, dataPattern);
+            }
+
+            addrCount++;
+            if (addrCount % 1 == 0) {
+                if (dataSize == 0) {
+                    printf("Address: 0x%x Value: 0x%02X\n",
+                        (unsigned int)addressPointer, *addressPointer);
+                }
+                else if (dataSize == 1) {
+                    printf("Address: 0x%x Value: 0x%04X\n",
+                        (unsigned int)addressPointer, *addressPointer);
+                }
+                else {
+                    printf("Address: 0x%x Value: 0x%08X\n",
+                        (unsigned int)addressPointer, *addressPointer);
+                }
+            }
+        } else {
+            printf("Current Address: 0x%x, No room to write to memory to fit within end address 0x%x", currAddress, endAddress);
+        }
+
+        
+
+    }
+
+	// add your code to test memory here using 32 bit reads and writes of data between the start and end of memory
+}
 
 void main()
 {
     unsigned int row, i=0, count=0, counter1=1;
-    char c, text[150] ;
+    char c, text[150];
+    int PassFailFlag = 1;
+    unsigned int* baseAddressPtr = (int*)0x08020000;
+    unsigned int* addressPointer;
+    unsigned int readValue;
+    unsigned int memoryOffset;
+    unsigned int startAddress = NULL;
+    unsigned int endAddress = NULL;
+    unsigned int bitLength;
+    unsigned int dataSize = 0;
+    unsigned int dataPattern = 0;
+    unsigned int currAddress;
+    unsigned int addrCount;
+    unsigned int intBuffer = NULL;
 
-	int PassFailFlag = 1 ;
 
-    i = x = y = z = PortA_Count =0;
+    i = x = y = z = PortA_Count = 0;
     Timer1Count = Timer2Count = Timer3Count = Timer4Count = 0;
 
-    InstallExceptionHandler(PIA_ISR, 25) ;          // install interrupt handler for PIAs 1 and 2 on level 1 IRQ
-    InstallExceptionHandler(ACIA_ISR, 26) ;		    // install interrupt handler for ACIA on level 2 IRQ
-    InstallExceptionHandler(Timer_ISR, 27) ;		// install interrupt handler for Timers 1-4 on level 3 IRQ
-    InstallExceptionHandler(Key2PressISR, 28) ;	    // install interrupt handler for Key Press 2 on DE1 board for level 4 IRQ
-    InstallExceptionHandler(Key1PressISR, 29) ;	    // install interrupt handler for Key Press 1 on DE1 board for level 5 IRQ
+    InstallExceptionHandler(PIA_ISR, 25);
+    InstallExceptionHandler(ACIA_ISR, 26);
+    InstallExceptionHandler(Timer_ISR, 27);
+    InstallExceptionHandler(Key2PressISR, 28);
+    InstallExceptionHandler(Key1PressISR, 29);
 
-    Timer1Data = 0x10;		// program time delay into timers 1-4
+    Timer1Data = 0x10;
     Timer2Data = 0x20;
     Timer3Data = 0x15;
     Timer4Data = 0x25;
 
-    Timer1Control = 3;		// write 3 to control register to Bit0 = 1 (enable interrupt from timers) 1 - 4 and allow them to count Bit 1 = 1
+    Timer1Control = 3;
     Timer2Control = 3;
     Timer3Control = 3;
     Timer4Control = 3;
 
-    Init_LCD();             // initialise the LCD display to use a parallel data interface and 2 lines of display
-    Init_RS232() ;          // initialise the RS232 port for use with hyper terminal
+    Init_LCD();
+    Init_RS232();
 
-/*************************************************************************************************
-**  Test of scanf function
-*************************************************************************************************/
-
-    scanflush() ;                       // flush any text that may have been typed ahead
+    scanflush();
     printf("\r\nEnter Integer: ") ;
     scanf("%d", &i) ;
     printf("You entered %d", i) ;
 
-    sprintf(text, "Hello CPEN 412 Student") ;
-    LCDLine1Message(text) ;
+    sprintf(text, "Hello CPEN 412 Student");
+    LCDLine1Message(text);
 
-    printf("\r\nHello CPEN 412 Student\r\nYour LEDs should be Flashing") ;
-    printf("\r\nYour LCD should be displaying") ;
+    printf("\r\nHello CPEN 412 Student\r\nYour LEDs should be Flashing");
+    printf("\r\nYour LCD should be displaying");
 
-    while(1)
-        ;
+    MemoryTest();
 
-   // programs should NOT exit as there is nothing to Exit TO !!!!!!
-   // There is no OS - just press the reset button to end program and call debug
+    // Memory test loop
+    // for (memoryOffset = 0; memoryOffset < 0xFFFF; memoryOffset += 8) {
+    //     addressPointer = (int*)(0x08020000 + memoryOffset);
+    //     *addressPointer = memoryOffset;
+    //     readValue = *addressPointer;
+
+    //     sprintf(text, "Address: 0x%p Value: %d\n", (void*)addressPointer, readValue);
+    //     LCDLine1Message(text);
+    // }
+
+    // scanflush();
+    // memset(text, 0, sizeof(text));  // fills with zeros
+
+    // printf("Enter what size of memory you want to read/write\n Byte = 0\n Word = 1\n Long Word = 2\n");
+    // scanf("%d", &dataSize);
+
+    // if (dataSize == 0) {
+    //     printf("Enter which data pattern you want to write into memory\n 0xA1 = 0\n 0xB2 = 1\n 0xC3 = 2\n 0xD4 = 3\n");
+    //     scanf("%d", &intBuffer);
+    //     switch (intBuffer) {
+    //         case(0):
+    //             dataPattern = 0xA1;
+    //             break;
+    //         case(1):
+    //             dataPattern = 0xB2;
+    //             break;
+    //         case(2):
+    //             dataPattern = 0xC3;
+    //             break;
+    //         case(3):
+    //             dataPattern = 0xD4;
+    //             break;
+    //     }
+    //     bitLength = 8;
+    // } else if (dataSize == 1) {
+    //     printf("Enter which data pattern you want to write into memory\n 0xABCD = 0\n 0x1234 = 1\n 0xA1B2 = 2\n 0xC3D4 = 3\n");
+    //     scanf("%d", &intBuffer);
+    //     switch (intBuffer) {
+    //         case(0):
+    //             dataPattern = 0xABCD;
+    //             break;
+    //         case(1):
+    //             dataPattern = 0x1234;
+    //             break;
+    //         case(2):
+    //             dataPattern = 0xA1B2;
+    //             break;
+    //         case(3):
+    //             dataPattern = 0xC3D4;
+    //             break;
+    //     }
+    //     bitLength = 16;
+    // } else {
+    //     printf("Enter which data pattern you want to write into memory\n 0xABCD_1234 = 0\n 0xAABB_CCDD = 1\n 0x1122_3344 = 2\n 0x7654_3210 = 3\n");
+    //     scanf("%d", &intBuffer);
+    //     switch (intBuffer) {
+    //         case(0):
+    //             dataPattern = 0xABCD1234;
+    //             break;
+    //         case(1):
+    //             dataPattern = 0xAABBCCDD;
+    //             break;
+    //         case(2):
+    //             dataPattern = 0x11223344;
+    //             break;
+    //         case(3):
+    //             dataPattern = 0x76543210;
+    //             break;
+    //     }
+    //     bitLength = 32;
+    // }
+
+    // while (startAddress == NULL || 
+    //         startAddress % bitLength != 0 || 
+    //         startAddress < 0x08020000 || 
+    //         startAddress > 0x08030000 - bitLength) {
+    //     printf("Provide Start Address in hex (do not use 0x prefix)\n0x");
+    //     scanf("%x", &startAddress);
+    // }
+
+    // while (endAddress == NULL || 
+    //         endAddress % bitLength != 0 || 
+    //         endAddress > 0x08030000 - bitLength || 
+    //         endAddress < startAddress + bitLength) {
+    //     printf("Provide End Address in hex (do not use 0x prefix)\n0x");
+    //     scanf("%x", &endAddress);
+    // }
+
+    // printf("Start Address 0x%08x\n", startAddress);
+    // printf("End Address: 0x%08x\n", endAddress);
+
+    // addrCount = 0;
+    // for (currAddress = startAddress; currAddress < endAddress; currAddress += bitLength) {
+    //     if (endAddress - currAddress >= bitLength) {
+    //         addressPointer = (int*)(currAddress);
+    //         *addressPointer = dataPattern;
+
+    //         if (*addressPointer != dataPattern) {
+    //             printf("ERROR... Value written to location 0x%x == 0x%x. Value Expected: 0x%x", (void*)addressPointer, *addressPointer, dataPattern);
+    //         }
+
+    //         addrCount++;
+    //         if (addrCount % 100 == 0) {
+    //             if (dataSize == 0) {
+    //                 printf("Address: 0x%x Value: 0x%02X\n",
+    //                     (unsigned int)addressPointer, *addressPointer);
+    //             }
+    //             else if (dataSize == 1) {
+    //                 printf("Address: 0x%x Value: 0x%04X\n",
+    //                     (unsigned int)addressPointer, *addressPointer);
+    //             }
+    //             else {
+    //                 printf("Address: 0x%x Value: 0x%08X\n",
+    //                     (unsigned int)addressPointer, *addressPointer);
+    //             }
+    //         }
+    //     } else {
+    //         printf("Current Address: 0x%x, No room to write to memory to fit within end address 0x%x", currAddress, endAddress);
+    //     }
+
+        
+
+    // }
+
+    while(1);
 }
