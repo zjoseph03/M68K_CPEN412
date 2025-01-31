@@ -68,6 +68,11 @@ module M68kDramController_Verilog (
 		reg unsigned [15:0] AutoRefreshCount;						// refresh count for the dram controller
 
 		// 5 bit Commands to the SDRam
+		// CK_E [4]
+		// CS	[3]
+		// RAS	[2]
+		// CAS	[1]
+		// WE	[0]
 
 		parameter PoweringUp = 5'b00000 ;					// take CKE & CS low during power up phase, address and bank address = dont'care
 		parameter DeviceDeselect  = 5'b11111;				// address and bank address = dont'care
@@ -83,7 +88,6 @@ module M68kDramController_Verilog (
 		parameter PrechargeSelectBank = 5'b10010;			// A10 should be logic 0, BA0, BA1 should be set to a value, other addreses = don't care
 		
 		parameter PrechargeAllBanks = 5'b10010;				// A10 should be logic 1, BA0, BA1 are dont'care, other addreses = don't care
-		parameter ModeRegisterSet = 5'b10000;				// A10=0, BA1=0, BA0=0, Address = don't care
 		parameter ExtModeRegisterSet = 5'b10000;			// A10=0, BA1=1, BA0=0, Address = value
 		
 	
@@ -92,14 +96,21 @@ module M68kDramController_Verilog (
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-
 	
 		parameter InitialisingState = 5'h00;				// power on initialising state
-		parameter WaitingForPowerUpState = 5'h01	;		// waiting for power up state to complete
+		parameter WaitingForPowerUpState = 5'h01;			// waiting for power up state to complete
 		parameter IssueFirstNOP = 5'h02;					// issuing 1st NOP after power up
 		parameter PrechargingAllBanks = 5'h03;				// precharging all banks (used after first NOP during initialisation)	
-		parameter Idle = 5'h04;								// idle state - NOP			
-		parameter InitRefreshLoop = 5'h05					// initialising refresh loop (10 refreshes with 3 NOP's after each refresh)
+		parameter InitIdle = 5'h04;								// idle state - NOP			
+		parameter InitRefreshLoop = 5'h05;					// initialising refresh loop (10 refreshes with 3 NOP's after each refresh)
 		parameter LoadModeRegister = 5'h06;					// load mode register
-
+		parameter IssueMrNOP = 5'h07;							// issue 3 NOPs after loading mode register
+		parameter Idle = 5'h08;									// idle state - waiting for refresh timer to expire
+		parameter ProgramRefreshTimer = 5'h09;				// program the refresh timer to 7us and issue auto refresh
+		parameter PostPreChargeNOP = 5'h0A;					// issue a NOP after precharging all banks
+		parameter IssueRefresh = 5'h0B;							// issue a refresh after the NOP
+		parameter PostRefreshNOP = 5'h0C;						// issue 3 NOPs after the refresh
+		parameter PostInitPrechargeAllBanks = 5'h0D;		// issue a precharge all banks after the NOP
 		
+
 		// TODO - Add your own states as per your own design
 		
 
@@ -245,7 +256,7 @@ module M68kDramController_Verilog (
 		end
 		
 		else if(CurrentState == WaitingForPowerUpState) begin
-			Command <= PoweringUp ;									// no DRam clock enable or CS while witing for 100us timer
+			Command <= PoweringUp ;									// no DRAM clock enable or CS while witing for 100us timer
 			
 			if(TimerDone_H == 1) 									// if timer has timed out i.e. 100us have elapsed (8us for simulation)
 				NextState <= IssueFirstNOP ;						// take CKE and CS to active and issue a 1st NOP command
@@ -260,42 +271,106 @@ module M68kDramController_Verilog (
 
 		else if (CurrentState == PrechargingAllBanks) begin
 			Command <= PrechargeAllBanks ;							// precharge all banks
-			DramAddress <=  13'h400;								// Set A10 on address bus to logic 1 (0x400)
+			DramAddress <=  13'h0400;								// Set A10 on address bus to logic 1 (0x400)
 			AutoRefreshCount <= 16'h000B ;							// set refresh count to 11 (since we decrement by 1 in the IDLE state right when we enter)
-			NextState <= Idle ;										// go to idle state and set refresh count here
+			NextState <= InitIdle ;										// go to idle state and set refresh count here
 		end
 		
-		else if (CurrentState == Idle) begin						// no operation (40ns delay for step 4 of initiailization)
+		else if (CurrentState == InitIdle) begin						// no operation (40ns delay for step 4 of initiailization)
 			Command <= NOP ;
-			if (TimerDone_H == 1) {
+			if (TimerDone_H == 1) begin
+				AutoRefreshCount <= AutoRefreshCount - 16'd1;		// decrement refresh count because we are entering a new iteration of the refresh loop
 				NextState <= InitRefreshLoop ;						// go to refresh loop
-			}
-			else {
-				AutoRefreshCount <= AutoRefreshCount - 16'd1;								// decrement refresh count
-				NextState <= Idle ;									// stay in idle state
-			}									
+			end else begin
+				NextState <= InitIdle ;									// stay in idle state
+			end									
 		end
 
-		else if (CurrentState == InitRefreshLoop) begin				// TODO: need to setup the refresh timer so that we continously switch between refresh and 3 NOPs for 10 refreshes 
-			if (AutoRefreshCount == 0) {
+		else if (CurrentState == InitRefreshLoop) begin				
+			if (AutoRefreshCount == 0) begin
 				NextState <= LoadModeRegister;						// go to load mode register
-			} else {
+			end else begin
 				Command <= AutoRefresh ;								// auto refresh
 				TimerValue <= 16'h0003 ;								// 3 clock cycles for 3 NOPs
 				TimerLoad_H <= 1 ;										// load timer
-				NextState <= IDLE ;										// stay in refresh loop
-			}
+				NextState <= Idle ;										// stay in refresh loop
+			end
 		end
 
 		else if (CurrentState == LoadModeRegister) begin		// load mode register according to spec
-			Command <= NOP;								
-			NextState <= Idle ;											
+			Command <= ExtModeRegisterSet;
+			DramAddress <= 13'h220;							// Set A10 on address bus to logic 1 (0x220)
+			TimerValue <= 16'h0003;
+			TimerLoad_H <= 1;																	
+			NextState <= IssueMrNOP ;						// Next state will be issueing 3 NOPs	
 		end
 
-		else if (CurrentState == ProgramRefreshTimer) begin
+		else if (CurrentState == IssueMrNOP) begin
 			Command <= NOP;
+			if (TimerDone_H == 1) begin
+				NextState <= Idle;							// Enter the Idle state after setting the Refresh Timer wait value
+				RefreshTimerValue <= 16'h0007;				// We set this here because we are exiting the init right after this state and waiting to send a refresh in the IDLE state
+				RefreshTimerLoad_H <= 1;
+			end else begin
+				NextState <= IssueMrNOP;					// stay in this state
+			end
+		end
+
+		// We only need 1 NOP after the MR, but we do 3 of them so we can immidietely issue a refresh right after 
+		// Idle state is where we wait for the refresh timer to expire
+		// When refresh timer is done we do the following
+		// Issue a precharge all bank
+		// Issue a NOP
+		// Issue a refresh
+		// Issue 3 NOP's
+		// Set the Refresh Timer again to 7us
+
+		else if (CurrentState == Idle) begin			// Stay in the state for the 7-7.5 us between Refreshes
+			if (RefreshTimerDone_H == 1) begin
+				Command <= PrechargeAllBanks;
+				NextState <= PostInitPrechargeAllBanks;			// begin refresh by issueing precharge all bank command
+			end else begin
+				Command <= NOP;
+				NextState <= Idle;
+			end
+		end
+
+		else if (CurrentState == PostInitPrechargeAllBanks) begin
+			Command <= PrechargeAllBanks;
+			DramAddress <= 16'h0400;
+			NextState <= PostPreChargeNOP;
+		end
+
+		else if (CurrentState == PostPreChargeNOP) begin
+			Command <= NOP;
+			NextState <= IssueRefresh;
+		end
+
+		else if (CurrentState == IssueRefresh) begin
+			Command <= AutoRefresh;
+			TimerValue <= 16'h0003;
+			TimerLoad_H <= 1;
+			NextState <= PostRefreshNOP;
+		end
+
+		else if (CurrentState == PostRefreshNOP) begin
+			Command <= NOP;
+			if (TimerDone_H == 1) begin
+				NextState <= ProgramRefreshTimer;
+			end else begin
+				NextState <= PostRefreshNOP;
+			end
+		end
+
+		else if (CurrentState == ProgramRefreshTimer) begin 	// Program the refresh timer to 7us and issue auto refresh here
+			Command <= AutoRefresh;
+			RefreshTimerValue <= 16'h0007;
 			NextState <= Idle;
-		end 
+		end
+
+		else begin
+			NextState <= InitialisingState ;						// default state
+		end
 		
 	end	// always@ block
 endmodule

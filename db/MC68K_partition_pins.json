@@ -348,6 +348,18 @@
 					"strict" : false
 				},
 				{
+					"name" : "DRAM_ADDR[10]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[9]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[5]",
+					"strict" : false
+				},
+				{
 					"name" : "HEX0[6]",
 					"strict" : false
 				},
