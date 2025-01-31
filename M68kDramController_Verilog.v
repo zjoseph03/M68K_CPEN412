@@ -65,6 +65,7 @@ module M68kDramController_Verilog (
 		reg  FPGAWritingtoSDram_H;								// When '1' enables FPGA data out lines leading to SDRAM to allow writing, otherwise they are set to Tri-State "Z"
 		reg  CPU_Dtack_L;											// Dtack back to CPU
 		reg  CPUReset_L;		
+		reg unsigned [15:0] AutoRefreshCount;						// refresh count for the dram controller
 
 		// 5 bit Commands to the SDRam
 
@@ -81,7 +82,7 @@ module M68kDramController_Verilog (
 		parameter BankActivate = 5'b10011;					// BA0, BA1 should be set to a value, address A11-0 should be value
 		parameter PrechargeSelectBank = 5'b10010;			// A10 should be logic 0, BA0, BA1 should be set to a value, other addreses = don't care
 		
-		parameter PrechargeAllBanks = 5'b10010;			// A10 should be logic 1, BA0, BA1 are dont'care, other addreses = don't care
+		parameter PrechargeAllBanks = 5'b10010;				// A10 should be logic 1, BA0, BA1 are dont'care, other addreses = don't care
 		parameter ModeRegisterSet = 5'b10000;				// A10=0, BA1=0, BA0=0, Address = don't care
 		parameter ExtModeRegisterSet = 5'b10000;			// A10=0, BA1=1, BA0=0, Address = value
 		
@@ -92,10 +93,12 @@ module M68kDramController_Verilog (
 	
 		parameter InitialisingState = 5'h00;				// power on initialising state
 		parameter WaitingForPowerUpState = 5'h01	;		// waiting for power up state to complete
-		parameter IssueFirstNOP = 5'h02;						// issuing 1st NOP after power up
-		parameter PrechargingAllBanks = 5'h03;
-		parameter Idle = 5'h04;			
-		
+		parameter IssueFirstNOP = 5'h02;					// issuing 1st NOP after power up
+		parameter PrechargingAllBanks = 5'h03;				// precharging all banks (used after first NOP during initialisation)	
+		parameter Idle = 5'h04;								// idle state - NOP			
+		parameter InitRefreshLoop = 5'h05					// initialising refresh loop (10 refreshes with 3 NOP's after each refresh)
+		parameter LoadModeRegister = 5'h06;					// load mode register
+
 		
 		// TODO - Add your own states as per your own design
 		
@@ -228,34 +231,71 @@ module M68kDramController_Verilog (
 		SDramWriteData <= 16'h0000 ;								// nothing to write in particular
 		CPUReset_L <= 0 ;												// default is reset to CPU (for the moment, though this will change when design is complete so that reset-out goes high at the end of the dram initialisation phase to allow CPU to resume)
 		FPGAWritingtoSDram_H <= 0 ;								// default is to tri-state the FPGA data lines leading to bi-directional SDRam data lines, i.e. assume a read operation
+		AutoRefreshCount <= 16'h0000 ;								// no refresh count set yet
 
 		// put your current state/next state decision making logic here - here are a few states to get you started
 		// during the initialising state, the drams have to power up and we cannot access them for a specified period of time (100 us)
 		// we are going to load the timer above with a value equiv to 100us and then wait for timer to time out
 	
 		if(CurrentState == InitialisingState ) begin
-			TimerValue <= 16'h0000;									// chose a value equivalent to 100us at 50Mhz clock - you might want to shorten it to somthing small for simulation purposes
+			TimerValue <= 16'h100;									// chose a value equivalent to 100us at 50Mhz clock - you might want to shorten it to somthing small for simulation purposes (We can take it to 8 clock cycles for simulation) 100us = 100 Clock Cycles
 			TimerLoad_H <= 1 ;										// on next edge of clock, timer will be loaded and start to time out
 			Command <= PoweringUp ;									// clock enable and chip select to the Zentel Dram chip must be held low (disabled) during a power up phase
-			NextState <= WaitingForPowerUpState ;				// once we have loaded the timer, go to a new state where we wait for the 100us to elapse
+			NextState <= WaitingForPowerUpState ;					// once we have loaded the timer, go to a new state where we wait for the 100us to elapse
 		end
 		
 		else if(CurrentState == WaitingForPowerUpState) begin
 			Command <= PoweringUp ;									// no DRam clock enable or CS while witing for 100us timer
 			
-			if(TimerDone_H == 1) 									// if timer has timed out i.e. 100us have elapsed
+			if(TimerDone_H == 1) 									// if timer has timed out i.e. 100us have elapsed (8us for simulation)
 				NextState <= IssueFirstNOP ;						// take CKE and CS to active and issue a 1st NOP command
 			else
-				NextState <= WaitingForPowerUpState ;			// otherwise stay here until power up time delay finished
+				NextState <= WaitingForPowerUpState ;				// otherwise stay here until power up time delay finished
 		end
 		
-		else if(CurrentState == IssueFirstNOP) begin	 		// issue a valid NOP
-			Command <= NOP ;											// send a valid NOP command to the dram chip
+		else if(CurrentState == IssueFirstNOP) begin	 			// issue a valid NOP
+			Command <= NOP ;										// send a valid NOP command to the dram chip
 			NextState <= PrechargingAllBanks;
-		end		
-		
+		end
 
-		// add your other states and conditions and outputs here
+		else if (CurrentState == PrechargingAllBanks) begin
+			Command <= PrechargeAllBanks ;							// precharge all banks
+			DramAddress <=  13'h400;								// Set A10 on address bus to logic 1 (0x400)
+			AutoRefreshCount <= 16'h000B ;							// set refresh count to 11 (since we decrement by 1 in the IDLE state right when we enter)
+			NextState <= Idle ;										// go to idle state and set refresh count here
+		end
+		
+		else if (CurrentState == Idle) begin						// no operation (40ns delay for step 4 of initiailization)
+			Command <= NOP ;
+			if (TimerDone_H == 1) {
+				NextState <= InitRefreshLoop ;						// go to refresh loop
+			}
+			else {
+				AutoRefreshCount <= AutoRefreshCount - 16'd1;								// decrement refresh count
+				NextState <= Idle ;									// stay in idle state
+			}									
+		end
+
+		else if (CurrentState == InitRefreshLoop) begin				// TODO: need to setup the refresh timer so that we continously switch between refresh and 3 NOPs for 10 refreshes 
+			if (AutoRefreshCount == 0) {
+				NextState <= LoadModeRegister;						// go to load mode register
+			} else {
+				Command <= AutoRefresh ;								// auto refresh
+				TimerValue <= 16'h0003 ;								// 3 clock cycles for 3 NOPs
+				TimerLoad_H <= 1 ;										// load timer
+				NextState <= IDLE ;										// stay in refresh loop
+			}
+		end
+
+		else if (CurrentState == LoadModeRegister) begin		// load mode register according to spec
+			Command <= NOP;								
+			NextState <= Idle ;											
+		end
+
+		else if (CurrentState == ProgramRefreshTimer) begin
+			Command <= NOP;
+			NextState <= Idle;
+		end 
 		
 	end	// always@ block
 endmodule
