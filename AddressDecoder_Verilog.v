@@ -34,6 +34,9 @@ module AddressDecoder_Verilog (
 			
 		if(Address[31:16] == 16'b0000_0000_0100_0000)  		// address hex 0040 0000 - 0040 FFFF Partial decoding
 			IOSelect_H <= 1 ;											// DO NOT CHANGE - debugger expects IO at this address
+
+		if (Address[31:0] >= 32'hF000_0000 && Address[31:0] <=32'hF3FF_FFFF)	// address hex F000 0000 - F3FF FFFF Partial decoding
+			DramSelect_H <= 1 ;										// DO NOT CHANGE - debugger expects DRAM at this address
 		
 		//
 		// add other decoder signals here as we work through assignments and labs

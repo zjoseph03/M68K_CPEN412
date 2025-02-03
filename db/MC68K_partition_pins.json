@@ -184,11 +184,19 @@
 					"strict" : false
 				},
 				{
+					"name" : "DramRamSelect_H",
+					"strict" : false
+				},
+				{
 					"name" : "IOSelect_H",
 					"strict" : false
 				},
 				{
 					"name" : "BG_L",
+					"strict" : false
+				},
+				{
+					"name" : "ResetOut",
 					"strict" : false
 				},
 				{
@@ -696,10 +704,6 @@
 					"strict" : false
 				},
 				{
-					"name" : "Reset_L",
-					"strict" : false
-				},
-				{
 					"name" : "SW[7]",
 					"strict" : false
 				},
@@ -733,6 +737,10 @@
 				},
 				{
 					"name" : "SW[0]",
+					"strict" : false
+				},
+				{
+					"name" : "Reset_L",
 					"strict" : false
 				},
 				{
