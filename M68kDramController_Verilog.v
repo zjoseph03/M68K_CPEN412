@@ -69,21 +69,21 @@ module M68kDramController_Verilog (
         // RAS  [2]
         // CAS  [1]
         // WE   [0]
-        parameter PoweringUp = 5'b00000 ;                   // take CKE & CS low during power up phase, address and bank address = dont'care
-        parameter DeviceDeselect  = 5'b11111;               // address and bank address = dont'care
-        parameter NOP = 5'b10111;                               // address and bank address = dont'care
-        parameter BurstStop = 5'b10110;                     // address and bank address = dont'care
-        parameter ReadOnly = 5'b10101;                      // A10 should be logic 0, BA0, BA1 should be set to a value, other addreses = value
-        parameter ReadAutoPrecharge = 5'b10101;             // A10 should be logic 1, BA0, BA1 should be set to a value, other addreses = value
-        parameter WriteOnly = 5'b10100;                         // A10 should be logic 0, BA0, BA1 should be set to a value, other addreses = value
-        parameter WriteAutoPrecharge = 5'b10100 ;           // A10 should be logic 1, BA0, BA1 should be set to a value, other addreses = value
-        parameter AutoRefresh = 5'b10001;
+        parameter PoweringUp 			= 5'b00000 ;                   // take CKE & CS low during power up phase, address and bank address = dont'care
+        parameter DeviceDeselect  		= 5'b11111;               // address and bank address = dont'care
+        parameter NOP 					= 5'b10111;                               // address and bank address = dont'care
+        parameter BurstStop 			= 5'b10110;                     // address and bank address = dont'care
+        parameter ReadOnly 				= 5'b10101;                      // A10 should be logic 0, BA0, BA1 should be set to a value, other addreses = value
+        parameter ReadAutoPrecharge 	= 5'b10101;             // A10 should be logic 1, BA0, BA1 should be set to a value, other addreses = value
+        parameter WriteOnly 			= 5'b10100;                         // A10 should be logic 0, BA0, BA1 should be set to a value, other addreses = value
+        parameter WriteAutoPrecharge 	= 5'b10100 ;           // A10 should be logic 1, BA0, BA1 should be set to a value, other addreses = value
+        parameter AutoRefresh 			= 5'b10001;
     
-        parameter BankActivate = 5'b10011;                  // BA0, BA1 should be set to a value, address A11-0 should be value
-        parameter PrechargeSelectBank = 5'b10010;           // A10 should be logic 0, BA0, BA1 should be set to a value, other addreses = don't care
+        parameter BankActivate 			= 5'b10011;                  // BA0, BA1 should be set to a value, address A11-0 should be value
+        parameter PrechargeSelectBank	= 5'b10010;           // A10 should be logic 0, BA0, BA1 should be set to a value, other addreses = don't care
         
-        parameter PrechargeAllBanks = 5'b10010;             // A10 should be logic 1, BA0, BA1 are dont'care, other addreses = don't care
-        parameter ExtModeRegisterSet = 5'b10000;            // A10=0, BA1=1, BA0=0, Address = value
+        parameter PrechargeAllBanks 	= 5'b10010;             // A10 should be logic 1, BA0, BA1 are dont'care, other addreses = don't care
+        parameter ExtModeRegisterSet 	= 5'b10000;            // A10=0, BA1=1, BA0=0, Address = value
         
     
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-
@@ -91,23 +91,23 @@ module M68kDramController_Verilog (
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-
     
 		//TODO: Some of these states can be removed as they are not used in the current implementation
-        parameter InitialisingState = 5'h00;                // power on initialising state
-        parameter WaitingForPowerUpState = 5'h01;           // waiting for power up state to complete
-        parameter IssueFirstNOP = 5'h02;                    // issuing 1st NOP after power up
-        parameter PrechargingAllBanks = 5'h03;              // precharging all banks (used after first NOP during initialisation)   
-        parameter InitIdle = 5'h04;                             // idle state - NOP         
-        parameter InitRefreshLoop = 5'h05;                  // initialising refresh loop (10 refreshes with 3 NOP's after each refresh)
-        parameter LoadModeRegister = 5'h06;                 // load mode register
-        parameter PostMrNOP = 5'h07;                           // issue 3 NOPs after loading mode register
-		parameter PreRefreshNOP = 5'h08;                           // issue 3 NOPs after loading mode register
-        parameter RefreshIdle = 5'h09;                                 // idle state - waiting for refresh timer to expire
-        parameter ProgramRefreshTimer = 5'h0A;              // program the refresh timer to 7us and issue auto refresh
-        parameter PostPreChargeNOP = 5'h0B;                 // issue a NOP after precharging all banks
-        parameter IssueRefresh = 5'h0C;                         // issue a refresh after the NOP
-        parameter PostRefreshNOP = 5'h0D;                       // issue 3 NOPs after the refresh
-        parameter PostInitPrechargeAllBanks = 5'h0E;        // issue a precharge all banks after the NOP
-        
-        // TODO - Add your own states as per your own design
+        parameter InitialisingState     	= 5'h00;                // power on initialising state
+        parameter WaitingForPowerUpState	= 5'h01;           // waiting for power up state to complete
+        parameter IssueFirstNOP         	= 5'h02;                    // issuing 1st NOP after power up
+        parameter PrechargingAllBanks   	= 5'h03;              // precharging all banks (used after first NOP during initialisation)   
+        parameter InitIdle              	= 5'h04;                             // idle state - NOP         
+        parameter LoadModeRegister      	= 5'h05;                 // load mode register
+        parameter PostMrNOP 				= 5'h06;                           // issue 3 NOPs after loading mode register
+		parameter PreRefreshNOP 			= 5'h07;                           // issue 3 NOPs after loading mode register
+        parameter RefreshIdle 				= 5'h08;                                 // idle state - waiting for refresh timer to expire
+        parameter WriteWait1ClockState 		= 5'h09;              // program the refresh timer to 7us and issue auto refresh
+        parameter PostPreChargeNOP 		    = 5'h0A;                 // issue a NOP after precharging all banks
+        parameter IssueRefresh 			    = 5'h0B;                         // issue a refresh after the NOP
+        parameter IssueReadPrecharge 		= 5'h0C;                             // issue a read command to the dram
+		parameter TerminateWriteRead 	    = 5'h0D;                 // terminate the write or read operation
+        parameter WaitReadCASLatency 	    = 5'h0E;                    // wait for CAS latency to expire
+        parameter WaitForUDSLDSState 	    = 5'h0F;                 // wait for UDS and LDS to be active
+		// TODO - Add your own states as per your own design
         
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // General Timer for timing and counting things: Loadable and counts down on each clock then produced a TimerDone signal and stops counting
@@ -224,7 +224,8 @@ module M68kDramController_Verilog (
         CPUReset_L <= 1 ;                                               // default is set Reset to 1 (active low) and set reset to 0 for entire duration of initialization
         FPGAWritingtoSDram_H <= 0 ;                             // default is to tri-state the FPGA data lines leading to bi-directional SDRam data lines, i.e. assume a read operation
         AutoRefreshCount <= 16'h0000 ;                              // no refresh count set yet
-        // put your current state/next state decision making logic here - here are a few states to get you started
+        
+		// put your current state/next state decision making logic here - here are a few states to get you started
         // during the initialising state, the drams have to power up and we cannot access them for a specified period of time (100 us)
         // we are going to load the timer above with a value equiv to 100us and then wait for timer to time out
     
@@ -274,7 +275,7 @@ module M68kDramController_Verilog (
 				NextState <= InitIdle ;                             // stay in refresh loop	
 				Command <= AutoRefresh;
 			end else begin
-			NextState <= InitIdle ;                                 // stay in idle state
+				NextState <= InitIdle ;                                 // stay in idle state
 				Command <= NOP ;
 			end                                 
         end
@@ -321,31 +322,114 @@ module M68kDramController_Verilog (
         // Issue 3 NOP's
         // Set the Refresh Timer again to 7us
         else if (CurrentState == RefreshIdle) begin            // Stay in the state for the 7-7.5 us between Refreshes
-            if (RefreshTimerDone_H == 1) begin
+            if (DramSelect_L == 0 && AS_L == 0) begin
+				// Enter this state if CPU is accessingg DRAM (DramSelect_L == 0 AND AS_L == 0)
+				// Issue BA and select the appropriate bank and row address
+				// write following states to do a write or a read
+				Command <= BankActivate;
+				DramAddress <= Address[23:11]; //row address
+				BankAddress <= Address[25:24]; //bank address
+				// Check if CPU is doing a write or a 
+                if (WE_L == 1'b1) begin
+                    //CPU read
+                    NextState <= IssueReadPrecharge;
+                end
+                else begin
+                    //CPU write
+                    NextState <= WaitForUDSLDSState;
+                end
+			end else if (RefreshTimerDone_H == 1) begin
                 Command <= PrechargeAllBanks;
-                DramAddress <= 16'h0400;
+                DramAddress <= 13'h0400;
 				NextState <= PostPreChargeNOP;         			// begin refresh by issueing precharge all bank command
-            end else begin
-                Command <= NOP;
-                NextState <= RefreshIdle;
+			end else begin
+                Command 	<= NOP;
+                NextState 	<= RefreshIdle;
             end
         end
         
 		else if (CurrentState == PostPreChargeNOP) begin
-            Command <= NOP;
-            NextState <= IssueRefresh;
+            Command 	<= NOP;
+            NextState 	<= IssueRefresh;
         end
         
 		else if (CurrentState == IssueRefresh) begin
-            Command <= AutoRefresh;
-            TimerValue <= 16'h0002;
+            Command 	<= AutoRefresh;
+            TimerValue 	<= 16'h0002;
             TimerLoad_H <= 1;
-            NextState <= PreRefreshNOP;
+            NextState 	<= PreRefreshNOP;
         end
+
+		else if (CurrentState == IssueReadPrecharge) begin
+			DramAddress <= {3'b001, Address[10:1]}; // Coloumn address & 0x400 (A10 = 1 for read precharge)
+			BankAddress <= Address[25:24]; //bank address
+			Command 	<= ReadAutoPrecharge;
+			TimerValue 	<= 16'h0002; 			// Set CAS latency as 2 clock cycles (might need to change to 1 cause of timing)
+			NextState 	<= WaitReadCASLatency;
+		end
+
+		else if (CurrentState == WaitReadCASLatency) begin
+			Command 		<= NOP;
+			CPU_Dtack_L 	<= 0;
+			
+			if (TimerDone_H == 1) begin
+				DramDataLatch_H 	<= 1;
+				NextState 			<= TerminateWriteRead;
+			end else begin
+				NextState 			<= WaitReadCASLatency;
+			end
+		end
+
+
+        else if (CurrentState == WaitForUDSLDSState) begin            
+            if ((UDS_L == 1'b0) || (LDS_L == 1'b0)) begin                
+                // 10 bit column address a10 = 1
+                DramAddress 			<= {3'b001, Address[10:1] } ;
+                BankAddress             <= Address[25:24];
+                Command                 <= WriteAutoPrecharge;
+
+                //driving signals back to cpu
+                CPU_Dtack_L             <= 1'b0;
+                FPGAWritingtoSDram_H    <= 1'b1;
+                SDramWriteData          <= DataIn; // 68k data to sdram
+                
+                // Next we need to wait 1 clock cycle after a write
+                NextState               <= WriteWait1ClockState;
+			end 
+            else begin
+                // Stay in this state 
+                Command <= NOP;
+                NextState <= WaitForUDSLDSState;
+            end
+        end 
+        
+        else if (CurrentState == WriteWait1ClockState) begin
+            CPUReset_L                  <= 1;
+            Command                     <= NOP;
+
+            CPU_Dtack_L                 <= 1'b0;
+            FPGAWritingtoSDram_H        <= 1'b1;
+            SDramWriteData              <= DataIn; // 68k data to sdram
+
+            NextState                   <= TerminateWriteRead; 
+
+        end
+		
+		else if (CurrentState == TerminateWriteRead) begin
+			Command <= NOP;
+			if ((UDS_L == 1'b0) || (LDS_L == 1'b0)) begin
+				CPU_Dtack_L             <= 0;
+				NextState <= TerminateWriteRead; 
+			end
+			else begin
+				NextState <= RefreshIdle;
+			end 
+		end 
         
 	    else begin
+            Command <= NOP ;                                        // default command is NOP
             NextState <= InitialisingState ;                        // default state
         end
         
-    end // always@ block
+	end// always@ block
 endmodule

@@ -105,18 +105,23 @@ micro_state.div14 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 micro_state.div15 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 
 State Machine - |MC68K|Dram:inst2|M68kDramController_Verilog:inst1|CurrentState
-Name CurrentState.IssueRefresh CurrentState.PostPreChargeNOP CurrentState.RefreshIdle CurrentState.PreRefreshNOP CurrentState.PostMrNOP CurrentState.LoadModeRegister CurrentState.InitIdle CurrentState.PrechargingAllBanks CurrentState.IssueFirstNOP CurrentState.WaitingForPowerUpState CurrentState.InitialisingState 
-CurrentState.InitialisingState 0 0 0 0 0 0 0 0 0 0 0 
-CurrentState.WaitingForPowerUpState 0 0 0 0 0 0 0 0 0 1 1 
-CurrentState.IssueFirstNOP 0 0 0 0 0 0 0 0 1 0 1 
-CurrentState.PrechargingAllBanks 0 0 0 0 0 0 0 1 0 0 1 
-CurrentState.InitIdle 0 0 0 0 0 0 1 0 0 0 1 
-CurrentState.LoadModeRegister 0 0 0 0 0 1 0 0 0 0 1 
-CurrentState.PostMrNOP 0 0 0 0 1 0 0 0 0 0 1 
-CurrentState.PreRefreshNOP 0 0 0 1 0 0 0 0 0 0 1 
-CurrentState.RefreshIdle 0 0 1 0 0 0 0 0 0 0 1 
-CurrentState.PostPreChargeNOP 0 1 0 0 0 0 0 0 0 0 1 
-CurrentState.IssueRefresh 1 0 0 0 0 0 0 0 0 0 1 
+Name CurrentState.WaitForUDSLDSState CurrentState.WaitReadCASLatency CurrentState.TerminateWriteRead CurrentState.IssueReadPrecharge CurrentState.IssueRefresh CurrentState.PostPreChargeNOP CurrentState.WriteWait1ClockState CurrentState.RefreshIdle CurrentState.PreRefreshNOP CurrentState.PostMrNOP CurrentState.LoadModeRegister CurrentState.InitIdle CurrentState.PrechargingAllBanks CurrentState.IssueFirstNOP CurrentState.WaitingForPowerUpState CurrentState.InitialisingState 
+CurrentState.InitialisingState 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+CurrentState.WaitingForPowerUpState 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+CurrentState.IssueFirstNOP 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+CurrentState.PrechargingAllBanks 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+CurrentState.InitIdle 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+CurrentState.LoadModeRegister 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+CurrentState.PostMrNOP 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+CurrentState.PreRefreshNOP 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+CurrentState.RefreshIdle 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+CurrentState.WriteWait1ClockState 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+CurrentState.PostPreChargeNOP 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+CurrentState.IssueRefresh 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.IssueReadPrecharge 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.TerminateWriteRead 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.WaitReadCASLatency 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.WaitForUDSLDSState 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 
 State Machine - |MC68K|OnChipM68xxIO:inst11|ACIA_6850:inst16|DCDState
 Name DCDState.DCD_State_Reset DCDState.DCD_State_Int DCDState.DCD_State_Idle 
