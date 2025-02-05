@@ -107,7 +107,8 @@ module M68kDramController_Verilog (
 		parameter TerminateWriteRead 	    = 5'h0D;                 // terminate the write or read operation
         parameter WaitReadCASLatency 	    = 5'h0E;                    // wait for CAS latency to expire
         parameter WaitForUDSLDSState 	    = 5'h0F;                 // wait for UDS and LDS to be active
-		// TODO - Add your own states as per your own design
+		parameter BeginRead 				= 5'h10;                           // begin read operation
+        // TODO - Add your own states as per your own design
         
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // General Timer for timing and counting things: Loadable and counts down on each clock then produced a TimerDone signal and stops counting
@@ -332,7 +333,9 @@ module M68kDramController_Verilog (
 				// Check if CPU is doing a write or a 
                 if (WE_L == 1'b1) begin
                     //CPU read
-                    NextState <= IssueReadPrecharge;
+                    TimerValue <= 16'h0002;
+                    TimerLoad_H <= 1;
+                    NextState <= BeginRead;
                 end
                 else begin
                     //CPU write
@@ -360,11 +363,21 @@ module M68kDramController_Verilog (
             NextState 	<= PreRefreshNOP;
         end
 
+        // THIS MAY BE NEEDED BETWEEN ACTIVATE AND READ ACCORDING TO SLIDES
+        else if (CurrentState == BeginRead) begin
+            Command <= NOP;
+            if (TimerDone_H == 1) begin
+                NextState <= IssueReadPrecharge;
+            end else begin
+                NextState <= BeginRead;
+            end
+        end
+
 		else if (CurrentState == IssueReadPrecharge) begin
 			DramAddress <= {3'b001, Address[10:1]}; // Coloumn address & 0x400 (A10 = 1 for read precharge)
 			BankAddress <= Address[25:24]; //bank address
 			Command 	<= ReadAutoPrecharge;
-			TimerValue 	<= 16'h0002; 			// Set CAS latency as 2 clock cycles (might need to change to 1 cause of timing)
+			TimerValue 	<= 16'h0001; 			// Set CAS latency as 2 clock cycles (might need to change to 1 cause of timing)
 			NextState 	<= WaitReadCASLatency;
 		end
 

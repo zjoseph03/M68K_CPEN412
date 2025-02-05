@@ -180,10 +180,6 @@
 					"strict" : false
 				},
 				{
-					"name" : "RamSelect_H",
-					"strict" : false
-				},
-				{
 					"name" : "DramRamSelect_H",
 					"strict" : false
 				},
