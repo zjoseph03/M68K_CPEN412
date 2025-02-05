@@ -5524,6 +5524,11 @@ refer to the applicable agreement for further details.
 	(pt -176 240)
 	(pt -224 240)
 )
+(connector
+	(pt 1760 -48)
+	(pt 1952 -48)
+	(bus)
+)
 (junction (pt 1280 224))
 (junction (pt 1376 224))
 (junction (pt 1296 240))

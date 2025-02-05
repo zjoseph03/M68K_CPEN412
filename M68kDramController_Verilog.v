@@ -210,107 +210,107 @@ module M68kDramController_Verilog (
     // Let's start with default values for every signal and override as necessary, 
     //
     
-        Command     <= NOP ;                                                // assume no operation command for Dram chip
-        NextState <= InitialisingState ;                            // assume next state will always be idle state unless overridden the value used here is not important, we cimple have to assign something to prevent storage on the signal so anything will do
+        Command     = NOP ;                                                // assume no operation command for Dram chip
+        NextState = InitialisingState ;                            // assume next state will always be idle state unless overridden the value used here is not important, we cimple have to assign something to prevent storage on the signal so anything will do
         
-        TimerValue <= 16'h0000;                                     // no timer value 
-        RefreshTimerValue <= 16'h0000 ;                         // no refresh timer value
-        TimerLoad_H <= 0;                                               // don't load Timer
-        RefreshTimerLoad_H <= 0 ;                                   // don't load refresh timer
-        DramAddress <= 13'h0000 ;                                   // no particular dram address
-        BankAddress <= 2'b00 ;                                      // no particular dram bank address
-        DramDataLatch_H <= 0;                                       // don't latch data yet
-        CPU_Dtack_L <= 1 ;                                          // don't acknowledge back to 68000
-        SDramWriteData <= 16'h0000 ;                                // nothing to write in particular
-        CPUReset_L <= 1 ;                                               // default is set Reset to 1 (active low) and set reset to 0 for entire duration of initialization
-        FPGAWritingtoSDram_H <= 0 ;                             // default is to tri-state the FPGA data lines leading to bi-directional SDRam data lines, i.e. assume a read operation
-        AutoRefreshCount <= 16'h0000 ;                              // no refresh count set yet
+        TimerValue = 16'h0000;                                     // no timer value 
+        RefreshTimerValue = 16'h0000 ;                         // no refresh timer value
+        TimerLoad_H = 0;                                               // don't load Timer
+        RefreshTimerLoad_H = 0 ;                                   // don't load refresh timer
+        DramAddress = 13'h0000 ;                                   // no particular dram address
+        BankAddress = 2'b00 ;                                      // no particular dram bank address
+        DramDataLatch_H = 0;                                       // don't latch data yet
+        CPU_Dtack_L = 1 ;                                          // don't acknowledge back to 68000
+        SDramWriteData = 16'h0000 ;                                // nothing to write in particular
+        CPUReset_L = 1 ;                                               // default is set Reset to 1 (active low) and set reset to 0 for entire duration of initialization
+        FPGAWritingtoSDram_H = 0 ;                             // default is to tri-state the FPGA data lines leading to bi-directional SDRam data lines, i.e. assume a read operation
+        AutoRefreshCount = 16'h0000 ;                              // no refresh count set yet
         
 		// put your current state/next state decision making logic here - here are a few states to get you started
         // during the initialising state, the drams have to power up and we cannot access them for a specified period of time (100 us)
         // we are going to load the timer above with a value equiv to 100us and then wait for timer to time out
     
         if(CurrentState == InitialisingState ) begin
-			CPUReset_L <= 0 ;                                       // set reset to 0 for entire duration of initialization
-            TimerValue <= 16'd8;                                    // chose a value equivalent to 100us at 50Mhz clock - you might want to shorten it to somthing small for simulation purposes (We can take it to 8 clock cycles for simulation) 50 Mhz = 20ns per clock cycle == 0.02us. 100us = 5000 clock cycles. 8 Clock Cycles = 160ns == 0.16us
+			CPUReset_L = 0 ;                                       // set reset to 0 for entire duration of initialization
+            TimerValue = 16'd8;                                    // chose a value equivalent to 100us at 50Mhz clock - you might want to shorten it to somthing small for simulation purposes (We can take it to 8 clock cycles for simulation) 50 Mhz = 20ns per clock cycle == 0.02us. 100us = 5000 clock cycles. 8 Clock Cycles = 160ns == 0.16us
                                                                     // Setting delay to 500 cycles == 10us for sim porposes
-            TimerLoad_H <= 1 ;                                      // on next edge of clock, timer will be loaded and start to time out
-            Command <= PoweringUp ;                                 // clock enable and chip select to the Zentel Dram chip must be held low (disabled) during a power up phase
-            NextState <= WaitingForPowerUpState ;                   // once we have loaded the timer, go to a new state where we wait for the 100us to elapse
+            TimerLoad_H = 1 ;                                      // on next edge of clock, timer will be loaded and start to time out
+            Command = PoweringUp ;                                 // clock enable and chip select to the Zentel Dram chip must be held low (disabled) during a power up phase
+            NextState = WaitingForPowerUpState ;                   // once we have loaded the timer, go to a new state where we wait for the 100us to elapse
         end
         
         else if(CurrentState == WaitingForPowerUpState) begin
-			CPUReset_L <= 0 ;                                       // set reset to 0 for entire duration of initialization
-            Command <= PoweringUp ;                                 // no DRAM clock enable or CS while witing for 100us timer
+			CPUReset_L = 0 ;                                       // set reset to 0 for entire duration of initialization
+            Command = PoweringUp ;                                 // no DRAM clock enable or CS while witing for 100us timer
             
             if(TimerDone_H == 1)                                    // if timer has timed out i.e. 100us have elapsed (8us for simulation)
-                NextState <= IssueFirstNOP ;                        // take CKE and CS to active and issue a 1st NOP command
+                NextState = IssueFirstNOP ;                        // take CKE and CS to active and issue a 1st NOP command
             else
-                NextState <= WaitingForPowerUpState ;               // otherwise stay here until power up time delay finished
+                NextState = WaitingForPowerUpState ;               // otherwise stay here until power up time delay finished
         end
         
         else if(CurrentState == IssueFirstNOP) begin                // issue a valid NOP
-            CPUReset_L <= 0 ;                                       // set reset to 0 for entire duration of initialization
-			Command <= NOP ;                                        // send a valid NOP command to the dram chip
-            NextState <= PrechargingAllBanks;
+            CPUReset_L = 0 ;                                       // set reset to 0 for entire duration of initialization
+			Command = NOP ;                                        // send a valid NOP command to the dram chip
+            NextState = PrechargingAllBanks;
         end
         
 		else if (CurrentState == PrechargingAllBanks) begin
-            CPUReset_L <= 0 ;                                       // set reset to 0 for entire duration of initialization
-			Command <= PrechargeAllBanks ;                          // precharge all banks
-            DramAddress <=  13'h0400;                               // Set A10 on address bus to logic 1 (0x400)
-            RefreshTimerValue <= 16'd0041 ;                        	// set refresh count to 41 == 0x29 (since we decrement by 1 in the IDLE state right when we enter)
-            RefreshTimerLoad_H <= 1;                                // load refresh timer
-            TimerValue <= 1;										// 1 clock cycle for 1 NOP	
-			TimerLoad_H <= 1;
-			NextState <= InitIdle ;                                	// go to idle state and set refresh count here
+            CPUReset_L = 0 ;                                       // set reset to 0 for entire duration of initialization
+			Command = PrechargeAllBanks ;                          // precharge all banks
+            DramAddress =  13'h0400;                               // Set A10 on address bus to logic 1 (0x400)
+            RefreshTimerValue = 16'd0041 ;                        	// set refresh count to 41 == 0x29 (since we decrement by 1 in the IDLE state right when we enter)
+            RefreshTimerLoad_H = 1;                                // load refresh timer
+            TimerValue = 1;										// 1 clock cycle for 1 NOP	
+			TimerLoad_H = 1;
+			NextState = InitIdle ;                                	// go to idle state and set refresh count here
         end
         
         else if (CurrentState == InitIdle) begin                    // no operation (40ns delay for step 4 of initiailization)
-            CPUReset_L <= 0 ;                                       // set reset to 0 for entire duration of initialization
+            CPUReset_L = 0 ;                                       // set reset to 0 for entire duration of initialization
 			if (RefreshTimerDone_H == 1) begin
-                NextState <= LoadModeRegister;                      // go to load mode register
+                NextState = LoadModeRegister;                      // go to load mode register
             end else if (TimerDone_H == 1) begin
-				TimerValue <= 16'h0003 ;                            // 3 clock cycles for 3 NOPs
-				TimerLoad_H <= 1 ;                                  // load timer
-				NextState <= InitIdle ;                             // stay in refresh loop	
-				Command <= AutoRefresh;
+				TimerValue = 16'h0003 ;                            // 3 clock cycles for 3 NOPs
+				TimerLoad_H = 1 ;                                  // load timer
+				NextState = InitIdle ;                             // stay in refresh loop	
+				Command = AutoRefresh;
 			end else begin
-				NextState <= InitIdle ;                                 // stay in idle state
-				Command <= NOP ;
+				NextState = InitIdle ;                                 // stay in idle state
+				Command = NOP ;
 			end                                 
         end
         
         // TODO: For some reason TimerValue of 3 is lasting 4 cycles until the timer condition occurs? Easy enough to just set the timer to 1 less but why?
         else if (CurrentState == LoadModeRegister) begin        // load mode register according to spec
-            CPUReset_L <= 0 ;                                   // set reset to 0 for entire duration of initialization
-			Command <= ExtModeRegisterSet;
-            DramAddress <= 13'h220;                         	// Set A10 on address bus to logic 1 (0x220)
-            TimerValue <= 16'h0002;
-            TimerLoad_H <= 1;                                                                   
-            NextState <= PostMrNOP ;                       		// Next state will be issueing 3 NOPs   
+            CPUReset_L = 0 ;                                   // set reset to 0 for entire duration of initialization
+			Command = ExtModeRegisterSet;
+            DramAddress = 13'h220;                         	// Set A10 on address bus to logic 1 (0x220)
+            TimerValue = 16'h0002;
+            TimerLoad_H = 1;                                                                   
+            NextState = PostMrNOP ;                       		// Next state will be issueing 3 NOPs   
         end
 
 		else if (CurrentState == PostMrNOP) begin
-			Command <= NOP;
-			CPUReset_L <= 0 ;									// set reset to 0 for entire duration of initialization
+			Command = NOP;
+			CPUReset_L = 0 ;									// set reset to 0 for entire duration of initialization
 			if (TimerDone_H == 1) begin
-				NextState <= RefreshIdle;                   	// Enter the Idle state after setting the Refresh Timer wait value
-                RefreshTimerValue <= 16'd375;               	// Wait 7.5 us == 375 clock cycles
-                RefreshTimerLoad_H <= 1;
+				NextState = RefreshIdle;                   	// Enter the Idle state after setting the Refresh Timer wait value
+                RefreshTimerValue = 16'd375;               	// Wait 7.5 us == 375 clock cycles
+                RefreshTimerLoad_H = 1;
             end else begin
-				NextState <= PostMrNOP;                    		// stay in this state
+				NextState = PostMrNOP;                    		// stay in this state
             end
 		end 
 
         else if (CurrentState == PreRefreshNOP) begin
-			Command <= NOP;
+			Command = NOP;
 			if (TimerDone_H == 1) begin
-				NextState <= RefreshIdle;                       // Enter the Idle state after setting the Refresh Timer wait value
-                RefreshTimerValue <= 16'd375;               	// Wait 7.5 us == 375 clock cycles
-                RefreshTimerLoad_H <= 1;
+				NextState = RefreshIdle;                       // Enter the Idle state after setting the Refresh Timer wait value
+                RefreshTimerValue = 16'd375;               	// Wait 7.5 us == 375 clock cycles
+                RefreshTimerLoad_H = 1;
             end else begin
-				NextState <= PreRefreshNOP;                    // stay in this state
+				NextState = PreRefreshNOP;                    // stay in this state
             end
         end
         
@@ -327,69 +327,70 @@ module M68kDramController_Verilog (
 				// Enter this state if CPU is accessingg DRAM (DramSelect_L == 0 AND AS_L == 0)
 				// Issue BA and select the appropriate bank and row address
 				// write following states to do a write or a read
-				Command <= BankActivate;
-				DramAddress <= Address[23:11]; //row address
-				BankAddress <= Address[25:24]; //bank address
+				Command = BankActivate;
+				DramAddress = Address[23:11]; //row address
+				BankAddress = Address[25:24]; //bank address
 				// Check if CPU is doing a write or a 
                 if (WE_L == 1'b1) begin
                     //CPU read
-                    TimerValue <= 16'h0002;
-                    TimerLoad_H <= 1;
-                    NextState <= BeginRead;
+                    // TimerValue = 16'h0002; // Only use this delay if we're applying NOP's to meet tRCD
+                    // TimerLoad_H = 1;       
+                    NextState = IssueReadPrecharge; // Go to beginRead to wait NOP
                 end
                 else begin
                     //CPU write
-                    NextState <= WaitForUDSLDSState;
+                    NextState = WaitForUDSLDSState;
                 end
 			end else if (RefreshTimerDone_H == 1) begin
-                Command <= PrechargeAllBanks;
-                DramAddress <= 13'h0400;
-				NextState <= PostPreChargeNOP;         			// begin refresh by issueing precharge all bank command
+                Command = PrechargeAllBanks;
+                DramAddress = 13'h0400;
+				NextState = PostPreChargeNOP;         			// begin refresh by issueing precharge all bank command
 			end else begin
-                Command 	<= NOP;
-                NextState 	<= RefreshIdle;
+                Command 	= NOP;
+                NextState 	= RefreshIdle;
             end
         end
         
 		else if (CurrentState == PostPreChargeNOP) begin
-            Command 	<= NOP;
-            NextState 	<= IssueRefresh;
+            Command 	= NOP;
+            NextState 	= IssueRefresh;
         end
         
 		else if (CurrentState == IssueRefresh) begin
-            Command 	<= AutoRefresh;
-            TimerValue 	<= 16'h0002;
-            TimerLoad_H <= 1;
-            NextState 	<= PreRefreshNOP;
+            Command 	= AutoRefresh;
+            TimerValue 	= 16'h0002;
+            TimerLoad_H = 1;
+            NextState 	= PreRefreshNOP;
         end
 
         // THIS MAY BE NEEDED BETWEEN ACTIVATE AND READ ACCORDING TO SLIDES
         else if (CurrentState == BeginRead) begin
-            Command <= NOP;
+            Command = NOP;
             if (TimerDone_H == 1) begin
-                NextState <= IssueReadPrecharge;
+                NextState = IssueReadPrecharge;
             end else begin
-                NextState <= BeginRead;
+                NextState = BeginRead;
             end
         end
 
 		else if (CurrentState == IssueReadPrecharge) begin
-			DramAddress <= {3'b001, Address[10:1]}; // Coloumn address & 0x400 (A10 = 1 for read precharge)
-			BankAddress <= Address[25:24]; //bank address
-			Command 	<= ReadAutoPrecharge;
-			TimerValue 	<= 16'h0001; 			// Set CAS latency as 2 clock cycles (might need to change to 1 cause of timing)
-			NextState 	<= WaitReadCASLatency;
+			DramAddress = {3'b001, Address[10:1]}; // Coloumn address & 0x400 (A10 = 1 for read precharge)
+			BankAddress = Address[25:24]; //bank address
+			Command 	= ReadAutoPrecharge;
+			TimerValue 	= 16'h0001; 			// Set CAS latency as 2 clock cycles (might need to change to 1 cause of timing)
+			TimerLoad_H = 1;
+            NextState 	= WaitReadCASLatency;
 		end
 
 		else if (CurrentState == WaitReadCASLatency) begin
-			Command 		<= NOP;
-			CPU_Dtack_L 	<= 0;
+			Command 		= NOP;
+			CPU_Dtack_L 	= 0;
 			
 			if (TimerDone_H == 1) begin
-				DramDataLatch_H 	<= 1;
-				NextState 			<= TerminateWriteRead;
+				DramDataLatch_H 	= 1;
+				NextState 			= TerminateWriteRead;
 			end else begin
-				NextState 			<= WaitReadCASLatency;
+				NextState 			= WaitReadCASLatency;
 			end
 		end
 
@@ -397,51 +398,51 @@ module M68kDramController_Verilog (
         else if (CurrentState == WaitForUDSLDSState) begin            
             if ((UDS_L == 1'b0) || (LDS_L == 1'b0)) begin                
                 // 10 bit column address a10 = 1
-                DramAddress 			<= {3'b001, Address[10:1] } ;
-                BankAddress             <= Address[25:24];
-                Command                 <= WriteAutoPrecharge;
+                DramAddress 			= {3'b001, Address[10:1] } ;
+                BankAddress             = Address[25:24];
+                Command                 = WriteAutoPrecharge;
 
                 //driving signals back to cpu
-                CPU_Dtack_L             <= 1'b0;
-                FPGAWritingtoSDram_H    <= 1'b1;
-                SDramWriteData          <= DataIn; // 68k data to sdram
+                CPU_Dtack_L             = 1'b0;
+                FPGAWritingtoSDram_H    = 1'b1;
+                SDramWriteData          = DataIn; // 68k data to sdram
                 
                 // Next we need to wait 1 clock cycle after a write
-                NextState               <= WriteWait1ClockState;
+                NextState               = WriteWait1ClockState;
 			end 
             else begin
                 // Stay in this state 
-                Command <= NOP;
-                NextState <= WaitForUDSLDSState;
+                Command = NOP;
+                NextState = WaitForUDSLDSState;
             end
         end 
         
         else if (CurrentState == WriteWait1ClockState) begin
-            CPUReset_L                  <= 1;
-            Command                     <= NOP;
+            CPUReset_L                  = 1;
+            Command                     = NOP;
 
-            CPU_Dtack_L                 <= 1'b0;
-            FPGAWritingtoSDram_H        <= 1'b1;
-            SDramWriteData              <= DataIn; // 68k data to sdram
+            CPU_Dtack_L                 = 1'b0;
+            FPGAWritingtoSDram_H        = 1'b1;
+            SDramWriteData              = DataIn; // 68k data to sdram
 
-            NextState                   <= TerminateWriteRead; 
+            NextState                   = TerminateWriteRead; 
 
         end
 		
 		else if (CurrentState == TerminateWriteRead) begin
-			Command <= NOP;
+			Command = NOP;
 			if ((UDS_L == 1'b0) || (LDS_L == 1'b0)) begin
-				CPU_Dtack_L             <= 0;
-				NextState <= TerminateWriteRead; 
+				CPU_Dtack_L             = 0;
+				NextState = TerminateWriteRead; 
 			end
 			else begin
-				NextState <= RefreshIdle;
+				NextState = RefreshIdle;
 			end 
 		end 
         
 	    else begin
-            Command <= NOP ;                                        // default command is NOP
-            NextState <= InitialisingState ;                        // default state
+            Command = NOP ;                                        // default command is NOP
+            NextState = InitialisingState ;                        // default state
         end
         
 	end// always@ block

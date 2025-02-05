@@ -1,0 +1,32 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/WINDOWS/system32
+vtb_M68kDramController
+!s110 1738789954
+!i10b 1
+!s100 1OUKDm[i8hP4[6:TMIV;n0
+IZ508mOiPCADNJGnZED``a0
+VDg1SIo80bB@j0V0VzS_@n1
+dC:/M68kV6.0 - 800by480
+w1738630771
+8C:/M68kV6.0 - 800by480/M68kDramController_Verilog_tb.v
+FC:/M68kV6.0 - 800by480/M68kDramController_Verilog_tb.v
+L0 3
+OV;L;10.5b;63
+r1
+!s85 0
+31
+!s108 1738789954.000000
+!s107 C:/M68kV6.0 - 800by480/M68kDramController_Verilog_tb.v|
+!s90 -reportprogress|300|-work|work|-stats=none|C:/M68kV6.0 - 800by480/M68kDramController_Verilog_tb.v|
+!i113 1
+o-work work
+tCvgOpt 0
+ntb_@m68k@dram@controller
