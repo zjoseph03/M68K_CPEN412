@@ -1,11 +1,11 @@
 ; C:\M68KV6.0 - 800BY480\PROGRAMS\DEBUGMONITORCODE\M68KDEBUG (NO DISASSEMBLER).C - Compiled by CC68K  Version 5.00 (c) 1991-2005  Peter J. Fondse
 ; #include "DebugMonitor.h"
 ; // use 08030000 for a system running from sram or 0B000000 for system running from dram
-; #define StartOfExceptionVectorTable 0x08030000
-; //#define StartOfExceptionVectorTable 0x0B000000
+; // #define StartOfExceptionVectorTable 0x08030000
+; #define StartOfExceptionVectorTable 0x0B000000
 ; // use 0C000000 for dram or hex 08040000 for sram
-; #define TopOfStack 0x08040000
-; //#define TopOfStack 0x0C000000
+; //#define TopOfStack 0x08040000
+; #define TopOfStack 0x0C000000
 ; /* DO NOT INITIALISE GLOBAL VARIABLES - DO IT in MAIN() */
 ; unsigned int i, x, y, z, PortA_Count;
 ; int     Trace, GoFlag, Echo;                       // used in tracing/single stepping
@@ -211,7 +211,7 @@ _Oline1:
 _InstallExceptionHandler:
        link      A6,#-4
 ; volatile long int *RamVectorAddress = (volatile long int *)(StartOfExceptionVectorTable) ;   // pointer to the Ram based interrupt vector table created in Cstart in debug monitor
-       move.l    #134414336,-4(A6)
+       move.l    #184549376,-4(A6)
 ; RamVectorAddress[level] = (long int *)(function_ptr);
        move.l    -4(A6),A0
        move.l    12(A6),D0
@@ -3669,19 +3669,22 @@ _MemoryTest:
 ; unsigned int dataSize = 0;
        clr.l     D4
 ; unsigned int dataPattern = 0;
-       clr.l     D2
+       clr.l     D3
 ; unsigned int currAddress;
 ; unsigned int addrCount;
 ; unsigned int intBuffer = NULL;
        moveq     #0,D7
 ; unsigned char *startAddressPtr = NULL;
-       clr.l     D3
+       clr.l     D2
 ; unsigned char *endAddressPtr = NULL;
        clr.l     D6
 ; unsigned short int *wordAddressPtr = NULL;
        move.w    #0,A4
 ; unsigned int *longAddressPtr = NULL;
        move.w    #0,A3
+; // IMPROVEMENTS TO BE MADE:
+; // Suppossed to be able to write an odd address as a byte
+; // We should be blocking certian thresholds from getting written according to SRAM and DRAM reqs. 
 ; // printf("\r\nStart Address: ") ;
 ; // Start = Get8HexDigits(0) ;
 ; // printf("\r\nEnd Address: ") ;
@@ -3734,26 +3737,26 @@ MemoryTest_5:
 MemoryTest_6:
 ; case(0):
 ; dataPattern = 0x00; break;
-       clr.l     D2
+       clr.l     D3
        bra.s     MemoryTest_4
 MemoryTest_7:
 ; case(1):
 ; dataPattern = 0xB2; break;
-       move.l    #178,D2
+       move.l    #178,D3
        bra.s     MemoryTest_4
 MemoryTest_8:
 ; case(2):
 ; dataPattern = 0xC3; break;
-       move.l    #195,D2
+       move.l    #195,D3
        bra.s     MemoryTest_4
 MemoryTest_9:
 ; case(3):
 ; dataPattern = 0xD4; break;
-       move.l    #212,D2
+       move.l    #212,D3
 MemoryTest_4:
 ; }
 ; dataPattern &= 0xFF;
-       and.l     #255,D2
+       and.l     #255,D3
 ; byteLength = 1;
        moveq     #1,D5
        bra       MemoryTest_11
@@ -3784,26 +3787,26 @@ MemoryTest_14:
 MemoryTest_15:
 ; case(0):
 ; dataPattern = 0x0000; break;
-       clr.l     D2
+       clr.l     D3
        bra.s     MemoryTest_13
 MemoryTest_16:
 ; case(1):
 ; dataPattern = 0x1234; break;
-       move.l    #4660,D2
+       move.l    #4660,D3
        bra.s     MemoryTest_13
 MemoryTest_17:
 ; case(2):
 ; dataPattern = 0xA1B2; break;
-       move.l    #41394,D2
+       move.l    #41394,D3
        bra.s     MemoryTest_13
 MemoryTest_18:
 ; case(3):
 ; dataPattern = 0xC3D4; break;
-       move.l    #50132,D2
+       move.l    #50132,D3
 MemoryTest_13:
 ; }
 ; dataPattern &= 0xFFFF;
-       and.l     #65535,D2
+       and.l     #65535,D3
 ; byteLength = 2;
        moveq     #2,D5
        bra       MemoryTest_11
@@ -3832,22 +3835,22 @@ MemoryTest_21:
 MemoryTest_22:
 ; case(0):
 ; dataPattern = 0x00000000; break;
-       clr.l     D2
+       clr.l     D3
        bra.s     MemoryTest_20
 MemoryTest_23:
 ; case(1):
 ; dataPattern = 0xAABBCCDD; break;
-       move.l    #-1430532899,D2
+       move.l    #-1430532899,D3
        bra.s     MemoryTest_20
 MemoryTest_24:
 ; case(2):
 ; dataPattern = 0x11223344; break;
-       move.l    #287454020,D2
+       move.l    #287454020,D3
        bra.s     MemoryTest_20
 MemoryTest_25:
 ; case(3):
 ; dataPattern = 0x76543210; break;
-       move.l    #1985229328,D2
+       move.l    #1985229328,D3
 MemoryTest_20:
 ; }
 ; byteLength = 4;
@@ -3856,25 +3859,25 @@ MemoryTest_11:
 ; }
 ; while (startAddressPtr == NULL || 
 MemoryTest_26:
-       tst.l     D3
+       tst.l     D2
        beq.s     MemoryTest_29
-       move.l    D3,-(A7)
+       move.l    D2,-(A7)
        pea       2
        jsr       ULDIV
        move.l    4(A7),D0
        addq.w    #8,A7
        tst.l     D0
        bne.s     MemoryTest_29
-       cmp.l     #134348800,D3
+       cmp.l     #134348800,D2
        blo.s     MemoryTest_29
-       move.l    #134414336,D0
+       move.l    #184549376,D0
        sub.l     D5,D0
-       cmp.l     D0,D3
+       cmp.l     D0,D2
        bls.s     MemoryTest_28
 MemoryTest_29:
 ; (unsigned int) startAddressPtr % 2 != 0 || 
 ; (unsigned int) startAddressPtr < 0x08020000 || 
-; (unsigned int) startAddressPtr > 0x08030000 - byteLength) {
+; (unsigned int) startAddressPtr > 0x0B000000 - byteLength) {
 ; printf("\nProvide Start Address in hex (do not use 0x prefix)\n0x");
        pea       @m68kde~1_140.L
        jsr       (A2)
@@ -3883,10 +3886,14 @@ MemoryTest_29:
        clr.l     -(A7)
        jsr       _Get8HexDigits
        addq.w    #4,A7
-       move.l    D0,D3
+       move.l    D0,D2
+; scanf("%x", &startAddress);
+       pea       -16(A6)
+       pea       @m68kde~1_141.L
+       jsr       _scanf
+       addq.w    #8,A7
        bra       MemoryTest_26
 MemoryTest_28:
-; // scanf("%x", &startAddress);
 ; }
 ; while (endAddressPtr == NULL || 
 MemoryTest_30:
@@ -3899,7 +3906,7 @@ MemoryTest_30:
 MemoryTest_33:
 ; (unsigned int) endAddressPtr < startAddress + byteLength) {
 ; printf("\nProvide End Address in hex (do not use 0x prefix)\n0x");
-       pea       @m68kde~1_141.L
+       pea       @m68kde~1_142.L
        jsr       (A2)
        addq.w    #4,A7
 ; endAddressPtr =  Get8HexDigits(0);
@@ -3907,102 +3914,119 @@ MemoryTest_33:
        jsr       _Get8HexDigits
        addq.w    #4,A7
        move.l    D0,D6
+; scanf("%x", &endAddress);
+       pea       -12(A6)
+       pea       @m68kde~1_141.L
+       jsr       _scanf
+       addq.w    #8,A7
        bra       MemoryTest_30
 MemoryTest_32:
-; //scanf("%x", &endAddress);
 ; }
 ; printf("\nStart Address 0x%08x\n", (unsigned int) startAddressPtr);
-       move.l    D3,-(A7)
-       pea       @m68kde~1_142.L
+       move.l    D2,-(A7)
+       pea       @m68kde~1_143.L
        jsr       (A2)
        addq.w    #8,A7
 ; printf("\nEnd Address: 0x%08x\n",(unsigned int) endAddressPtr);
        move.l    D6,-(A7)
-       pea       @m68kde~1_143.L
+       pea       @m68kde~1_144.L
        jsr       (A2)
        addq.w    #8,A7
 ; addrCount = 0;
        clr.l     -4(A6)
 ; while (startAddressPtr < endAddressPtr && ((unsigned int)endAddressPtr - (unsigned int)startAddressPtr + 1) >= (byteLength)) {
 MemoryTest_34:
-       cmp.l     D6,D3
+       cmp.l     D6,D2
        bhs       MemoryTest_36
        move.l    D6,D0
-       sub.l     D3,D0
+       sub.l     D2,D0
        addq.l    #1,D0
        cmp.l     D5,D0
        blo       MemoryTest_36
+; // If address goes beyond 0x0B00_0000 then break
+; if ((unsigned int)startAddressPtr >= 0x0B000000) {
+       cmp.l     #184549376,D2
+       blo.s     MemoryTest_37
+; printf("ERROR... Address 0x%x is beyond the memory range\n", (void*)startAddressPtr);
+       move.l    D2,-(A7)
+       pea       @m68kde~1_145.L
+       jsr       (A2)
+       addq.w    #8,A7
+; break;
+       bra       MemoryTest_36
+MemoryTest_37:
+; }
 ; longAddressPtr = startAddressPtr;
-       move.l    D3,A3
+       move.l    D2,A3
 ; wordAddressPtr = startAddressPtr;
-       move.l    D3,A4
+       move.l    D2,A4
 ; if (dataSize == 0) {
        tst.l     D4
-       bne       MemoryTest_37
+       bne       MemoryTest_39
 ; *startAddressPtr = dataPattern;
-       move.l    D3,A0
-       move.b    D2,(A0)
+       move.l    D2,A0
+       move.b    D3,(A0)
 ; if ((*startAddressPtr) != dataPattern) {
-       move.l    D3,A0
+       move.l    D2,A0
        move.b    (A0),D0
        and.l     #255,D0
-       cmp.l     D2,D0
-       beq.s     MemoryTest_39
+       cmp.l     D3,D0
+       beq.s     MemoryTest_41
 ; printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
-       move.l    D2,-(A7)
-       move.l    D3,A0
+       move.l    D3,-(A7)
+       move.l    D2,A0
        move.b    (A0),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       move.l    D3,-(A7)
-       pea       @m68kde~1_144.L
+       move.l    D2,-(A7)
+       pea       @m68kde~1_146.L
        jsr       (A2)
        add.w     #16,A7
+MemoryTest_41:
+       bra       MemoryTest_47
 MemoryTest_39:
-       bra       MemoryTest_45
-MemoryTest_37:
 ; }
 ; } else if (dataSize == 1) {
        cmp.l     #1,D4
-       bne.s     MemoryTest_41
+       bne.s     MemoryTest_43
 ; *wordAddressPtr = dataPattern;
-       move.w    D2,(A4)
+       move.w    D3,(A4)
 ; if ((*wordAddressPtr) != dataPattern) {
        move.w    (A4),D0
        and.l     #65535,D0
-       cmp.l     D2,D0
-       beq.s     MemoryTest_43
-; printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
-       move.l    D2,-(A7)
-       move.l    D3,A0
-       move.b    (A0),D1
-       and.l     #255,D1
-       move.l    D1,-(A7)
-       move.l    D3,-(A7)
-       pea       @m68kde~1_144.L
-       jsr       (A2)
-       add.w     #16,A7
-MemoryTest_43:
-       bra.s     MemoryTest_45
-MemoryTest_41:
-; }
-; } else {
-; *longAddressPtr = dataPattern;
-       move.l    D2,(A3)
-; if ((*longAddressPtr) != dataPattern) {
-       cmp.l     (A3),D2
+       cmp.l     D3,D0
        beq.s     MemoryTest_45
 ; printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
-       move.l    D2,-(A7)
-       move.l    D3,A0
+       move.l    D3,-(A7)
+       move.l    D2,A0
        move.b    (A0),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       move.l    D3,-(A7)
-       pea       @m68kde~1_144.L
+       move.l    D2,-(A7)
+       pea       @m68kde~1_146.L
        jsr       (A2)
        add.w     #16,A7
 MemoryTest_45:
+       bra.s     MemoryTest_47
+MemoryTest_43:
+; }
+; } else {
+; *longAddressPtr = dataPattern;
+       move.l    D3,(A3)
+; if ((*longAddressPtr) != dataPattern) {
+       cmp.l     (A3),D3
+       beq.s     MemoryTest_47
+; printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
+       move.l    D3,-(A7)
+       move.l    D2,A0
+       move.b    (A0),D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
+       move.l    D2,-(A7)
+       pea       @m68kde~1_146.L
+       jsr       (A2)
+       add.w     #16,A7
+MemoryTest_47:
 ; }
 ; }
 ; // if ((*startAddressPtr) != dataPattern) {
@@ -4017,51 +4041,51 @@ MemoryTest_45:
        move.l    4(A7),D0
        addq.w    #8,A7
        tst.l     D0
-       bne       MemoryTest_52
+       bne       MemoryTest_54
 ; if (dataSize == 0) {
        tst.l     D4
-       bne.s     MemoryTest_49
+       bne.s     MemoryTest_51
 ; printf("Address: 0x%x Value: 0x%02X\n",
-       move.l    D3,A0
+       move.l    D2,A0
        move.b    (A0),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       move.l    D3,-(A7)
-       pea       @m68kde~1_145.L
+       move.l    D2,-(A7)
+       pea       @m68kde~1_147.L
        jsr       (A2)
        add.w     #12,A7
-       bra.s     MemoryTest_52
-MemoryTest_49:
+       bra.s     MemoryTest_54
+MemoryTest_51:
 ; (unsigned int)startAddressPtr, *startAddressPtr);
 ; }
 ; else if (dataSize == 1) {
        cmp.l     #1,D4
-       bne.s     MemoryTest_51
+       bne.s     MemoryTest_53
 ; printf("Address: 0x%x Value: 0x%04X\n",
        move.w    (A4),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
        move.l    A4,-(A7)
-       pea       @m68kde~1_146.L
+       pea       @m68kde~1_148.L
        jsr       (A2)
        add.w     #12,A7
-       bra.s     MemoryTest_52
-MemoryTest_51:
+       bra.s     MemoryTest_54
+MemoryTest_53:
 ; (unsigned int)wordAddressPtr, *wordAddressPtr);
 ; }
 ; else {
 ; printf("Address: 0x%x Value: 0x%08X\n",
        move.l    (A3),-(A7)
        move.l    A3,-(A7)
-       pea       @m68kde~1_147.L
+       pea       @m68kde~1_149.L
        jsr       (A2)
        add.w     #12,A7
-MemoryTest_52:
+MemoryTest_54:
 ; (unsigned int)longAddressPtr, *longAddressPtr);
 ; }
 ; }
 ; startAddressPtr += byteLength;
-       add.l     D5,D3
+       add.l     D5,D2
        bra       MemoryTest_34
 MemoryTest_36:
        movem.l   (A7)+,D2/D3/D4/D5/D6/D7/A2/A3/A4/A5
@@ -4081,10 +4105,10 @@ _main:
 ; char c ;
 ; int i, j ;
 ; char *BugMessage = "DE1-68k Bug V1.77";
-       lea       @m68kde~1_148.L,A0
+       lea       @m68kde~1_150.L,A0
        move.l    A0,D3
 ; char *CopyrightMessage = "Copyright (C) PJ Davies 2016";
-       lea       @m68kde~1_149.L,A0
+       lea       @m68kde~1_151.L,A0
        move.l    A0,-4(A6)
 ; KillAllBreakPoints() ;
        jsr       _KillAllBreakPoints
@@ -4118,8 +4142,8 @@ _main:
        clr.l     _a0.L
 ; PC = ProgramStart, SSP=TopOfStack, USP = TopOfStack;
        move.l    #134217728,_PC.L
-       move.l    #134479872,_SSP.L
-       move.l    #134479872,_USP.L
+       move.l    #201326592,_SSP.L
+       move.l    #201326592,_USP.L
 ; SR = 0x2000;                            // clear interrupts enable tracing  uses IRQ6
        move.w    #8192,_SR.L
 ; // Initialise Breakpoint variables
@@ -4283,11 +4307,11 @@ main_7:
 ; LoadFromFlashChip();
        jsr       _LoadFromFlashChip
 ; printf("\r\nRunning.....") ;
-       pea       @m68kde~1_150.L
+       pea       @m68kde~1_152.L
        jsr       (A3)
        addq.w    #4,A7
 ; Oline1("Running.....") ;
-       pea       @m68kde~1_151.L
+       pea       @m68kde~1_153.L
        jsr       _Oline1
        addq.w    #4,A7
 ; GoFlag = 1;
@@ -4303,21 +4327,21 @@ main_9:
        jsr       _Oline0
        addq.w    #4,A7
 ; Oline1("By: PJ Davies") ;
-       pea       @m68kde~1_152.L
+       pea       @m68kde~1_154.L
        jsr       _Oline1
        addq.w    #4,A7
 ; printf("\r\n%s", BugMessage) ;
        move.l    D3,-(A7)
-       pea       @m68kde~1_153.L
+       pea       @m68kde~1_155.L
        jsr       (A3)
        addq.w    #8,A7
 ; printf("\r\n%s", CopyrightMessage) ;
        move.l    -4(A6),-(A7)
-       pea       @m68kde~1_153.L
+       pea       @m68kde~1_155.L
        jsr       (A3)
        addq.w    #8,A7
 ; printf("\n Student Names:\n Zachariah Joseph: 45500055 \n Umair Mazhar: 20333308\n");
-       pea       @m68kde~1_154.L
+       pea       @m68kde~1_156.L
        jsr       (A3)
        addq.w    #4,A7
 ; menu();
@@ -4866,54 +4890,61 @@ main_9:
        dc.b      32,117,115,101,32,48,120,32,112,114,101,102
        dc.b      105,120,41,10,48,120,0
 @m68kde~1_141:
+       dc.b      37,120,0
+@m68kde~1_142:
        dc.b      10,80,114,111,118,105,100,101,32,69,110,100
        dc.b      32,65,100,100,114,101,115,115,32,105,110,32
        dc.b      104,101,120,32,40,100,111,32,110,111,116,32
        dc.b      117,115,101,32,48,120,32,112,114,101,102,105
        dc.b      120,41,10,48,120,0
-@m68kde~1_142:
+@m68kde~1_143:
        dc.b      10,83,116,97,114,116,32,65,100,100,114,101,115
        dc.b      115,32,48,120,37,48,56,120,10,0
-@m68kde~1_143:
+@m68kde~1_144:
        dc.b      10,69,110,100,32,65,100,100,114,101,115,115
        dc.b      58,32,48,120,37,48,56,120,10,0
-@m68kde~1_144:
+@m68kde~1_145:
+       dc.b      69,82,82,79,82,46,46,46,32,65,100,100,114,101
+       dc.b      115,115,32,48,120,37,120,32,105,115,32,98,101
+       dc.b      121,111,110,100,32,116,104,101,32,109,101,109
+       dc.b      111,114,121,32,114,97,110,103,101,10,0
+@m68kde~1_146:
        dc.b      69,82,82,79,82,46,46,46,32,86,97,108,117,101
        dc.b      32,119,114,105,116,116,101,110,32,116,111,32
        dc.b      97,100,100,114,101,115,115,32,48,120,37,120
        dc.b      32,61,61,32,48,120,37,120,46,32,86,97,108,117
        dc.b      101,32,69,120,112,101,99,116,101,100,58,32,48
        dc.b      120,37,120,10,0
-@m68kde~1_145:
+@m68kde~1_147:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,50,88
        dc.b      10,0
-@m68kde~1_146:
+@m68kde~1_148:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,52,88
        dc.b      10,0
-@m68kde~1_147:
+@m68kde~1_149:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,56,88
        dc.b      10,0
-@m68kde~1_148:
+@m68kde~1_150:
        dc.b      68,69,49,45,54,56,107,32,66,117,103,32,86,49
        dc.b      46,55,55,0
-@m68kde~1_149:
+@m68kde~1_151:
        dc.b      67,111,112,121,114,105,103,104,116,32,40,67
        dc.b      41,32,80,74,32,68,97,118,105,101,115,32,50,48
        dc.b      49,54,0
-@m68kde~1_150:
+@m68kde~1_152:
        dc.b      13,10,82,117,110,110,105,110,103,46,46,46,46
        dc.b      46,0
-@m68kde~1_151:
+@m68kde~1_153:
        dc.b      82,117,110,110,105,110,103,46,46,46,46,46,0
-@m68kde~1_152:
+@m68kde~1_154:
        dc.b      66,121,58,32,80,74,32,68,97,118,105,101,115
        dc.b      0
-@m68kde~1_153:
+@m68kde~1_155:
        dc.b      13,10,37,115,0
-@m68kde~1_154:
+@m68kde~1_156:
        dc.b      10,32,83,116,117,100,101,110,116,32,78,97,109
        dc.b      101,115,58,10,32,90,97,99,104,97,114,105,97
        dc.b      104,32,74,111,115,101,112,104,58,32,52,53,53
@@ -5036,6 +5067,7 @@ _TempString:
        xref      _memset
        xref      _strcat
        xref      _toupper
+       xref      _scanf
        xref      ULDIV
        xref      _scanflush
        xref      _printf
