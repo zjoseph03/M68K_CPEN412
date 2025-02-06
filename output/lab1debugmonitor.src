@@ -4408,9 +4408,9 @@ MemoryTest_45:
 ; // }
 ; addrCount++;
        addq.l    #1,-4(A6)
-; if (addrCount % 8 == 0) {
+; if (addrCount % 128 == 0) {
        move.l    -4(A6),-(A7)
-       pea       8
+       pea       128
        jsr       ULDIV
        move.l    4(A7),D0
        addq.w    #8,A7

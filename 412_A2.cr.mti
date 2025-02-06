@@ -1,0 +1,34 @@
+{C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v} {0 {vlog -work work -stats=none {C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v}
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module M68kDramController_Verilog
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(17): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(18): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(25): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(31): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(32): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(33): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(47): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(48): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(51): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(52): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(53): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(54): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(56): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(57): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(60): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Warning: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(65): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+** Error: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(172): (vlog-2110) Illegal reference to net "SDram_DQ".
+** Error: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v(174): (vlog-2110) Illegal reference to net "SDram_DQ".
+
+} {20.0 22.0} {}} {C:/M68kV6.0 - 800by480/M68kDramController_Verilog_tb.v} {1 {vlog -work work -stats=none {C:/M68kV6.0 - 800by480/M68kDramController_Verilog_tb.v}
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module tb_M68kDramController
+
+Top level modules:
+	tb_M68kDramController
+
+} {} {}} {C:/M68kV6.0 - 800by480/MC68K.bdf} {0 {vlog -work work -stats=none {C:/M68kV6.0 - 800by480/MC68K.bdf}
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+** Error: (vlog-13069) C:/M68kV6.0 - 800by480/MC68K.bdf(22): near "(": syntax error, unexpected '(', expecting class.
+
+} {3.0 4.0} {}}

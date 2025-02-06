@@ -12,7 +12,7 @@ module Dtack_Generator_Verilog (
 
 	always@(*)	begin
 		
-		DtackOut_L <= 1 ;					// default is NO Dtack IN BETWEEN bus cycles (when AS_L = '1')
+		DtackOut_L = 1 ;					// default is NO Dtack IN BETWEEN bus cycles (when AS_L = '1')
 		
 		// however in Verilog we can override the above "default output" with other outputs
 		// e.g. if the address decoder is telling us that the CPU is accessing say some slow IO device (e.g. CanBusSelect_H above is logic 1), then we could delay
@@ -24,7 +24,7 @@ module Dtack_Generator_Verilog (
 				
 		if(AS_L == 0)							// When AS active 68k is accessing something so we get to produce a Dtack here if we chose
 		begin
-			DtackOut_L <= 0 ;				// assume for the moment everything is fast enough, nothing needs wait states so we set DtackOut_L to low as soon as we see AS go low
+			DtackOut_L = 0 ;				// assume for the moment everything is fast enough, nothing needs wait states so we set DtackOut_L to low as soon as we see AS go low
 													// this will be the default that covers things like on chip RAM/ROM and IO devices like LEDs, switches, graphics, DMA etc
 													// this default may need changing for off chip devices like Flash, Dram etc
 			
@@ -44,9 +44,9 @@ module Dtack_Generator_Verilog (
 			// we can add extra 'if' tests to cover all the other kinds of things that may need a dtack other than the default above e.g. dram controller etc
 			
 			if(CanBusSelect_H == 1)					// if canbus is being selected and for example it needed wait states
-				DtackOut_L <= CanBusDtack_L;		// copy the dtack signal from the can controller and give this as the dtack to the 68k
+				DtackOut_L = CanBusDtack_L;		// copy the dtack signal from the can controller and give this as the dtack to the 68k
 		 	else if (DramSelect_H == 1) 
-				DtackOut_L <= DramDtack_L;			// copy the dtack signal from the dram controller and give this as the dtack to the 68k
+				DtackOut_L = DramDtack_L;			// copy the dtack signal from the dram controller and give this as the dtack to the 68k
 		end
 	end
 endmodule

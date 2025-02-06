@@ -105,24 +105,26 @@ micro_state.div14 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 micro_state.div15 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 
 State Machine - |MC68K|Dram:inst2|M68kDramController_Verilog:inst1|CurrentState
-Name CurrentState.WaitForUDSLDSState CurrentState.WaitReadCASLatency CurrentState.TerminateWriteRead CurrentState.IssueReadPrecharge CurrentState.IssueRefresh CurrentState.PostPreChargeNOP CurrentState.WriteWait1ClockState CurrentState.RefreshIdle CurrentState.PreRefreshNOP CurrentState.PostMrNOP CurrentState.LoadModeRegister CurrentState.InitIdle CurrentState.PrechargingAllBanks CurrentState.IssueFirstNOP CurrentState.WaitingForPowerUpState CurrentState.InitialisingState CurrentState.BeginRead 
-CurrentState.InitialisingState 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-CurrentState.WaitingForPowerUpState 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 
-CurrentState.IssueFirstNOP 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 
-CurrentState.PrechargingAllBanks 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 
-CurrentState.InitIdle 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 
-CurrentState.LoadModeRegister 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 
-CurrentState.PostMrNOP 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 
-CurrentState.PreRefreshNOP 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 
-CurrentState.RefreshIdle 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 
-CurrentState.WriteWait1ClockState 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 
-CurrentState.PostPreChargeNOP 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 
-CurrentState.IssueRefresh 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 
-CurrentState.IssueReadPrecharge 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 
-CurrentState.TerminateWriteRead 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 
-CurrentState.WaitReadCASLatency 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 
-CurrentState.WaitForUDSLDSState 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 
-CurrentState.BeginRead 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+Name CurrentState.WriteWaitOneClock CurrentState.WriteWaitForUDSLDS CurrentState.TerminateWriteRead CurrentState.ReadWaitCASLatency CurrentState.ReadAutoPrechargeState CurrentState.AutoRefreshLastNOP CurrentState.AutoRefreshIssue CurrentState.AutoRefreshFirstNOP CurrentState.AutoRefreshPreCharge CurrentState.IdleState CurrentState.InitPostModeRegisterNOP CurrentState.InitProgramModeRegister CurrentState.InitPostRefreshNOP CurrentState.InitRefresh CurrentState.InitPostPrechargeNOP CurrentState.InitPrechargingAllBanks CurrentState.InitIssueFirstNOP CurrentState.InitWaitingForPowerUpState CurrentState.InitEnteringState 
+CurrentState.InitEnteringState 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+CurrentState.InitWaitingForPowerUpState 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+CurrentState.InitIssueFirstNOP 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+CurrentState.InitPrechargingAllBanks 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+CurrentState.InitPostPrechargeNOP 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+CurrentState.InitRefresh 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+CurrentState.InitPostRefreshNOP 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+CurrentState.InitProgramModeRegister 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+CurrentState.InitPostModeRegisterNOP 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+CurrentState.IdleState 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+CurrentState.AutoRefreshPreCharge 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+CurrentState.AutoRefreshFirstNOP 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.AutoRefreshIssue 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.AutoRefreshLastNOP 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.ReadAutoPrechargeState 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.ReadWaitCASLatency 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.TerminateWriteRead 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.WriteWaitForUDSLDS 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+CurrentState.WriteWaitOneClock 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 
 State Machine - |MC68K|OnChipM68xxIO:inst11|ACIA_6850:inst16|DCDState
 Name DCDState.DCD_State_Reset DCDState.DCD_State_Int DCDState.DCD_State_Idle 

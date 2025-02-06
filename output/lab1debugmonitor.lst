@@ -1,6 +1,6 @@
 680x0 MACRO ASSEMBLER   Version 5.00   (c) 1992-2005 Peter J. Fondse
 
-Date: 23 Jan 2025      Time: 19:25:19          Source: C:\M68KV6.0 - 800BY480\OUTPUT\LAB1DEBUGMONITOR.SRC
+Date: 06 Feb 2025      Time: 00:45:36          Source: C:\M68KV6.0 - 800BY480\OUTPUT\LAB1DEBUGMONITOR.SRC
 
                        1          section   code
                        2   ; for initial stack use $08040000 if your system uses SRAM for main memory (top of 256kbyte SRAM space)
@@ -5039,9 +5039,9 @@ Date: 23 Jan 2025      Time: 19:25:19          Source: C:\M68KV6.0 - 800BY480\OU
                     4408   ; // }
                     4409   ; addrCount++;
 00002834  52AE FFFC 4410          addq.l    #1,-4(A6)
-                    4411   ; if (addrCount % 8 == 0) {
+                    4411   ; if (addrCount % 128 == 0) {
 00002838  2F2E FFFC 4412          move.l    -4(A6),-(A7)
-0000283C  4878 0008 4413          pea       8
+0000283C  4878 0080 4413          pea       128
 00002840  4EB9 0000 4414          jsr       ULDIV
 00002844  2B7C      
 00002846  202F 0004 4415          move.l    4(A7),D0
