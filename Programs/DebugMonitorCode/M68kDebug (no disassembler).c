@@ -1,12 +1,12 @@
 #include "DebugMonitor.h"
 
 // use 08030000 for a system running from sram or 0B000000 for system running from dram
-#define StartOfExceptionVectorTable 0x08030000
-//#define StartOfExceptionVectorTable 0x0B000000
+// #define StartOfExceptionVectorTable 0x08030000
+#define StartOfExceptionVectorTable 0x0B000000
 
 // use 0C000000 for dram or hex 08040000 for sram
-#define TopOfStack 0x08040000
-//#define TopOfStack 0x0C000000
+//#define TopOfStack 0x08040000
+#define TopOfStack 0x0C000000
 
 /* DO NOT INITIALISE GLOBAL VARIABLES - DO IT in MAIN() */
 unsigned int i, x, y, z, PortA_Count;
@@ -1323,7 +1323,10 @@ void MemoryTest(void)
     unsigned char *endAddressPtr = NULL;
     unsigned short int *wordAddressPtr = NULL;
     unsigned int *longAddressPtr = NULL;
-
+    // IMPROVEMENTS TO BE MADE:
+    // Suppossed to be able to write an odd address as a byte
+    // We should be blocking certian thresholds from getting written according to SRAM and DRAM reqs. 
+    
     // printf("\r\nStart Address: ") ;
     // Start = Get8HexDigits(0) ;
     // printf("\r\nEnd Address: ") ;
@@ -1386,9 +1389,9 @@ void MemoryTest(void)
     }
 
     while (startAddressPtr == NULL || 
-            (unsigned int) startAddressPtr % 2 != 0 || 
+            (byteLength > 1 && (unsigned int) startAddressPtr % 2 != 0) || 
             (unsigned int) startAddressPtr < 0x08020000 || 
-            (unsigned int) startAddressPtr > 0x08030000 - byteLength) {
+            (unsigned int) startAddressPtr > 0x0B000000 - byteLength) {
         printf("\nProvide Start Address in hex (do not use 0x prefix)\n0x");
         startAddressPtr =  Get8HexDigits(0);
         // scanf("%x", &startAddress);
@@ -1398,7 +1401,7 @@ void MemoryTest(void)
             (unsigned int) endAddressPtr < startAddress + byteLength) {
         printf("\nProvide End Address in hex (do not use 0x prefix)\n0x");
         endAddressPtr =  Get8HexDigits(0);
-        //scanf("%x", &endAddress);
+        // scanf("%x", &endAddress);
     }
 
     printf("\nStart Address 0x%08x\n", (unsigned int) startAddressPtr);
@@ -1407,6 +1410,11 @@ void MemoryTest(void)
     addrCount = 0;
  
     while (startAddressPtr < endAddressPtr && ((unsigned int)endAddressPtr - (unsigned int)startAddressPtr + 1) >= (byteLength)) {
+        // If address goes beyond 0x0B00_0000 then break
+        if ((unsigned int)startAddressPtr > 0x0B000000 - byteLength) {
+            printf("ERROR... Address 0x%x is beyond the memory range\n", (void*)startAddressPtr);
+            break;
+        }
         longAddressPtr = startAddressPtr;
         wordAddressPtr = startAddressPtr;
         if (dataSize == 0) {
