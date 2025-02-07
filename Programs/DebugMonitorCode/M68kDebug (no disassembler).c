@@ -1388,20 +1388,19 @@ void MemoryTest(void)
         byteLength = 4;
     }
 
+    // Tests the DRAM range memory from 0x0802_0000 to 0x0B00_0000
     while (startAddressPtr == NULL || 
             (byteLength > 1 && (unsigned int) startAddressPtr % 2 != 0) || 
             (unsigned int) startAddressPtr < 0x08020000 || 
             (unsigned int) startAddressPtr > 0x0B000000 - byteLength) {
         printf("\nProvide Start Address in hex (do not use 0x prefix)\n0x");
         startAddressPtr =  Get8HexDigits(0);
-        // scanf("%x", &startAddress);
     }
 
     while (endAddressPtr == NULL || 
             (unsigned int) endAddressPtr < startAddress + byteLength) {
         printf("\nProvide End Address in hex (do not use 0x prefix)\n0x");
         endAddressPtr =  Get8HexDigits(0);
-        // scanf("%x", &endAddress);
     }
 
     printf("\nStart Address 0x%08x\n", (unsigned int) startAddressPtr);
