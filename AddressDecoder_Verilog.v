@@ -32,10 +32,7 @@ module AddressDecoder_Verilog (
 		if (Address[31:0] >= 32'h0800_0000 && Address[31:0] <= 32'h0BFF_FFFF) // ON CHIP RAM address hex 0800 0000 - 08BFF FFFF
 			DramSelect_H = 1 ;								
 		
-		// if (Address[31:28] == 4'b1011)					// address hex 0800 0000 - 0BFF FFFF Partial decoding
-		// 	DramSelect_H = 1 ;									// DO NOT CHANGE - debugger expects DRAM at this address
-		
-		if(Address[31:0] >= 32'hF000_0000 && 32'hF003_FFFF) 			// address hex F000 0000 - F003 FFFF Partial decoding - 256kbytes
+		if(Address[31:0] >= 32'hF000_0000 && Address[31:0] <= 32'hF003_FFFF) 			// address hex F000 0000 - F003 FFFF Partial decoding - 256kbytes
 			OnChipRamSelect_H <= 1 ;								// DO NOT CHANGE - debugger expects memory at this address
 			
 		if(Address[31:16] == 16'b0000_0000_0100_0000)  		// address hex 0040 0000 - 0040 FFFF Partial decoding

@@ -172,6 +172,14 @@
 					"strict" : false
 				},
 				{
+					"name" : "sck_o",
+					"strict" : false
+				},
+				{
+					"name" : "mosi_o",
+					"strict" : false
+				},
+				{
 					"name" : "Dtack_L",
 					"strict" : false
 				},
@@ -660,6 +668,10 @@
 					"strict" : false
 				},
 				{
+					"name" : "SSN_O[0]",
+					"strict" : false
+				},
+				{
 					"name" : "VGA_B[7]",
 					"strict" : false
 				},
@@ -873,6 +885,10 @@
 				},
 				{
 					"name" : "TraceRequest_L",
+					"strict" : false
+				},
+				{
+					"name" : "miso_i",
 					"strict" : false
 				},
 				{

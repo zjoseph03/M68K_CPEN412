@@ -1,2 +1,3 @@
+Warning (10273): Verilog HDL warning at simple_spi_top.v(315): extended using "x" or "z" File: C:/M68kV6.0 - 800by480/simple_spi_top.v Line: 315
 Warning (10268): Verilog HDL information at M68kDramController_Verilog.v(228): always construct contains both blocking and non-blocking assignments File: C:/M68kV6.0 - 800by480/M68kDramController_Verilog.v Line: 228
 Warning (10268): Verilog HDL information at AddressDecoder_Verilog.v(18): always construct contains both blocking and non-blocking assignments File: C:/M68kV6.0 - 800by480/AddressDecoder_Verilog.v Line: 18
