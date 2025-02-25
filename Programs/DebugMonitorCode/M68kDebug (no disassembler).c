@@ -462,15 +462,11 @@ void MemoryChange(void)
 void SPISafeWrite(unsigned char data) {
   unsigned char returnVal;
   // Wait while Write FIFO is full by checking WFFULL bit
-  while((SPI_Status & 0x08) == 0x08);
+  // while((SPI_Status & 0x08) == 0x08);
   SPI_Data = data;
-  // SPIPollReadFifo();
-  returnVal = SPI_Data;
-}
-
-void SPIPollReadFifo(void) {
-  // RFEMPTY is bit 0
-  while((SPI_Status & 0x01) == 0x01);  // Wait while Read FIFO Empty
+  
+  WaitForSPITransmitComplete();
+  // returnVal = SPI_Data;
 }
 
 // return true if the SPI has finished transmitting a byte (to say the Flash chip) return false otherwise
@@ -515,29 +511,39 @@ void WaitForSPITransmitComplete(void)
 }
 
 void SPIFlashPollStatusWLE(void) {
-  SPI_CS = 0xFE;
-  SPISafeWrite(0x05); // Send a Read Status Register - 1 command, bit S1 will contain the WEL
-  
-  // NOTE: Weird behaviour on logic analyzer here
-  SPIPollReadFifo();
-  while (((SPI_Data >> 1) & 0x1) == 0); // Wait here if bit S1 does not indicate the write enable latch got set // MAY NOT NEED TO PUT IN WHILE LOOP SINCE WE ARE POLLING THE READ FIFO
-  SPI_CS = 0xFF;
+  unsigned char status;
+  unsigned char dummy;
+
+  do {
+    // Start a new read status register command each time
+    SPI_CS = 0xFE;
+    SPISafeWrite(0x05);  // Send Read Status Register command
+    SPISafeWrite(0xFF);  // Dummy write to clock in data
+    status = SPI_Data;   // Read the status
+    
+    SPI_CS = 0xFF;       // End the SPI transaction
+    
+    printf("\r\n WLE Status: %02x \n", status);
+    
+  } while ((status & 0x02) == 0);  // Continue polling until WEL bit (bit 1) is set
 }
 
 void SPIFlashPollStatusBusy(void) {
-  SPI_CS = 0xFE;
-  SPISafeWrite(0x05); // Send a Read Status Register - 1 command, bit S1 will contain the WEL
-  SPIPollReadFifo();
+  unsigned char status;
+  unsigned char dummy;
   
-  // NOTE: For some reason, SPI_Data is capturing 0xFF here indicating that the flash is busy and never asserting the CS back because of that. Logic analyzer proves that the the MISO line shows 0x0 though. Probably an issue with the FIFO?
-  // When i use the if statement version the CS asserts back up, but much later, and the print for it going wrong goes off. Not sure how the flow is working there for that... 
-  // while (((SPI_Data) & 0x1) == 1); // Wait here if bit S1 does not indicate the write enable latch got set // MAY NOT NEED TO PUT IN WHILE LOOP SINCE WE ARE POLLING THE READ FIFO
-  // if ((((SPI_Data) & 0x1) == 1)) {
-  //   printf("\r\n SPI_DATA REG: %08x  \n", SPI_Data);
-  // } else {
-  //   printf("Succesfull\n");
-  //   SPI_CS = 0xFF;
-  // }
+  do {
+    // Start a new read status register command each time
+    SPI_CS = 0xFE;
+    SPISafeWrite(0x05);  // Send Read Status Register command
+    SPISafeWrite(0xFF);  // Dummy write to clock in data
+    status = SPI_Data;   // Read the status
+    
+    SPI_CS = 0xFF;       // End the SPI transaction
+    
+    printf("\r\n Busy Status: %02x \n", status);
+    
+  } while (status & 0x01);  // Continue polling until BUSY bit (bit 0) is cleared
 }
 
 /************************************************************************************
@@ -555,8 +561,7 @@ int WriteSPIChar(int c)
  // modify '0' below to return back read byte from data register
  //
  SPISafeWrite((unsigned char)c);
- WaitForSPITransmitComplete();
- SPIPollReadFifo();
+ printf("WRITTEN VAL: %08x \n", (unsigned char)c);
  return SPI_Data;
 }
 
