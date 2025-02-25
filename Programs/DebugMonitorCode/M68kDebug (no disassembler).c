@@ -456,16 +456,161 @@ void MemoryChange(void)
     }
 }
 
+/******************************************************************************************
+** The following code is for the SPI controller
+*******************************************************************************************/
+void SPISafeWrite(unsigned char data) {
+  unsigned char returnVal;
+  // Wait while Write FIFO is full by checking WFFULL bit
+  while((SPI_Status & 0x08) == 0x08);
+  SPI_Data = data;
+  // SPIPollReadFifo();
+  returnVal = SPI_Data;
+}
+
+void SPIPollReadFifo(void) {
+  // RFEMPTY is bit 0
+  while((SPI_Status & 0x01) == 0x01);  // Wait while Read FIFO Empty
+}
+
+// return true if the SPI has finished transmitting a byte (to say the Flash chip) return false otherwise
+// this can be used in a polling algorithm to know when the controller is busy or idle.
+int TestForSPITransmitDataComplete(void) {
+  /* TODO replace 0 below with a test for status register SPIF bit and if set, return true */
+  return (SPI_Status >> 7);
+}
+
+/************************************************************************************
+ ** initialises the SPI controller chip to set speed, interrupt capability etc.
+************************************************************************************/
+void SPI_Init(void)
+{
+  //TODO
+  // Program the SPI Control, EXT, CS and Status registers to initialise the SPI controller
+  // Don't forget to call this routine from main() before you do anything else with SPI
+  //
+  // Here are some settings we want to create
+  //
+  // Control Reg - interrupts disabled, core enabled, Master mode, Polarity and Phase of clock = [0,0], speed = divide by 32 (b'11) = approx 700Khz
+  // Ext Reg - in conjunction with control reg, sets speed above and also sets interrupt flag after every completed transfer (each byte)
+  // SPI_CS Reg - control selection of slave SPI chips via their CS# signals
+  // Status Reg - status of SPI controller chip and used to clear any write collision and interrupt on transmit complete flag
+
+  SPI_Control = 0x50; // 0101_0011
+  SPI_Ext     = 0x0;  // 00_0000_00
+  SPI_CS      = 0xFF; // 1111_1111 // Set all CS inactive by default. We should set CS active when we want to write/read
+  SPI_Status  = 0xC0; // 1100_0000 // Everything other than bits [7:6] are read only
+}
+
+/************************************************************************************
+ ** return ONLY when the SPI controller has finished transmitting a byte
+************************************************************************************/
+void WaitForSPITransmitComplete(void)
+{
+  // TODO : poll the status register SPIF bit looking for completion of transmission
+  // once transmission is complete, clear the write collision and interrupt on transmit complete flags in the status register (read documentation)
+  // just in case they were set
+  while (TestForSPITransmitDataComplete() == 0);
+  SPI_Status |= 0xC0;
+}
+
+void SPIFlashPollStatusWLE(void) {
+  SPI_CS = 0xFE;
+  SPISafeWrite(0x05); // Send a Read Status Register - 1 command, bit S1 will contain the WEL
+  
+  // NOTE: Weird behaviour on logic analyzer here
+  SPIPollReadFifo();
+  while (((SPI_Data >> 1) & 0x1) == 0); // Wait here if bit S1 does not indicate the write enable latch got set // MAY NOT NEED TO PUT IN WHILE LOOP SINCE WE ARE POLLING THE READ FIFO
+  SPI_CS = 0xFF;
+}
+
+void SPIFlashPollStatusBusy(void) {
+  SPI_CS = 0xFE;
+  SPISafeWrite(0x05); // Send a Read Status Register - 1 command, bit S1 will contain the WEL
+  SPIPollReadFifo();
+  
+  // NOTE: For some reason, SPI_Data is capturing 0xFF here indicating that the flash is busy and never asserting the CS back because of that. Logic analyzer proves that the the MISO line shows 0x0 though. Probably an issue with the FIFO?
+  // When i use the if statement version the CS asserts back up, but much later, and the print for it going wrong goes off. Not sure how the flow is working there for that... 
+  // while (((SPI_Data) & 0x1) == 1); // Wait here if bit S1 does not indicate the write enable latch got set // MAY NOT NEED TO PUT IN WHILE LOOP SINCE WE ARE POLLING THE READ FIFO
+  // if ((((SPI_Data) & 0x1) == 1)) {
+  //   printf("\r\n SPI_DATA REG: %08x  \n", SPI_Data);
+  // } else {
+  //   printf("Succesfull\n");
+  //   SPI_CS = 0xFF;
+  // }
+}
+
+/************************************************************************************
+** Write a byte to the SPI flash chip via the controller and returns (reads) whatever was
+** given back by SPI device at the same time (removes the read byte from the FIFO)
+************************************************************************************/
+int WriteSPIChar(int c)
+{
+ // todo - write the byte in parameter 'c' to the SPI data register, this will start it transmitting to the flash device
+ // wait for completion of transmission
+ // return the received data from Flash chip (which may not be relevent depending upon what we are doing)
+ // by reading fom the SPI controller Data Register.
+ // note however that in order to get data from an SPI slave device (e.g. flash) chip we have to write a dummy byte to it
+ //
+ // modify '0' below to return back read byte from data register
+ //
+ SPISafeWrite((unsigned char)c);
+ WaitForSPITransmitComplete();
+ SPIPollReadFifo();
+ return SPI_Data;
+}
+
+void SPIFlashWriteEnable() {
+  SPI_CS = 0xFE;
+  SPISafeWrite(0x06);
+  SPI_CS = 0xFF;
+
+  // Read and Poll for the write enable latch (WEL) to wait until we finished write enable to exit this isntruction
+  SPIFlashPollStatusWLE();
+}
+
+void SPIWriteSendAddress(int c) {
+  SPISafeWrite((c >> 16) & 0xFF);     // First byte
+  SPISafeWrite((c >> 8) & 0xFF);      // second byte
+  SPISafeWrite(c & 0xFF);             // third byte
+}
+
+void SPIFlashPageProgram(void) {
+  SPI_CS = 0xFE;
+  // NOTE: We should make the below 1 function called SPIFlashWriteCommand() or smthn like that
+  SPISafeWrite(0x02); // Write command so that we wait for write FIFO to not be full before giving a byte
+  SPIWriteSendAddress(0x0);
+  WriteSPIChar(0xAB); // Random value for testing purposes
+  SPI_CS = 0xFF;
+  
+  // Poll the status register to see when the flash write is finished before exiting this command fully
+  SPIFlashPollStatusBusy();
+}
+
+
 /*******************************************************************
 ** Write a program to SPI Flash Chip from memory and verify by reading back
 ********************************************************************/
-
 void ProgramFlashChip(void)
 {
-    //
-    // TODO : put your code here to program the 1st 256k of ram (where user program is held at hex 08000000) to SPI flash chip
-    // TODO : then verify by reading it back and comparing to memory
-    //
+    
+  //
+  // TODO : put your code here to program the 1st 256k of ram (where user program is held at hex 08000000) to SPI flash chip
+  // TODO : then verify by reading it back and comparing to memory
+  //
+  
+  SPIFlashWriteEnable();
+  SPIFlashPageProgram(); // we can modify the parameter later
+
+  // For now well test writing a byte of data
+  // Then send h'02 as instruction into data register
+  // Then send 24 bit flash address
+  // Then atleast 1 data byte
+  // If were sending multiple bytes / an entire page then the last (least significant) byte should be set to 0
+  SPI_CS = 0xFF;
+  // We should poll for the flash chips status register to indicate when the write has been completed in the flash memory after we set CS back to high
+  // Using read status register command
+
 }
 
 /*************************************************************************
@@ -473,11 +618,11 @@ void ProgramFlashChip(void)
 **************************************************************************/
 void LoadFromFlashChip(void)
 {
-    printf("\r\nLoading Program From SPI Flash....") ;
+  printf("\r\nLoading Program From SPI Flash....") ;
 
-    //
-    // TODO : put your code here to read 256k of data from SPI flash chip and store in user ram starting at hex 08000000
-    //
+  //
+  // TODO : put your code here to read 256k of data from SPI flash chip and store in user ram starting at hex 08000000
+  //
 
 }
 
@@ -1492,6 +1637,7 @@ void main(void)
 
     Init_RS232() ;     // initialise the RS232 port
     Init_LCD() ;
+    SPI_Init();
 
     for( i = 32; i < 48; i++)
        InstallExceptionHandler(UnhandledTrap, i) ;		        // install Trap exception handler on vector 32-47

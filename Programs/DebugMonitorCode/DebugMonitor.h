@@ -74,17 +74,6 @@
 #define PIA2_PortB_DDR     *(volatile unsigned char *)(0x00400064)
 #define PIA2_PortB_Control *(volatile unsigned char *)(0x00400066)
 
-/*************************************************************
-** SPI Controller registers
-**************************************************************/
-// SPI Registers
-#define SPI_Control         (*(volatile unsigned char *)(0x00408020))
-#define SPI_Status          (*(volatile unsigned char *)(0x00408022))
-#define SPI_Data            (*(volatile unsigned char *)(0x00408024))
-#define SPI_Ext             (*(volatile unsigned char *)(0x00408026))
-#define SPI_CS              (*(volatile unsigned char *)(0x00408028))
-
-
 /********************************************************************************************
 **	RGB Colours
 *********************************************************************************************/
@@ -114,6 +103,22 @@
 #define BorderHeight            4
 #define BorderWidth		        4
 
+/*************************************************************
+** SPI Controller registers
+**************************************************************/
+// SPI Registers
+#define SPI_Control (*(volatile unsigned char *)(0x00408020))
+#define SPI_Status  (*(volatile unsigned char *)(0x00408022))
+#define SPI_Data    (*(volatile unsigned char *)(0x00408024))
+#define SPI_Ext     (*(volatile unsigned char *)(0x00408026))
+#define SPI_CS      (*(volatile unsigned char *)(0x00408028))
+// these two macros enable or disable the flash memory chip enable off SSN_O[7..0]
+// in this case we assume there is only 1 device connected to SSN_O[0] so we can
+// write hex FE to the SPI_CS to enable it (the enable on the flash chip is active low)
+// and write FF to disable it
+#define Enable_SPI_CS() SPI_CS = 0xFE
+#define Disable_SPI_CS() SPI_CS = 0xFF
+
 /*******************************************************************************************
 ** Function Prototypes
 *******************************************************************************************/
@@ -137,7 +142,6 @@ int sprintf(char *out, const char *format, ...) ;
 int  TestForSPITransmitData(void) ;
 int  TestForWriteFifoEmpty(void);
 int  ReadSPIChar(void);
-void SPI_Init(void);
 void WaitForSPITransmitComplete(void);
 int  WriteSPIChar(int c);
 void SetSPIFlashWriteEnableLatch(void);
@@ -152,6 +156,9 @@ int  SPIFlashRead(int AddressOffset);
 void WriteSPIFlashData(int FlashAddress, unsigned char *MemoryAddress, int size);
 void EraseSPIFlashChip(void);
 void EraseSPIFlashSector(int SectorNumber) ;
+void SPI_Init(void);
+int TestForSPITransmitDataComplete(void);
+
 
 
 // other prototypes
@@ -189,3 +196,4 @@ void Decode3BitOperandMode(unsigned short int *OpCode) ;  // used with instructi
 void Decode3BitAddressRegister(unsigned short int Reg);
 void Decode3BitDataRegister(unsigned short int OpCode) ;
 unsigned short int Decode2BitOperandSize(unsigned short int OpCode);
+
