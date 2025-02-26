@@ -459,14 +459,15 @@ void MemoryChange(void)
 /******************************************************************************************
 ** The following code is for the SPI controller
 *******************************************************************************************/
-void SPISafeWrite(unsigned char data) {
+int SPISafeWrite(unsigned char data) {
   unsigned char returnVal;
   // Wait while Write FIFO is full by checking WFFULL bit
   // while((SPI_Status & 0x08) == 0x08);
   SPI_Data = data;
   
   WaitForSPITransmitComplete();
-  // returnVal = SPI_Data;
+  returnVal = SPI_Data;
+  return returnVal;
 }
 
 // return true if the SPI has finished transmitting a byte (to say the Flash chip) return false otherwise
@@ -481,7 +482,7 @@ int TestForSPITransmitDataComplete(void) {
 ************************************************************************************/
 void SPI_Init(void)
 {
-  //TODO
+  // TODO
   // Program the SPI Control, EXT, CS and Status registers to initialise the SPI controller
   // Don't forget to call this routine from main() before you do anything else with SPI
   //
@@ -510,6 +511,14 @@ void WaitForSPITransmitComplete(void)
   SPI_Status |= 0xC0;
 }
 
+// Clear read FIFO by reading from SPI_Data until FIFO is empty
+void ClearSPIReadFIFO(void) {
+  volatile unsigned char dummy;
+  while((SPI_Status & 0x01) == 0) {
+    dummy = SPI_Data;
+  }
+}
+
 void SPIFlashPollStatusWLE(void) {
   unsigned char status;
   unsigned char dummy;
@@ -518,14 +527,10 @@ void SPIFlashPollStatusWLE(void) {
     // Start a new read status register command each time
     SPI_CS = 0xFE;
     SPISafeWrite(0x05);  // Send Read Status Register command
-    SPISafeWrite(0xFF);  // Dummy write to clock in data
-    status = SPI_Data;   // Read the status
-    
-    SPI_CS = 0xFF;       // End the SPI transaction
-    
-    printf("\r\n WLE Status: %02x \n", status);
-    
-  } while ((status & 0x02) == 0);  // Continue polling until WEL bit (bit 1) is set
+    status = SPISafeWrite(0xFF);  // Dummy write to clock in data
+    SPI_CS = 0xFF;           
+    // printf("\r\n WLE Status: %02x \n", status);
+  } while ((status & 0x02) == 0);  // Continue polling until WEL bit (bit 1) is set and BUSY is not active
 }
 
 void SPIFlashPollStatusBusy(void) {
@@ -536,13 +541,9 @@ void SPIFlashPollStatusBusy(void) {
     // Start a new read status register command each time
     SPI_CS = 0xFE;
     SPISafeWrite(0x05);  // Send Read Status Register command
-    SPISafeWrite(0xFF);  // Dummy write to clock in data
-    status = SPI_Data;   // Read the status
-    
-    SPI_CS = 0xFF;       // End the SPI transaction
-    
-    printf("\r\n Busy Status: %02x \n", status);
-    
+    status = SPISafeWrite(0xFF);  // Dummy write to clock in data
+    SPI_CS = 0xFF;
+    // printf("\r\n Busy Status: %02x \n", status);
   } while (status & 0x01);  // Continue polling until BUSY bit (bit 0) is cleared
 }
 
@@ -574,7 +575,7 @@ void SPIFlashWriteEnable() {
   SPIFlashPollStatusWLE();
 }
 
-void SPIWriteSendAddress(int c) {
+void SPISendAddress(int c) {
   SPISafeWrite((c >> 16) & 0xFF);     // First byte
   SPISafeWrite((c >> 8) & 0xFF);      // second byte
   SPISafeWrite(c & 0xFF);             // third byte
@@ -584,12 +585,35 @@ void SPIFlashPageProgram(void) {
   SPI_CS = 0xFE;
   // NOTE: We should make the below 1 function called SPIFlashWriteCommand() or smthn like that
   SPISafeWrite(0x02); // Write command so that we wait for write FIFO to not be full before giving a byte
-  SPIWriteSendAddress(0x0);
+  SPISendAddress(0x0);
   WriteSPIChar(0xAB); // Random value for testing purposes
   SPI_CS = 0xFF;
   
   // Poll the status register to see when the flash write is finished before exiting this command fully
   SPIFlashPollStatusBusy();
+}
+
+void SPIFlashErase(void) {
+  // TODO: Give a parameter for the sector to erase instead of hardcode
+  printf("Erasing...\n");
+  SPI_CS = 0xFE;
+  SPISafeWrite(0xC7);
+  SPI_CS = 0xFF;
+  SPIFlashPollStatusBusy();
+}
+
+int SPIFlashRead() {
+  unsigned char readData;
+  ClearSPIReadFIFO();
+  SPI_CS = 0xFE;
+  SPISafeWrite(0x03);
+  SPISendAddress(0x0);
+  readData = SPISafeWrite(0xFF); // Dummy byte (1 dummy byte == 1 byte read)
+  printf("\r\nRead Data: %08x\n", readData);
+  SPI_CS = 0xFF;
+  SPIFlashPollStatusBusy();
+  
+  return readData;
 }
 
 
@@ -603,8 +627,13 @@ void ProgramFlashChip(void)
   // TODO : put your code here to program the 1st 256k of ram (where user program is held at hex 08000000) to SPI flash chip
   // TODO : then verify by reading it back and comparing to memory
   //
-  
+
+  SPIFlashPollStatusBusy();
+
   SPIFlashWriteEnable();
+  SPIFlashErase();
+
+  SPIFlashWriteEnable(); // NOTE: This is not asserting the WEL
   SPIFlashPageProgram(); // we can modify the parameter later
 
   // For now well test writing a byte of data
@@ -612,7 +641,6 @@ void ProgramFlashChip(void)
   // Then send 24 bit flash address
   // Then atleast 1 data byte
   // If were sending multiple bytes / an entire page then the last (least significant) byte should be set to 0
-  SPI_CS = 0xFF;
   // We should poll for the flash chips status register to indicate when the write has been completed in the flash memory after we set CS back to high
   // Using read status register command
 
@@ -623,8 +651,15 @@ void ProgramFlashChip(void)
 **************************************************************************/
 void LoadFromFlashChip(void)
 {
-  printf("\r\nLoading Program From SPI Flash....") ;
-
+  int readData;
+  
+  printf("\r\n Loading Program From SPI Flash....") ;
+  SPIFlashPollStatusBusy();
+  readData = SPIFlashRead();
+  printf("\r\n Read Data: %08x \n", readData);
+  
+  // Reading single byte works
+  // TODO: Read multi-byte and then read the entire program that we copied over to flash
   //
   // TODO : put your code here to read 256k of data from SPI flash chip and store in user ram starting at hex 08000000
   //
