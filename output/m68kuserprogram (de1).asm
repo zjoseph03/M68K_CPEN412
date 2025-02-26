@@ -14,8 +14,8 @@
 ; //
 ; // The working 68k system SOF file posted on canvas that you can use for your pre-lab
 ; // is based around Dram so #define accordingly before building
-; #define StartOfExceptionVectorTable 0x08030000
-; // #define StartOfExceptionVectorTable 0x0B000000
+; //#define StartOfExceptionVectorTable 0x08030000
+; #define StartOfExceptionVectorTable 0x0B000000
 ; /**********************************************************************************************
 ; **	Parallel port addresses
 ; **********************************************************************************************/
@@ -455,7 +455,7 @@ _LCDLine2Message:
 _InstallExceptionHandler:
        link      A6,#-4
 ; volatile long int *RamVectorAddress = (volatile long int *)(StartOfExceptionVectorTable) ;   // pointer to the Ram based interrupt vector table created in Cstart in debug monitor
-       move.l    #134414336,-4(A6)
+       move.l    #184549376,-4(A6)
 ; RamVectorAddress[level] = (long int *)(function_ptr);                       // install the address of our function into the exception table
        move.l    -4(A6),A0
        move.l    12(A6),D0
@@ -471,30 +471,39 @@ _InstallExceptionHandler:
 ; {
        xdef      _MemoryTest
 _MemoryTest:
-       link      A6,#-188
+       link      A6,#-208
        movem.l   D2/D3/D4/D5/D6/A2/A3/A4,-(A7)
        lea       _printf.L,A2
        lea       _scanf.L,A3
-       lea       -4(A6),A4
+       lea       -12(A6),A4
 ; unsigned int *RamPtr, counter1=1 ;
-       move.l    #1,-184(A6)
+       move.l    #1,-204(A6)
 ; register unsigned int i ;
 ; unsigned int Start, End ;
 ; char c, text[150];
 ; unsigned int* addressPointer;
 ; unsigned int startAddress = NULL;
-       clr.l     -16(A6)
+       clr.l     -32(A6)
 ; unsigned int endAddress = NULL;
-       clr.l     -12(A6)
+       clr.l     -28(A6)
 ; unsigned int bitLength;
 ; unsigned int dataSize = 0;
-       clr.l     -8(A6)
+       clr.l     -20(A6)
 ; unsigned int dataPattern = 0;
        clr.l     D2
 ; unsigned int currAddress;
 ; unsigned int addrCount;
 ; unsigned int intBuffer = NULL;
        clr.l     (A4)
+; unsigned char *startAddressPtr = NULL;
+       clr.l     -8(A6)
+; unsigned char *endAddressPtr = NULL;
+       clr.l     -4(A6)
+; unsigned short int *wordAddressPtr = NULL;
+       clr.l     D5
+; unsigned int *longAddressPtr = NULL;
+       clr.l     D4
+; unsigned int byteLength;
 ; // printf("\r\nStart Address: ") ;
 ; // Start = Get8HexDigits(0) ;
 ; // printf("\r\nEnd Address: ") ;
@@ -505,7 +514,7 @@ _MemoryTest:
 ; memset(text, 0, sizeof(text));  // fills with zeros
        pea       150
        clr.l     -(A7)
-       pea       -166(A6)
+       pea       -186(A6)
        jsr       _memset
        add.w     #12,A7
 ; printf("Enter what size of memory you want to read/write\n Byte = 0\n Word = 1\n Long Word = 2\n");
@@ -513,12 +522,12 @@ _MemoryTest:
        jsr       (A2)
        addq.w    #4,A7
 ; scanf("%d", &dataSize);
-       pea       -8(A6)
+       pea       -20(A6)
        pea       @m68kus~1_2.L
        jsr       (A3)
        addq.w    #8,A7
 ; if (dataSize == 0) {
-       move.l    -8(A6),D0
+       move.l    -20(A6),D0
        bne       MemoryTest_1
 ; printf("Enter which data pattern you want to write into memory\n 0xA1 = 0\n 0xB2 = 1\n 0xC3 = 2\n 0xD4 = 3\n");
        pea       @m68kus~1_3.L
@@ -566,12 +575,12 @@ MemoryTest_9:
 ; break;
 MemoryTest_4:
 ; }
-; bitLength = 8;
-       moveq     #8,D4
+; byteLength = 1;
+       moveq     #1,D3
        bra       MemoryTest_11
 MemoryTest_1:
 ; } else if (dataSize == 1) {
-       move.l    -8(A6),D0
+       move.l    -20(A6),D0
        cmp.l     #1,D0
        bne       MemoryTest_10
 ; printf("Enter which data pattern you want to write into memory\n 0xABCD = 0\n 0x1234 = 1\n 0xA1B2 = 2\n 0xC3D4 = 3\n");
@@ -620,8 +629,8 @@ MemoryTest_18:
 ; break;
 MemoryTest_13:
 ; }
-; bitLength = 16;
-       moveq     #16,D4
+; byteLength = 2;
+       moveq     #2,D3
        bra       MemoryTest_11
 MemoryTest_10:
 ; } else {
@@ -671,188 +680,264 @@ MemoryTest_25:
 ; break;
 MemoryTest_20:
 ; }
-; bitLength = 32;
-       moveq     #32,D4
+; byteLength = 4;
+       moveq     #4,D3
 MemoryTest_11:
 ; }
-; while (startAddress == NULL || 
+; // Tests the DRAM range memory from 0x0802_0000 to 0x0B00_0000
+; printf("Enter start address in range of 0x0802_0000 -> %08x\n If sending word or long word, ensure it is aligned to even address\n", 0x0B000000 - byteLength);
+       move.l    #184549376,D1
+       sub.l     D3,D1
+       move.l    D1,-(A7)
+       pea       @m68kus~1_6.L
+       jsr       (A2)
+       addq.w    #8,A7
+; while (startAddressPtr == NULL || 
 MemoryTest_26:
-       move.l    -16(A6),D0
-       beq.s     MemoryTest_29
-       move.l    -16(A6),-(A7)
-       move.l    D4,-(A7)
+       move.l    -8(A6),D0
+       beq       MemoryTest_29
+       cmp.l     #1,D3
+       bls.s     MemoryTest_30
+       move.l    -8(A6),-(A7)
+       pea       2
        jsr       ULDIV
        move.l    4(A7),D0
        addq.w    #8,A7
        tst.l     D0
        bne.s     MemoryTest_29
-       move.l    -16(A6),D0
+MemoryTest_30:
+       move.l    -8(A6),D0
        cmp.l     #134348800,D0
        blo.s     MemoryTest_29
-       move.l    #134414336,D0
-       sub.l     D4,D0
-       cmp.l     -16(A6),D0
+       move.l    #184549376,D0
+       sub.l     D3,D0
+       cmp.l     -8(A6),D0
        bhs.s     MemoryTest_28
 MemoryTest_29:
-; startAddress % bitLength != 0 || 
-; startAddress < 0x08020000 || 
-; startAddress > 0x08030000 - bitLength) {
-; printf("Provide Start Address in hex (do not use 0x prefix)\n0x");
-       pea       @m68kus~1_6.L
+; (byteLength > 1 && (unsigned int) startAddressPtr % 2 != 0) || 
+; (unsigned int) startAddressPtr < 0x08020000 || 
+; (unsigned int) startAddressPtr > 0x0B000000 - byteLength) {
+; printf("\nProvide Start Address in hex (do not use 0x prefix)\n0x");
+       pea       @m68kus~1_7.L
        jsr       (A2)
        addq.w    #4,A7
-; scanf("%x", &startAddress);
-       pea       -16(A6)
-       pea       @m68kus~1_7.L
+; scanf("%x", &startAddressPtr);
+       pea       -8(A6)
+       pea       @m68kus~1_8.L
        jsr       (A3)
        addq.w    #8,A7
        bra       MemoryTest_26
 MemoryTest_28:
 ; }
-; while (endAddress == NULL || 
-MemoryTest_30:
-       move.l    -12(A6),D0
-       beq.s     MemoryTest_33
-       move.l    -12(A6),-(A7)
-       move.l    D4,-(A7)
-       jsr       ULDIV
-       move.l    4(A7),D0
-       addq.w    #8,A7
-       tst.l     D0
-       bne.s     MemoryTest_33
-       move.l    #134414336,D0
-       sub.l     D4,D0
-       cmp.l     -12(A6),D0
-       blo.s     MemoryTest_33
-       move.l    -16(A6),D0
-       add.l     D4,D0
-       cmp.l     -12(A6),D0
-       bls.s     MemoryTest_32
-MemoryTest_33:
-; endAddress % bitLength != 0 || 
-; endAddress > 0x08030000 - bitLength || 
-; endAddress < startAddress + bitLength) {
-; printf("Provide End Address in hex (do not use 0x prefix)\n0x");
-       pea       @m68kus~1_8.L
-       jsr       (A2)
-       addq.w    #4,A7
-; scanf("%x", &endAddress);
-       pea       -12(A6)
-       pea       @m68kus~1_7.L
-       jsr       (A3)
-       addq.w    #8,A7
-       bra       MemoryTest_30
-MemoryTest_32:
-; }
-; printf("Start Address 0x%08x\n", startAddress);
-       move.l    -16(A6),-(A7)
+; printf("Enter end address in range of 0x0802_0000 -> %08x\n If sending word or long word, ensure it is aligned to even address", 0x0B000000 - byteLength);
+       move.l    #184549376,D1
+       sub.l     D3,D1
+       move.l    D1,-(A7)
        pea       @m68kus~1_9.L
        jsr       (A2)
        addq.w    #8,A7
-; printf("End Address: 0x%08x\n", endAddress);
-       move.l    -12(A6),-(A7)
+; while (endAddressPtr == NULL || 
+MemoryTest_31:
+       move.l    -4(A6),D0
+       beq.s     MemoryTest_34
+       move.l    -32(A6),D0
+       add.l     D3,D0
+       cmp.l     -4(A6),D0
+       bls.s     MemoryTest_33
+MemoryTest_34:
+; (unsigned int) endAddressPtr < startAddress + byteLength) {
+; printf("\nProvide End Address in hex (do not use 0x prefix)\n0x");
        pea       @m68kus~1_10.L
+       jsr       (A2)
+       addq.w    #4,A7
+; scanf("%x", &endAddressPtr);
+       pea       -4(A6)
+       pea       @m68kus~1_8.L
+       jsr       (A3)
+       addq.w    #8,A7
+       bra       MemoryTest_31
+MemoryTest_33:
+; }
+; printf("Start Address 0x%08x\n", startAddressPtr);
+       move.l    -8(A6),-(A7)
+       pea       @m68kus~1_11.L
+       jsr       (A2)
+       addq.w    #8,A7
+; printf("End Address: 0x%08x\n", endAddressPtr);
+       move.l    -4(A6),-(A7)
+       pea       @m68kus~1_12.L
        jsr       (A2)
        addq.w    #8,A7
 ; addrCount = 0;
        clr.l     D6
-; for (currAddress = startAddress; currAddress < endAddress; currAddress += bitLength) {
-       move.l    -16(A6),D5
-MemoryTest_34:
-       cmp.l     -12(A6),D5
-       bhs       MemoryTest_36
-; if (endAddress - currAddress >= bitLength) {
-       move.l    -12(A6),D0
-       sub.l     D5,D0
-       cmp.l     D4,D0
+; while (startAddressPtr < endAddressPtr && ((unsigned int)endAddressPtr - (unsigned int)startAddressPtr + 1) >= (byteLength)) {
+MemoryTest_35:
+       move.l    -8(A6),D0
+       cmp.l     -4(A6),D0
+       bhs       MemoryTest_37
+       move.l    -4(A6),D0
+       sub.l     -8(A6),D0
+       addq.l    #1,D0
+       cmp.l     D3,D0
        blo       MemoryTest_37
-; addressPointer = (int*)(currAddress);
-       move.l    D5,D3
-; *addressPointer = dataPattern;
-       move.l    D3,A0
-       move.l    D2,(A0)
-; if (*addressPointer != dataPattern) {
-       move.l    D3,A0
-       cmp.l     (A0),D2
-       beq.s     MemoryTest_39
-; printf("ERROR... Value written to location 0x%x == 0x%x. Value Expected: 0x%x", (void*)addressPointer, *addressPointer, dataPattern);
+; // If address goes beyond 0x0B00_0000 then break
+; if ((unsigned int)startAddressPtr > 0x0B000000 - byteLength) {
+       move.l    #184549376,D0
+       sub.l     D3,D0
+       cmp.l     -8(A6),D0
+       bhs.s     MemoryTest_38
+; printf("ERROR... Address 0x%x is beyond the memory range\n", (void*)startAddressPtr);
+       move.l    -8(A6),-(A7)
+       pea       @m68kus~1_13.L
+       jsr       (A2)
+       addq.w    #8,A7
+; break;
+       bra       MemoryTest_37
+MemoryTest_38:
+; }
+; longAddressPtr = startAddressPtr;
+       move.l    -8(A6),D4
+; wordAddressPtr = startAddressPtr;
+       move.l    -8(A6),D5
+; if (dataSize == 0) {
+       move.l    -20(A6),D0
+       bne       MemoryTest_40
+; *startAddressPtr = dataPattern;
+       move.l    -8(A6),A0
+       move.b    D2,(A0)
+; if ((*startAddressPtr) != dataPattern) {
+       move.l    -8(A6),A0
+       move.b    (A0),D0
+       and.l     #255,D0
+       cmp.l     D2,D0
+       beq.s     MemoryTest_42
+; printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
        move.l    D2,-(A7)
-       move.l    D3,A0
-       move.l    (A0),-(A7)
-       move.l    D3,-(A7)
-       pea       @m68kus~1_11.L
+       move.l    -8(A6),A0
+       move.b    (A0),D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
+       move.l    -8(A6),-(A7)
+       pea       @m68kus~1_14.L
        jsr       (A2)
        add.w     #16,A7
-MemoryTest_39:
+MemoryTest_42:
+       bra       MemoryTest_48
+MemoryTest_40:
 ; }
+; } else if (dataSize == 1) {
+       move.l    -20(A6),D0
+       cmp.l     #1,D0
+       bne       MemoryTest_44
+; *wordAddressPtr = dataPattern;
+       move.l    D5,A0
+       move.w    D2,(A0)
+; if ((*wordAddressPtr) != dataPattern) {
+       move.l    D5,A0
+       move.w    (A0),D0
+       and.l     #65535,D0
+       cmp.l     D2,D0
+       beq.s     MemoryTest_46
+; printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
+       move.l    D2,-(A7)
+       move.l    -8(A6),A0
+       move.b    (A0),D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
+       move.l    -8(A6),-(A7)
+       pea       @m68kus~1_14.L
+       jsr       (A2)
+       add.w     #16,A7
+MemoryTest_46:
+       bra.s     MemoryTest_48
+MemoryTest_44:
+; }
+; } else {
+; *longAddressPtr = dataPattern;
+       move.l    D4,A0
+       move.l    D2,(A0)
+; if ((*longAddressPtr) != dataPattern) {
+       move.l    D4,A0
+       cmp.l     (A0),D2
+       beq.s     MemoryTest_48
+; printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
+       move.l    D2,-(A7)
+       move.l    -8(A6),A0
+       move.b    (A0),D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
+       move.l    -8(A6),-(A7)
+       pea       @m68kus~1_14.L
+       jsr       (A2)
+       add.w     #16,A7
+MemoryTest_48:
+; }
+; }
+; // if ((*startAddressPtr) != dataPattern) {
+; //     printf("ERROR... Value written to address 0x%x == 0x%x. Value Expected: 0x%x\n", (void*)startAddressPtr, *startAddressPtr, dataPattern);
+; // }
 ; addrCount++;
        addq.l    #1,D6
-; if (addrCount % 1 == 0) {
+; if (addrCount % 128 == 0) {
        move.l    D6,-(A7)
-       pea       1
+       pea       128
        jsr       ULDIV
        move.l    4(A7),D0
        addq.w    #8,A7
        tst.l     D0
-       bne       MemoryTest_46
+       bne       MemoryTest_55
 ; if (dataSize == 0) {
-       move.l    -8(A6),D0
-       bne.s     MemoryTest_43
+       move.l    -20(A6),D0
+       bne.s     MemoryTest_52
 ; printf("Address: 0x%x Value: 0x%02X\n",
-       move.l    D3,A0
-       move.l    (A0),-(A7)
-       move.l    D3,-(A7)
-       pea       @m68kus~1_12.L
-       jsr       (A2)
-       add.w     #12,A7
-       bra       MemoryTest_46
-MemoryTest_43:
-; (unsigned int)addressPointer, *addressPointer);
-; }
-; else if (dataSize == 1) {
-       move.l    -8(A6),D0
-       cmp.l     #1,D0
-       bne.s     MemoryTest_45
-; printf("Address: 0x%x Value: 0x%04X\n",
-       move.l    D3,A0
-       move.l    (A0),-(A7)
-       move.l    D3,-(A7)
-       pea       @m68kus~1_13.L
-       jsr       (A2)
-       add.w     #12,A7
-       bra.s     MemoryTest_46
-MemoryTest_45:
-; (unsigned int)addressPointer, *addressPointer);
-; }
-; else {
-; printf("Address: 0x%x Value: 0x%08X\n",
-       move.l    D3,A0
-       move.l    (A0),-(A7)
-       move.l    D3,-(A7)
-       pea       @m68kus~1_14.L
-       jsr       (A2)
-       add.w     #12,A7
-MemoryTest_46:
-       bra.s     MemoryTest_38
-MemoryTest_37:
-; (unsigned int)addressPointer, *addressPointer);
-; }
-; }
-; } else {
-; printf("Current Address: 0x%x, No room to write to memory to fit within end address 0x%x", currAddress, endAddress);
-       move.l    -12(A6),-(A7)
-       move.l    D5,-(A7)
+       move.l    -8(A6),A0
+       move.b    (A0),D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
+       move.l    -8(A6),-(A7)
        pea       @m68kus~1_15.L
        jsr       (A2)
        add.w     #12,A7
-MemoryTest_38:
-       add.l     D4,D5
-       bra       MemoryTest_34
-MemoryTest_36:
+       bra       MemoryTest_55
+MemoryTest_52:
+; (unsigned int)startAddressPtr, *startAddressPtr);
+; }
+; else if (dataSize == 1) {
+       move.l    -20(A6),D0
+       cmp.l     #1,D0
+       bne.s     MemoryTest_54
+; printf("Address: 0x%x Value: 0x%04X\n",
+       move.l    D5,A0
+       move.w    (A0),D1
+       and.l     #65535,D1
+       move.l    D1,-(A7)
+       move.l    D5,-(A7)
+       pea       @m68kus~1_16.L
+       jsr       (A2)
+       add.w     #12,A7
+       bra.s     MemoryTest_55
+MemoryTest_54:
+; (unsigned int)wordAddressPtr, *wordAddressPtr);
+; }
+; else {
+; printf("Address: 0x%x Value: 0x%08X\n",
+       move.l    D4,A0
+       move.l    (A0),-(A7)
+       move.l    D4,-(A7)
+       pea       @m68kus~1_17.L
+       jsr       (A2)
+       add.w     #12,A7
+MemoryTest_55:
+; (unsigned int)longAddressPtr, *longAddressPtr);
+; }
+; }
+; startAddressPtr += byteLength;
+       add.l     D3,-8(A6)
+       bra       MemoryTest_35
+MemoryTest_37:
        movem.l   (A7)+,D2/D3/D4/D5/D6/A2/A3/A4
        unlk      A6
        rts
-; }
 ; }
 ; // add your code to test memory here using 32 bit reads and writes of data between the start and end of memory
 ; }
@@ -948,7 +1033,7 @@ _main:
 ; scanflush();
        jsr       _scanflush
 ; printf("\r\nEnter Integer: ") ;
-       pea       @m68kus~1_16.L
+       pea       @m68kus~1_18.L
        jsr       (A3)
        addq.w    #4,A7
 ; scanf("%d", &i) ;
@@ -958,11 +1043,11 @@ _main:
        addq.w    #8,A7
 ; printf("You entered %d", i) ;
        move.l    -216(A6),-(A7)
-       pea       @m68kus~1_17.L
+       pea       @m68kus~1_19.L
        jsr       (A3)
        addq.w    #8,A7
 ; sprintf(text, "Hello CPEN 412 Student");
-       pea       @m68kus~1_18.L
+       pea       @m68kus~1_20.L
        pea       -202(A6)
        jsr       _sprintf
        addq.w    #8,A7
@@ -971,125 +1056,15 @@ _main:
        jsr       _LCDLine1Message
        addq.w    #4,A7
 ; printf("\r\nHello CPEN 412 Student\r\nYour LEDs should be Flashing");
-       pea       @m68kus~1_19.L
+       pea       @m68kus~1_21.L
        jsr       (A3)
        addq.w    #4,A7
 ; printf("\r\nYour LCD should be displaying");
-       pea       @m68kus~1_20.L
+       pea       @m68kus~1_22.L
        jsr       (A3)
        addq.w    #4,A7
 ; MemoryTest();
        jsr       _MemoryTest
-; // Memory test loop
-; // for (memoryOffset = 0; memoryOffset < 0xFFFF; memoryOffset += 8) {
-; //     addressPointer = (int*)(0x08020000 + memoryOffset);
-; //     *addressPointer = memoryOffset;
-; //     readValue = *addressPointer;
-; //     sprintf(text, "Address: 0x%p Value: %d\n", (void*)addressPointer, readValue);
-; //     LCDLine1Message(text);
-; // }
-; // scanflush();
-; // memset(text, 0, sizeof(text));  // fills with zeros
-; // printf("Enter what size of memory you want to read/write\n Byte = 0\n Word = 1\n Long Word = 2\n");
-; // scanf("%d", &dataSize);
-; // if (dataSize == 0) {
-; //     printf("Enter which data pattern you want to write into memory\n 0xA1 = 0\n 0xB2 = 1\n 0xC3 = 2\n 0xD4 = 3\n");
-; //     scanf("%d", &intBuffer);
-; //     switch (intBuffer) {
-; //         case(0):
-; //             dataPattern = 0xA1;
-; //             break;
-; //         case(1):
-; //             dataPattern = 0xB2;
-; //             break;
-; //         case(2):
-; //             dataPattern = 0xC3;
-; //             break;
-; //         case(3):
-; //             dataPattern = 0xD4;
-; //             break;
-; //     }
-; //     bitLength = 8;
-; // } else if (dataSize == 1) {
-; //     printf("Enter which data pattern you want to write into memory\n 0xABCD = 0\n 0x1234 = 1\n 0xA1B2 = 2\n 0xC3D4 = 3\n");
-; //     scanf("%d", &intBuffer);
-; //     switch (intBuffer) {
-; //         case(0):
-; //             dataPattern = 0xABCD;
-; //             break;
-; //         case(1):
-; //             dataPattern = 0x1234;
-; //             break;
-; //         case(2):
-; //             dataPattern = 0xA1B2;
-; //             break;
-; //         case(3):
-; //             dataPattern = 0xC3D4;
-; //             break;
-; //     }
-; //     bitLength = 16;
-; // } else {
-; //     printf("Enter which data pattern you want to write into memory\n 0xABCD_1234 = 0\n 0xAABB_CCDD = 1\n 0x1122_3344 = 2\n 0x7654_3210 = 3\n");
-; //     scanf("%d", &intBuffer);
-; //     switch (intBuffer) {
-; //         case(0):
-; //             dataPattern = 0xABCD1234;
-; //             break;
-; //         case(1):
-; //             dataPattern = 0xAABBCCDD;
-; //             break;
-; //         case(2):
-; //             dataPattern = 0x11223344;
-; //             break;
-; //         case(3):
-; //             dataPattern = 0x76543210;
-; //             break;
-; //     }
-; //     bitLength = 32;
-; // }
-; // while (startAddress == NULL || 
-; //         startAddress % bitLength != 0 || 
-; //         startAddress < 0x08020000 || 
-; //         startAddress > 0x08030000 - bitLength) {
-; //     printf("Provide Start Address in hex (do not use 0x prefix)\n0x");
-; //     scanf("%x", &startAddress);
-; // }
-; // while (endAddress == NULL || 
-; //         endAddress % bitLength != 0 || 
-; //         endAddress > 0x08030000 - bitLength || 
-; //         endAddress < startAddress + bitLength) {
-; //     printf("Provide End Address in hex (do not use 0x prefix)\n0x");
-; //     scanf("%x", &endAddress);
-; // }
-; // printf("Start Address 0x%08x\n", startAddress);
-; // printf("End Address: 0x%08x\n", endAddress);
-; // addrCount = 0;
-; // for (currAddress = startAddress; currAddress < endAddress; currAddress += bitLength) {
-; //     if (endAddress - currAddress >= bitLength) {
-; //         addressPointer = (int*)(currAddress);
-; //         *addressPointer = dataPattern;
-; //         if (*addressPointer != dataPattern) {
-; //             printf("ERROR... Value written to location 0x%x == 0x%x. Value Expected: 0x%x", (void*)addressPointer, *addressPointer, dataPattern);
-; //         }
-; //         addrCount++;
-; //         if (addrCount % 100 == 0) {
-; //             if (dataSize == 0) {
-; //                 printf("Address: 0x%x Value: 0x%02X\n",
-; //                     (unsigned int)addressPointer, *addressPointer);
-; //             }
-; //             else if (dataSize == 1) {
-; //                 printf("Address: 0x%x Value: 0x%04X\n",
-; //                     (unsigned int)addressPointer, *addressPointer);
-; //             }
-; //             else {
-; //                 printf("Address: 0x%x Value: 0x%08X\n",
-; //                     (unsigned int)addressPointer, *addressPointer);
-; //             }
-; //         }
-; //     } else {
-; //         printf("Current Address: 0x%x, No room to write to memory to fit within end address 0x%x", currAddress, endAddress);
-; //     }
-; // }
 ; while(1);
 main_1:
        bra       main_1
@@ -1135,68 +1110,87 @@ main_1:
        dc.b      32,48,120,55,54,53,52,95,51,50,49,48,32,61,32
        dc.b      51,10,0
 @m68kus~1_6:
-       dc.b      80,114,111,118,105,100,101,32,83,116,97,114
+       dc.b      69,110,116,101,114,32,115,116,97,114,116,32
+       dc.b      97,100,100,114,101,115,115,32,105,110,32,114
+       dc.b      97,110,103,101,32,111,102,32,48,120,48,56,48
+       dc.b      50,95,48,48,48,48,32,45,62,32,37,48,56,120,10
+       dc.b      32,73,102,32,115,101,110,100,105,110,103,32
+       dc.b      119,111,114,100,32,111,114,32,108,111,110,103
+       dc.b      32,119,111,114,100,44,32,101,110,115,117,114
+       dc.b      101,32,105,116,32,105,115,32,97,108,105,103
+       dc.b      110,101,100,32,116,111,32,101,118,101,110,32
+       dc.b      97,100,100,114,101,115,115,10,0
+@m68kus~1_7:
+       dc.b      10,80,114,111,118,105,100,101,32,83,116,97,114
        dc.b      116,32,65,100,100,114,101,115,115,32,105,110
        dc.b      32,104,101,120,32,40,100,111,32,110,111,116
        dc.b      32,117,115,101,32,48,120,32,112,114,101,102
        dc.b      105,120,41,10,48,120,0
-@m68kus~1_7:
-       dc.b      37,120,0
 @m68kus~1_8:
-       dc.b      80,114,111,118,105,100,101,32,69,110,100,32
-       dc.b      65,100,100,114,101,115,115,32,105,110,32,104
-       dc.b      101,120,32,40,100,111,32,110,111,116,32,117
-       dc.b      115,101,32,48,120,32,112,114,101,102,105,120
-       dc.b      41,10,48,120,0
+       dc.b      37,120,0
 @m68kus~1_9:
+       dc.b      69,110,116,101,114,32,101,110,100,32,97,100
+       dc.b      100,114,101,115,115,32,105,110,32,114,97,110
+       dc.b      103,101,32,111,102,32,48,120,48,56,48,50,95
+       dc.b      48,48,48,48,32,45,62,32,37,48,56,120,10,32,73
+       dc.b      102,32,115,101,110,100,105,110,103,32,119,111
+       dc.b      114,100,32,111,114,32,108,111,110,103,32,119
+       dc.b      111,114,100,44,32,101,110,115,117,114,101,32
+       dc.b      105,116,32,105,115,32,97,108,105,103,110,101
+       dc.b      100,32,116,111,32,101,118,101,110,32,97,100
+       dc.b      100,114,101,115,115,0
+@m68kus~1_10:
+       dc.b      10,80,114,111,118,105,100,101,32,69,110,100
+       dc.b      32,65,100,100,114,101,115,115,32,105,110,32
+       dc.b      104,101,120,32,40,100,111,32,110,111,116,32
+       dc.b      117,115,101,32,48,120,32,112,114,101,102,105
+       dc.b      120,41,10,48,120,0
+@m68kus~1_11:
        dc.b      83,116,97,114,116,32,65,100,100,114,101,115
        dc.b      115,32,48,120,37,48,56,120,10,0
-@m68kus~1_10:
+@m68kus~1_12:
        dc.b      69,110,100,32,65,100,100,114,101,115,115,58
        dc.b      32,48,120,37,48,56,120,10,0
-@m68kus~1_11:
+@m68kus~1_13:
+       dc.b      69,82,82,79,82,46,46,46,32,65,100,100,114,101
+       dc.b      115,115,32,48,120,37,120,32,105,115,32,98,101
+       dc.b      121,111,110,100,32,116,104,101,32,109,101,109
+       dc.b      111,114,121,32,114,97,110,103,101,10,0
+@m68kus~1_14:
        dc.b      69,82,82,79,82,46,46,46,32,86,97,108,117,101
        dc.b      32,119,114,105,116,116,101,110,32,116,111,32
-       dc.b      108,111,99,97,116,105,111,110,32,48,120,37,120
+       dc.b      97,100,100,114,101,115,115,32,48,120,37,120
        dc.b      32,61,61,32,48,120,37,120,46,32,86,97,108,117
        dc.b      101,32,69,120,112,101,99,116,101,100,58,32,48
-       dc.b      120,37,120,0
-@m68kus~1_12:
+       dc.b      120,37,120,10,0
+@m68kus~1_15:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,50,88
        dc.b      10,0
-@m68kus~1_13:
+@m68kus~1_16:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,52,88
        dc.b      10,0
-@m68kus~1_14:
+@m68kus~1_17:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,56,88
        dc.b      10,0
-@m68kus~1_15:
-       dc.b      67,117,114,114,101,110,116,32,65,100,100,114
-       dc.b      101,115,115,58,32,48,120,37,120,44,32,78,111
-       dc.b      32,114,111,111,109,32,116,111,32,119,114,105
-       dc.b      116,101,32,116,111,32,109,101,109,111,114,121
-       dc.b      32,116,111,32,102,105,116,32,119,105,116,104
-       dc.b      105,110,32,101,110,100,32,97,100,100,114,101
-       dc.b      115,115,32,48,120,37,120,0
-@m68kus~1_16:
+@m68kus~1_18:
        dc.b      13,10,69,110,116,101,114,32,73,110,116,101,103
        dc.b      101,114,58,32,0
-@m68kus~1_17:
+@m68kus~1_19:
        dc.b      89,111,117,32,101,110,116,101,114,101,100,32
        dc.b      37,100,0
-@m68kus~1_18:
+@m68kus~1_20:
        dc.b      72,101,108,108,111,32,67,80,69,78,32,52,49,50
        dc.b      32,83,116,117,100,101,110,116,0
-@m68kus~1_19:
+@m68kus~1_21:
        dc.b      13,10,72,101,108,108,111,32,67,80,69,78,32,52
        dc.b      49,50,32,83,116,117,100,101,110,116,13,10,89
        dc.b      111,117,114,32,76,69,68,115,32,115,104,111,117
        dc.b      108,100,32,98,101,32,70,108,97,115,104,105,110
        dc.b      103,0
-@m68kus~1_20:
+@m68kus~1_22:
        dc.b      13,10,89,111,117,114,32,76,67,68,32,115,104
        dc.b      111,117,108,100,32,98,101,32,100,105,115,112
        dc.b      108,97,121,105,110,103,0

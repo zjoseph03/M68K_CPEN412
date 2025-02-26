@@ -493,7 +493,7 @@ void SPI_Init(void)
   // SPI_CS Reg - control selection of slave SPI chips via their CS# signals
   // Status Reg - status of SPI controller chip and used to clear any write collision and interrupt on transmit complete flag
 
-  SPI_Control = 0x50; // 0101_0011
+  SPI_Control = 0x50; // 0101_0011 // This might need to be 0x53
   SPI_Ext     = 0x0;  // 00_0000_00
   SPI_CS      = 0xFF; // 1111_1111 // Set all CS inactive by default. We should set CS active when we want to write/read
   SPI_Status  = 0xC0; // 1100_0000 // Everything other than bits [7:6] are read only
@@ -580,16 +580,22 @@ void SPISendAddress(int c) {
   SPISafeWrite(c & 0xFF);             // third byte
 }
 
-void SPIFlashPageProgram(void) {
+void SPIFlashPageProgram(int addr) {
+  unsigned char *sramMemoryPtr;
+  int flashAddr = addr - 0x08000000;
   int i;
+
   SPI_CS = 0xFE;
   // NOTE: We should make the below 1 function called SPIFlashWriteCommand() or smthn like that
   SPISafeWrite(0x02); // Write command so that we wait for write FIFO to not be full before giving a byte
-  SPISendAddress(0x0);
+  SPISendAddress(flashAddr);
+
   for (i = 0; i < 256; i++) {
-    WriteSPIChar(i); // Random value for testing purposes
-    printf("\r\nWrote Val: %08x", i);
+    sramMemoryPtr = (unsigned char*) (addr + i);
+    WriteSPIChar(*sramMemoryPtr); // Random value for testing purposes
+    // printf("%02x ", *sramMemoryPtr);
   }
+
   // WriteSPIChar(0xAB); // Random value for testing purposes
   SPI_CS = 0xFF;
   
@@ -608,19 +614,26 @@ void SPIFlashErase(void) {
 
 int SPIFlashRead() {
   unsigned char readData;
-  int i;
+  unsigned char *sramMemoryPtr;
+  int addr;
+
   ClearSPIReadFIFO();
   SPI_CS = 0xFE;
   SPISafeWrite(0x03);
   SPISendAddress(0x0);
   
-  for (i = 0; i < 256; i++) {
+  for (addr = 0x08000000; addr < (0x08040000); addr ++) {
+    sramMemoryPtr = (unsigned char*) addr;
     readData = SPISafeWrite(0xFF); // Dummy byte (1 dummy byte == 1 byte read)
-    printf("\r\nRead Data: %08x", readData);
+    // printf("%08x ", i);
+    // if (i % 16 == 0) {
+    //   printf("\r\n");
+    // }
+    *sramMemoryPtr = readData;
   }
+
   SPI_CS = 0xFF;
   SPIFlashPollStatusBusy();
-  
   return readData;
 }
 
@@ -630,7 +643,7 @@ int SPIFlashRead() {
 ********************************************************************/
 void ProgramFlashChip(void)
 {
-    
+  int addr;
   //
   // TODO : put your code here to program the 1st 256k of ram (where user program is held at hex 08000000) to SPI flash chip
   // TODO : then verify by reading it back and comparing to memory
@@ -641,17 +654,17 @@ void ProgramFlashChip(void)
   SPIFlashWriteEnable();
   SPIFlashErase();
 
-  SPIFlashWriteEnable(); // NOTE: This is not asserting the WEL
-  SPIFlashPageProgram(); // we can modify the parameter later
-
-  // For now well test writing a byte of data
-  // Then send h'02 as instruction into data register
-  // Then send 24 bit flash address
-  // Then atleast 1 data byte
-  // If were sending multiple bytes / an entire page then the last (least significant) byte should be set to 0
-  // We should poll for the flash chips status register to indicate when the write has been completed in the flash memory after we set CS back to high
-  // Using read status register command
-
+  // 256KB = 262144 bytes (0x40000)
+  // We need to write one page at a time (256 bytes at a time)
+  // This code writes the user program from DRAM to FLASH
+  printf("\r\n Starting Programming...");
+  for (addr = 0x08000000; addr < (0x08040000); addr += 256) {
+      SPIFlashWriteEnable(); 
+      // printf("\r\n Addr: %08x \n", addr);
+      
+      SPIFlashPageProgram(addr);
+  }
+  printf("\r\n Programming Complete!");
 }
 
 /*************************************************************************

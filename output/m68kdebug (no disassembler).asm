@@ -1152,7 +1152,7 @@ _SPI_Init:
 ; // Ext Reg - in conjunction with control reg, sets speed above and also sets interrupt flag after every completed transfer (each byte)
 ; // SPI_CS Reg - control selection of slave SPI chips via their CS# signals
 ; // Status Reg - status of SPI controller chip and used to clear any write collision and interrupt on transmit complete flag
-; SPI_Control = 0x50; // 0101_0011
+; SPI_Control = 0x50; // 0101_0011 // This might need to be 0x53
        move.b    #80,4227104
 ; SPI_Ext     = 0x0;  // 00_0000_00
        clr.b     4227110
@@ -1342,10 +1342,16 @@ _SPISendAddress:
        unlk      A6
        rts
 ; }
-; void SPIFlashPageProgram(void) {
+; void SPIFlashPageProgram(int addr) {
        xdef      _SPIFlashPageProgram
 _SPIFlashPageProgram:
+       link      A6,#-8
        move.l    D2,-(A7)
+; unsigned char *sramMemoryPtr;
+; int flashAddr = addr - 0x08000000;
+       move.l    8(A6),D0
+       sub.l     #134217728,D0
+       move.l    D0,-4(A6)
 ; int i;
 ; SPI_CS = 0xFE;
        move.b    #254,4227112
@@ -1354,8 +1360,8 @@ _SPIFlashPageProgram:
        pea       2
        jsr       _SPISafeWrite
        addq.w    #4,A7
-; SPISendAddress(0x0);
-       clr.l     -(A7)
+; SPISendAddress(flashAddr);
+       move.l    -4(A6),-(A7)
        jsr       _SPISendAddress
        addq.w    #4,A7
 ; for (i = 0; i < 256; i++) {
@@ -1363,18 +1369,21 @@ _SPIFlashPageProgram:
 SPIFlashPageProgram_1:
        cmp.l     #256,D2
        bge.s     SPIFlashPageProgram_3
-; WriteSPIChar(i); // Random value for testing purposes
-       move.l    D2,-(A7)
+; sramMemoryPtr = (unsigned char*) (addr + i);
+       move.l    8(A6),D0
+       add.l     D2,D0
+       move.l    D0,-8(A6)
+; WriteSPIChar(*sramMemoryPtr); // Random value for testing purposes
+       move.l    -8(A6),A0
+       move.b    (A0),D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
        jsr       _WriteSPIChar
        addq.w    #4,A7
-; printf("\r\nWrote Val: %08x", i);
-       move.l    D2,-(A7)
-       pea       @m68kde~1_22.L
-       jsr       _printf
-       addq.w    #8,A7
        addq.l    #1,D2
        bra       SPIFlashPageProgram_1
 SPIFlashPageProgram_3:
+; // printf("%02x ", *sramMemoryPtr);
 ; }
 ; // WriteSPIChar(0xAB); // Random value for testing purposes
 ; SPI_CS = 0xFF;
@@ -1383,6 +1392,7 @@ SPIFlashPageProgram_3:
 ; SPIFlashPollStatusBusy();
        jsr       _SPIFlashPollStatusBusy
        move.l    (A7)+,D2
+       unlk      A6
        rts
 ; }
 ; void SPIFlashErase(void) {
@@ -1390,7 +1400,7 @@ SPIFlashPageProgram_3:
 _SPIFlashErase:
 ; // TODO: Give a parameter for the sector to erase instead of hardcode
 ; printf("\nErasing...\n");
-       pea       @m68kde~1_23.L
+       pea       @m68kde~1_22.L
        jsr       _printf
        addq.w    #4,A7
 ; SPI_CS = 0xFE;
@@ -1408,9 +1418,11 @@ _SPIFlashErase:
 ; int SPIFlashRead() {
        xdef      _SPIFlashRead
 _SPIFlashRead:
+       link      A6,#-4
        movem.l   D2/D3,-(A7)
 ; unsigned char readData;
-; int i;
+; unsigned char *sramMemoryPtr;
+; int addr;
 ; ClearSPIReadFIFO();
        jsr       _ClearSPIReadFIFO
 ; SPI_CS = 0xFE;
@@ -1423,23 +1435,26 @@ _SPIFlashRead:
        clr.l     -(A7)
        jsr       _SPISendAddress
        addq.w    #4,A7
-; for (i = 0; i < 256; i++) {
-       clr.l     D3
+; for (addr = 0x08000000; addr < (0x08040000); addr ++) {
+       move.l    #134217728,D2
 SPIFlashRead_1:
-       cmp.l     #256,D3
+       cmp.l     #134479872,D2
        bge.s     SPIFlashRead_3
+; sramMemoryPtr = (unsigned char*) addr;
+       move.l    D2,-4(A6)
 ; readData = SPISafeWrite(0xFF); // Dummy byte (1 dummy byte == 1 byte read)
        pea       255
        jsr       _SPISafeWrite
        addq.w    #4,A7
-       move.b    D0,D2
-; printf("\r\nRead Data: %08x", readData);
-       and.l     #255,D2
-       move.l    D2,-(A7)
-       pea       @m68kde~1_24.L
-       jsr       _printf
-       addq.w    #8,A7
-       addq.l    #1,D3
+       move.b    D0,D3
+; // printf("%08x ", i);
+; // if (i % 16 == 0) {
+; //   printf("\r\n");
+; // }
+; *sramMemoryPtr = readData;
+       move.l    -4(A6),A0
+       move.b    D3,(A0)
+       addq.l    #1,D2
        bra       SPIFlashRead_1
 SPIFlashRead_3:
 ; }
@@ -1448,9 +1463,10 @@ SPIFlashRead_3:
 ; SPIFlashPollStatusBusy();
        jsr       _SPIFlashPollStatusBusy
 ; return readData;
-       and.l     #255,D2
-       move.l    D2,D0
+       and.l     #255,D3
+       move.l    D3,D0
        movem.l   (A7)+,D2/D3
+       unlk      A6
        rts
 ; }
 ; /*******************************************************************
@@ -1460,6 +1476,8 @@ SPIFlashRead_3:
 ; {
        xdef      _ProgramFlashChip
 _ProgramFlashChip:
+       move.l    D2,-(A7)
+; int addr;
 ; //
 ; // TODO : put your code here to program the 1st 256k of ram (where user program is held at hex 08000000) to SPI flash chip
 ; // TODO : then verify by reading it back and comparing to memory
@@ -1470,18 +1488,35 @@ _ProgramFlashChip:
        jsr       _SPIFlashWriteEnable
 ; SPIFlashErase();
        jsr       _SPIFlashErase
-; SPIFlashWriteEnable(); // NOTE: This is not asserting the WEL
+; // 256KB = 262144 bytes (0x40000)
+; // We need to write one page at a time (256 bytes at a time)
+; // This code writes the user program from DRAM to FLASH
+; printf("\r\n Starting Programming...");
+       pea       @m68kde~1_23.L
+       jsr       _printf
+       addq.w    #4,A7
+; for (addr = 0x08000000; addr < (0x08040000); addr += 256) {
+       move.l    #134217728,D2
+ProgramFlashChip_1:
+       cmp.l     #134479872,D2
+       bge.s     ProgramFlashChip_3
+; SPIFlashWriteEnable(); 
        jsr       _SPIFlashWriteEnable
-; SPIFlashPageProgram(); // we can modify the parameter later
+; // printf("\r\n Addr: %08x \n", addr);
+; SPIFlashPageProgram(addr);
+       move.l    D2,-(A7)
        jsr       _SPIFlashPageProgram
+       addq.w    #4,A7
+       add.l     #256,D2
+       bra       ProgramFlashChip_1
+ProgramFlashChip_3:
+; }
+; printf("\r\n Programming Complete!");
+       pea       @m68kde~1_24.L
+       jsr       _printf
+       addq.w    #4,A7
+       move.l    (A7)+,D2
        rts
-; // For now well test writing a byte of data
-; // Then send h'02 as instruction into data register
-; // Then send 24 bit flash address
-; // Then atleast 1 data byte
-; // If were sending multiple bytes / an entire page then the last (least significant) byte should be set to 0
-; // We should poll for the flash chips status register to indicate when the write has been completed in the flash memory after we set CS back to high
-; // Using read status register command
 ; }
 ; /*************************************************************************
 ; ** Load a program from SPI Flash Chip and copy to Dram
@@ -4807,13 +4842,14 @@ main_9:
        dc.b      114,111,116,101,32,91,37,48,50,120,93,44,32
        dc.b      82,101,97,100,32,91,37,48,50,120,93,0
 @m68kde~1_22:
-       dc.b      13,10,87,114,111,116,101,32,86,97,108,58,32
-       dc.b      37,48,56,120,0
-@m68kde~1_23:
        dc.b      10,69,114,97,115,105,110,103,46,46,46,10,0
+@m68kde~1_23:
+       dc.b      13,10,32,83,116,97,114,116,105,110,103,32,80
+       dc.b      114,111,103,114,97,109,109,105,110,103,46,46
+       dc.b      46,0
 @m68kde~1_24:
-       dc.b      13,10,82,101,97,100,32,68,97,116,97,58,32,37
-       dc.b      48,56,120,0
+       dc.b      13,10,32,80,114,111,103,114,97,109,109,105,110
+       dc.b      103,32,67,111,109,112,108,101,116,101,33,0
 @m68kde~1_25:
        dc.b      13,10,32,76,111,97,100,105,110,103,32,80,114
        dc.b      111,103,114,97,109,32,70,114,111,109,32,83,80
