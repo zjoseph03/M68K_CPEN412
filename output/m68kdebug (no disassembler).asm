@@ -1142,7 +1142,7 @@ _TestForSPITransmitDataComplete:
 ; {
        xdef      _SPI_Init
 _SPI_Init:
-; //TODO
+; // TODO
 ; // Program the SPI Control, EXT, CS and Status registers to initialise the SPI controller
 ; // Don't forget to call this routine from main() before you do anything else with SPI
 ; //
@@ -1165,26 +1165,6 @@ _SPI_Init:
 ; /************************************************************************************
 ; ** return ONLY when the SPI controller has finished transmitting a byte
 ; ************************************************************************************/
-; // Clear read FIFO (if applicable for your SPI controller)
-; void ClearSPIReadFIFO(void) {
-       xdef      _ClearSPIReadFIFO
-_ClearSPIReadFIFO:
-       link      A6,#-4
-; volatile unsigned char dummy;
-; // Read from SPI_Data until FIFO is empty
-; while((SPI_Status & 0x01) == 0) { // Assuming bit 0 indicates data in read FIFO
-ClearSPIReadFIFO_1:
-       move.b    4227106,D0
-       and.b     #1,D0
-       bne.s     ClearSPIReadFIFO_3
-; dummy = SPI_Data;
-       move.b    4227108,-1(A6)
-       bra       ClearSPIReadFIFO_1
-ClearSPIReadFIFO_3:
-       unlk      A6
-       rts
-; }
-; }
 ; void WaitForSPITransmitComplete(void)
 ; {
        xdef      _WaitForSPITransmitComplete
@@ -1203,6 +1183,25 @@ WaitForSPITransmitComplete_3:
        or.b      #192,4227106
        rts
 ; }
+; // Clear read FIFO by reading from SPI_Data until FIFO is empty
+; void ClearSPIReadFIFO(void) {
+       xdef      _ClearSPIReadFIFO
+_ClearSPIReadFIFO:
+       link      A6,#-4
+; volatile unsigned char dummy;
+; while((SPI_Status & 0x01) == 0) {
+ClearSPIReadFIFO_1:
+       move.b    4227106,D0
+       and.b     #1,D0
+       bne.s     ClearSPIReadFIFO_3
+; dummy = SPI_Data;
+       move.b    4227108,-1(A6)
+       bra       ClearSPIReadFIFO_1
+ClearSPIReadFIFO_3:
+       unlk      A6
+       rts
+; }
+; }
 ; void SPIFlashPollStatusWLE(void) {
        xdef      _SPIFlashPollStatusWLE
 _SPIFlashPollStatusWLE:
@@ -1218,13 +1217,12 @@ SPIFlashPollStatusWLE_1:
        pea       5
        jsr       _SPISafeWrite
        addq.w    #4,A7
-; SPISafeWrite(0xFF);  // Dummy write to clock in data
+; status = SPISafeWrite(0xFF);  // Dummy write to clock in data
        pea       255
        jsr       _SPISafeWrite
        addq.w    #4,A7
-; status = SPI_Data;   // Read the status
-       move.b    4227108,-2(A6)
-; SPI_CS = 0xFF;       // End the SPI transaction
+       move.b    D0,-2(A6)
+; SPI_CS = 0xFF;           
        move.b    #255,4227112
        move.b    -2(A6),D0
        and.b     #2,D0
@@ -1232,7 +1230,6 @@ SPIFlashPollStatusWLE_1:
        unlk      A6
        rts
 ; // printf("\r\n WLE Status: %02x \n", status);
-; // NOTE: for some reason when I don't check the busy bit, the erase doesn't happen, but when I do we don't exit this loop
 ; } while ((status & 0x02) == 0);  // Continue polling until WEL bit (bit 1) is set and BUSY is not active
 ; }
 ; void SPIFlashPollStatusBusy(void) {
@@ -1250,13 +1247,12 @@ SPIFlashPollStatusBusy_1:
        pea       5
        jsr       _SPISafeWrite
        addq.w    #4,A7
-; SPISafeWrite(0xFF);  // Dummy write to clock in data
+; status = SPISafeWrite(0xFF);  // Dummy write to clock in data
        pea       255
        jsr       _SPISafeWrite
        addq.w    #4,A7
-; status = SPI_Data;   // Read the status
-       move.b    4227108,-2(A6)
-; SPI_CS = 0xFF;       // End the SPI transaction
+       move.b    D0,-2(A6)
+; SPI_CS = 0xFF;
        move.b    #255,4227112
        move.b    -2(A6),D0
        and.b     #1,D0
@@ -1289,13 +1285,6 @@ _WriteSPIChar:
        move.l    D1,-(A7)
        jsr       _SPISafeWrite
        addq.w    #4,A7
-; printf("WRITTEN VAL: %08x \n", (unsigned char)c);
-       move.l    8(A6),D1
-       and.l     #255,D1
-       move.l    D1,-(A7)
-       pea       @m68kde~1_22.L
-       jsr       _printf
-       addq.w    #8,A7
 ; return SPI_Data;
        move.b    4227108,D0
        and.l     #255,D0
@@ -1356,6 +1345,8 @@ _SPISendAddress:
 ; void SPIFlashPageProgram(void) {
        xdef      _SPIFlashPageProgram
 _SPIFlashPageProgram:
+       move.l    D2,-(A7)
+; int i;
 ; SPI_CS = 0xFE;
        move.b    #254,4227112
 ; // NOTE: We should make the below 1 function called SPIFlashWriteCommand() or smthn like that
@@ -1367,22 +1358,38 @@ _SPIFlashPageProgram:
        clr.l     -(A7)
        jsr       _SPISendAddress
        addq.w    #4,A7
-; WriteSPIChar(0xAB); // Random value for testing purposes
-       pea       171
+; for (i = 0; i < 256; i++) {
+       clr.l     D2
+SPIFlashPageProgram_1:
+       cmp.l     #256,D2
+       bge.s     SPIFlashPageProgram_3
+; WriteSPIChar(i); // Random value for testing purposes
+       move.l    D2,-(A7)
        jsr       _WriteSPIChar
        addq.w    #4,A7
+; printf("\r\nWrote Val: %08x", i);
+       move.l    D2,-(A7)
+       pea       @m68kde~1_22.L
+       jsr       _printf
+       addq.w    #8,A7
+       addq.l    #1,D2
+       bra       SPIFlashPageProgram_1
+SPIFlashPageProgram_3:
+; }
+; // WriteSPIChar(0xAB); // Random value for testing purposes
 ; SPI_CS = 0xFF;
        move.b    #255,4227112
 ; // Poll the status register to see when the flash write is finished before exiting this command fully
 ; SPIFlashPollStatusBusy();
        jsr       _SPIFlashPollStatusBusy
+       move.l    (A7)+,D2
        rts
 ; }
 ; void SPIFlashErase(void) {
        xdef      _SPIFlashErase
 _SPIFlashErase:
 ; // TODO: Give a parameter for the sector to erase instead of hardcode
-; printf("Erasing...\n");
+; printf("\nErasing...\n");
        pea       @m68kde~1_23.L
        jsr       _printf
        addq.w    #4,A7
@@ -1401,8 +1408,9 @@ _SPIFlashErase:
 ; int SPIFlashRead() {
        xdef      _SPIFlashRead
 _SPIFlashRead:
-       move.l    D2,-(A7)
+       movem.l   D2/D3,-(A7)
 ; unsigned char readData;
+; int i;
 ; ClearSPIReadFIFO();
        jsr       _ClearSPIReadFIFO
 ; SPI_CS = 0xFE;
@@ -1415,17 +1423,26 @@ _SPIFlashRead:
        clr.l     -(A7)
        jsr       _SPISendAddress
        addq.w    #4,A7
+; for (i = 0; i < 256; i++) {
+       clr.l     D3
+SPIFlashRead_1:
+       cmp.l     #256,D3
+       bge.s     SPIFlashRead_3
 ; readData = SPISafeWrite(0xFF); // Dummy byte (1 dummy byte == 1 byte read)
        pea       255
        jsr       _SPISafeWrite
        addq.w    #4,A7
        move.b    D0,D2
-; printf("\r\nRead Data: %08x\n", readData);
+; printf("\r\nRead Data: %08x", readData);
        and.l     #255,D2
        move.l    D2,-(A7)
        pea       @m68kde~1_24.L
        jsr       _printf
        addq.w    #8,A7
+       addq.l    #1,D3
+       bra       SPIFlashRead_1
+SPIFlashRead_3:
+; }
 ; SPI_CS = 0xFF;
        move.b    #255,4227112
 ; SPIFlashPollStatusBusy();
@@ -1433,7 +1450,7 @@ _SPIFlashRead:
 ; return readData;
        and.l     #255,D2
        move.l    D2,D0
-       move.l    (A7)+,D2
+       movem.l   (A7)+,D2/D3
        rts
 ; }
 ; /*******************************************************************
@@ -1449,7 +1466,6 @@ _ProgramFlashChip:
 ; //
 ; SPIFlashPollStatusBusy();
        jsr       _SPIFlashPollStatusBusy
-; // Erase is not working
 ; SPIFlashWriteEnable();
        jsr       _SPIFlashWriteEnable
 ; SPIFlashErase();
@@ -1492,8 +1508,8 @@ _LoadFromFlashChip:
        addq.w    #8,A7
        unlk      A6
        rts
-; // Read the flash status register to see if we can send commands (Check if its busy)
-; // 
+; // Reading single byte works
+; // TODO: Read multi-byte and then read the entire program that we copied over to flash
 ; //
 ; // TODO : put your code here to read 256k of data from SPI flash chip and store in user ram starting at hex 08000000
 ; //
@@ -4791,13 +4807,13 @@ main_9:
        dc.b      114,111,116,101,32,91,37,48,50,120,93,44,32
        dc.b      82,101,97,100,32,91,37,48,50,120,93,0
 @m68kde~1_22:
-       dc.b      87,82,73,84,84,69,78,32,86,65,76,58,32,37,48
-       dc.b      56,120,32,10,0
+       dc.b      13,10,87,114,111,116,101,32,86,97,108,58,32
+       dc.b      37,48,56,120,0
 @m68kde~1_23:
-       dc.b      69,114,97,115,105,110,103,46,46,46,10,0
+       dc.b      10,69,114,97,115,105,110,103,46,46,46,10,0
 @m68kde~1_24:
        dc.b      13,10,82,101,97,100,32,68,97,116,97,58,32,37
-       dc.b      48,56,120,10,0
+       dc.b      48,56,120,0
 @m68kde~1_25:
        dc.b      13,10,32,76,111,97,100,105,110,103,32,80,114
        dc.b      111,103,114,97,109,32,70,114,111,109,32,83,80

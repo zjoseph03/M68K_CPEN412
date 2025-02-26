@@ -562,7 +562,6 @@ int WriteSPIChar(int c)
  // modify '0' below to return back read byte from data register
  //
  SPISafeWrite((unsigned char)c);
- printf("WRITTEN VAL: %08x \n", (unsigned char)c);
  return SPI_Data;
 }
 
@@ -582,11 +581,16 @@ void SPISendAddress(int c) {
 }
 
 void SPIFlashPageProgram(void) {
+  int i;
   SPI_CS = 0xFE;
   // NOTE: We should make the below 1 function called SPIFlashWriteCommand() or smthn like that
   SPISafeWrite(0x02); // Write command so that we wait for write FIFO to not be full before giving a byte
   SPISendAddress(0x0);
-  WriteSPIChar(0xAB); // Random value for testing purposes
+  for (i = 0; i < 256; i++) {
+    WriteSPIChar(i); // Random value for testing purposes
+    printf("\r\nWrote Val: %08x", i);
+  }
+  // WriteSPIChar(0xAB); // Random value for testing purposes
   SPI_CS = 0xFF;
   
   // Poll the status register to see when the flash write is finished before exiting this command fully
@@ -595,7 +599,7 @@ void SPIFlashPageProgram(void) {
 
 void SPIFlashErase(void) {
   // TODO: Give a parameter for the sector to erase instead of hardcode
-  printf("Erasing...\n");
+  printf("\nErasing...\n");
   SPI_CS = 0xFE;
   SPISafeWrite(0xC7);
   SPI_CS = 0xFF;
@@ -604,12 +608,16 @@ void SPIFlashErase(void) {
 
 int SPIFlashRead() {
   unsigned char readData;
+  int i;
   ClearSPIReadFIFO();
   SPI_CS = 0xFE;
   SPISafeWrite(0x03);
   SPISendAddress(0x0);
-  readData = SPISafeWrite(0xFF); // Dummy byte (1 dummy byte == 1 byte read)
-  printf("\r\nRead Data: %08x\n", readData);
+  
+  for (i = 0; i < 256; i++) {
+    readData = SPISafeWrite(0xFF); // Dummy byte (1 dummy byte == 1 byte read)
+    printf("\r\nRead Data: %08x", readData);
+  }
   SPI_CS = 0xFF;
   SPIFlashPollStatusBusy();
   
