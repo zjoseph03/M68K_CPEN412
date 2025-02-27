@@ -553,14 +553,6 @@ void SPIFlashPollStatusBusy(void) {
 ************************************************************************************/
 int WriteSPIChar(int c)
 {
- // todo - write the byte in parameter 'c' to the SPI data register, this will start it transmitting to the flash device
- // wait for completion of transmission
- // return the received data from Flash chip (which may not be relevent depending upon what we are doing)
- // by reading fom the SPI controller Data Register.
- // note however that in order to get data from an SPI slave device (e.g. flash) chip we have to write a dummy byte to it
- //
- // modify '0' below to return back read byte from data register
- //
  SPISafeWrite((unsigned char)c);
  return SPI_Data;
 }
@@ -586,7 +578,7 @@ void SPIFlashPageProgram(int addr) {
   int i;
 
   SPI_CS = 0xFE;
-  // NOTE: We should make the below 1 function called SPIFlashWriteCommand() or smthn like that
+
   SPISafeWrite(0x02); // Write command so that we wait for write FIFO to not be full before giving a byte
   SPISendAddress(flashAddr);
 
@@ -595,8 +587,6 @@ void SPIFlashPageProgram(int addr) {
     WriteSPIChar(*sramMemoryPtr); // Random value for testing purposes
     // printf("%02x ", *sramMemoryPtr);
   }
-
-  // WriteSPIChar(0xAB); // Random value for testing purposes
   SPI_CS = 0xFF;
   
   // Poll the status register to see when the flash write is finished before exiting this command fully
@@ -625,10 +615,6 @@ int SPIFlashRead() {
   for (addr = 0x08000000; addr < (0x08040000); addr ++) {
     sramMemoryPtr = (unsigned char*) addr;
     readData = SPISafeWrite(0xFF); // Dummy byte (1 dummy byte == 1 byte read)
-    // printf("%08x ", i);
-    // if (i % 16 == 0) {
-    //   printf("\r\n");
-    // }
     *sramMemoryPtr = readData;
   }
 
@@ -644,11 +630,6 @@ int SPIFlashRead() {
 void ProgramFlashChip(void)
 {
   int addr;
-  //
-  // TODO : put your code here to program the 1st 256k of ram (where user program is held at hex 08000000) to SPI flash chip
-  // TODO : then verify by reading it back and comparing to memory
-  //
-
   SPIFlashPollStatusBusy();
 
   SPIFlashWriteEnable();
@@ -678,13 +659,6 @@ void LoadFromFlashChip(void)
   SPIFlashPollStatusBusy();
   readData = SPIFlashRead();
   printf("\r\n Read Data: %08x \n", readData);
-  
-  // Reading single byte works
-  // TODO: Read multi-byte and then read the entire program that we copied over to flash
-  //
-  // TODO : put your code here to read 256k of data from SPI flash chip and store in user ram starting at hex 08000000
-  //
-
 }
 
 
