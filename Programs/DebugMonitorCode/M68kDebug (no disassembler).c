@@ -638,13 +638,13 @@ void ProgramFlashChip(void)
   // 256KB = 262144 bytes (0x40000)
   // We need to write one page at a time (256 bytes at a time)
   // This code writes the user program from DRAM to FLASH
-  printf("\r\n Starting Programming...");
-  for (addr = 0x08000000; addr < (0x08040000); addr += 256) {
-      SPIFlashWriteEnable(); 
-      // printf("\r\n Addr: %08x \n", addr);
+  // printf("\r\n Starting Programming...");
+  // for (addr = 0x08000000; addr < (0x08040000); addr += 256) {
+  //     SPIFlashWriteEnable(); 
+  //     // printf("\r\n Addr: %08x \n", addr);
       
-      SPIFlashPageProgram(addr);
-  }
+  //     SPIFlashPageProgram(addr);
+  // }
   printf("\r\n Programming Complete!");
 }
 
@@ -1707,7 +1707,7 @@ void main(void)
 
     // test for auto flash boot and run from Flash by reading switch 9 on DE1-soc board. If set, copy program from flash into Dram and run
 
-    while(((char)(PortB & 0x02)) == (char)(0x02))    {
+    if (((char)(PortB & 0x02)) == (char)(0x02))    {
         LoadFromFlashChip();
         printf("\r\nRunning.....") ;
         Oline1("Running.....") ;

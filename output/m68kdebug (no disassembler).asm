@@ -1271,14 +1271,6 @@ SPIFlashPollStatusBusy_1:
        xdef      _WriteSPIChar
 _WriteSPIChar:
        link      A6,#0
-; // todo - write the byte in parameter 'c' to the SPI data register, this will start it transmitting to the flash device
-; // wait for completion of transmission
-; // return the received data from Flash chip (which may not be relevent depending upon what we are doing)
-; // by reading fom the SPI controller Data Register.
-; // note however that in order to get data from an SPI slave device (e.g. flash) chip we have to write a dummy byte to it
-; //
-; // modify '0' below to return back read byte from data register
-; //
 ; SPISafeWrite((unsigned char)c);
        move.l    8(A6),D1
        and.l     #255,D1
@@ -1355,7 +1347,6 @@ _SPIFlashPageProgram:
 ; int i;
 ; SPI_CS = 0xFE;
        move.b    #254,4227112
-; // NOTE: We should make the below 1 function called SPIFlashWriteCommand() or smthn like that
 ; SPISafeWrite(0x02); // Write command so that we wait for write FIFO to not be full before giving a byte
        pea       2
        jsr       _SPISafeWrite
@@ -1385,7 +1376,6 @@ SPIFlashPageProgram_1:
 SPIFlashPageProgram_3:
 ; // printf("%02x ", *sramMemoryPtr);
 ; }
-; // WriteSPIChar(0xAB); // Random value for testing purposes
 ; SPI_CS = 0xFF;
        move.b    #255,4227112
 ; // Poll the status register to see when the flash write is finished before exiting this command fully
@@ -1447,10 +1437,6 @@ SPIFlashRead_1:
        jsr       _SPISafeWrite
        addq.w    #4,A7
        move.b    D0,D3
-; // printf("%08x ", i);
-; // if (i % 16 == 0) {
-; //   printf("\r\n");
-; // }
 ; *sramMemoryPtr = readData;
        move.l    -4(A6),A0
        move.b    D3,(A0)
@@ -1476,12 +1462,8 @@ SPIFlashRead_3:
 ; {
        xdef      _ProgramFlashChip
 _ProgramFlashChip:
-       move.l    D2,-(A7)
+       link      A6,#-4
 ; int addr;
-; //
-; // TODO : put your code here to program the 1st 256k of ram (where user program is held at hex 08000000) to SPI flash chip
-; // TODO : then verify by reading it back and comparing to memory
-; //
 ; SPIFlashPollStatusBusy();
        jsr       _SPIFlashPollStatusBusy
 ; SPIFlashWriteEnable();
@@ -1491,31 +1473,17 @@ _ProgramFlashChip:
 ; // 256KB = 262144 bytes (0x40000)
 ; // We need to write one page at a time (256 bytes at a time)
 ; // This code writes the user program from DRAM to FLASH
-; printf("\r\n Starting Programming...");
+; // printf("\r\n Starting Programming...");
+; // for (addr = 0x08000000; addr < (0x08040000); addr += 256) {
+; //     SPIFlashWriteEnable(); 
+; //     // printf("\r\n Addr: %08x \n", addr);
+; //     SPIFlashPageProgram(addr);
+; // }
+; printf("\r\n Programming Complete!");
        pea       @m68kde~1_23.L
        jsr       _printf
        addq.w    #4,A7
-; for (addr = 0x08000000; addr < (0x08040000); addr += 256) {
-       move.l    #134217728,D2
-ProgramFlashChip_1:
-       cmp.l     #134479872,D2
-       bge.s     ProgramFlashChip_3
-; SPIFlashWriteEnable(); 
-       jsr       _SPIFlashWriteEnable
-; // printf("\r\n Addr: %08x \n", addr);
-; SPIFlashPageProgram(addr);
-       move.l    D2,-(A7)
-       jsr       _SPIFlashPageProgram
-       addq.w    #4,A7
-       add.l     #256,D2
-       bra       ProgramFlashChip_1
-ProgramFlashChip_3:
-; }
-; printf("\r\n Programming Complete!");
-       pea       @m68kde~1_24.L
-       jsr       _printf
-       addq.w    #4,A7
-       move.l    (A7)+,D2
+       unlk      A6
        rts
 ; }
 ; /*************************************************************************
@@ -1528,7 +1496,7 @@ _LoadFromFlashChip:
        link      A6,#-4
 ; int readData;
 ; printf("\r\n Loading Program From SPI Flash....") ;
-       pea       @m68kde~1_25.L
+       pea       @m68kde~1_24.L
        jsr       _printf
        addq.w    #4,A7
 ; SPIFlashPollStatusBusy();
@@ -1538,16 +1506,11 @@ _LoadFromFlashChip:
        move.l    D0,-4(A6)
 ; printf("\r\n Read Data: %08x \n", readData);
        move.l    -4(A6),-(A7)
-       pea       @m68kde~1_26.L
+       pea       @m68kde~1_25.L
        jsr       _printf
        addq.w    #8,A7
        unlk      A6
        rts
-; // Reading single byte works
-; // TODO: Read multi-byte and then read the entire program that we copied over to flash
-; //
-; // TODO : put your code here to read 256k of data from SPI flash chip and store in user ram starting at hex 08000000
-; //
 ; }
 ; //////////////////////////////////////////////////////////////////////////////////////////////////
 ; // IMPORTANT
@@ -1602,7 +1565,7 @@ DumpRegisters_1:
        lsl.l     #2,D1
        lea       _WatchPointAddress.L,A0
        move.l    0(A0,D1.L),-(A7)
-       pea       @m68kde~1_27.L
+       pea       @m68kde~1_26.L
        move.l    A5,D1
        ext.l     D2
        move.l    D0,-(A7)
@@ -1661,7 +1624,7 @@ DumpRegisters_9:
 DumpRegisters_11:
 ; }
 ; strcat(WatchPointString[x]," ") ;
-       pea       @m68kde~1_28.L
+       pea       @m68kde~1_27.L
        move.l    A5,D1
        ext.l     D2
        move.l    D0,-(A7)
@@ -1713,7 +1676,7 @@ DumpRegisters_12:
        bhs.s     DumpRegisters_15
 DumpRegisters_17:
 ; sprintf(TempString, ".") ;
-       pea       @m68kde~1_29.L
+       pea       @m68kde~1_28.L
        pea       _TempString.L
        jsr       _sprintf
        addq.w    #8,A7
@@ -1726,7 +1689,7 @@ DumpRegisters_15:
        move.b    0(A0,D3.L),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @m68kde~1_30.L
+       pea       @m68kde~1_29.L
        pea       _TempString.L
        jsr       _sprintf
        add.w     #12,A7
@@ -1752,7 +1715,7 @@ DumpRegisters_4:
 ; }
 ; else
 ; strcpy(WatchPointString[x], "") ;
-       pea       @m68kde~1_31.L
+       pea       @m68kde~1_30.L
        move.l    A5,D1
        ext.l     D2
        move.l    D0,-(A7)
@@ -1771,43 +1734,43 @@ DumpRegisters_3:
 ; printf("\r\n\r\n D0 = $%08X  A0 = $%08X",d0,a0) ;
        move.l    _a0.L,-(A7)
        move.l    _d0.L,-(A7)
-       pea       @m68kde~1_32.L
+       pea       @m68kde~1_31.L
        jsr       (A3)
        add.w     #12,A7
 ; printf("\r\n D1 = $%08X  A1 = $%08X",d1,a1) ;
        move.l    _a1.L,-(A7)
        move.l    _d1.L,-(A7)
-       pea       @m68kde~1_33.L
+       pea       @m68kde~1_32.L
        jsr       (A3)
        add.w     #12,A7
 ; printf("\r\n D2 = $%08X  A2 = $%08X",d2,a2) ;
        move.l    _a2.L,-(A7)
        move.l    _d2.L,-(A7)
-       pea       @m68kde~1_34.L
+       pea       @m68kde~1_33.L
        jsr       (A3)
        add.w     #12,A7
 ; printf("\r\n D3 = $%08X  A3 = $%08X",d3,a3) ;
        move.l    _a3.L,-(A7)
        move.l    _d3.L,-(A7)
-       pea       @m68kde~1_35.L
+       pea       @m68kde~1_34.L
        jsr       (A3)
        add.w     #12,A7
 ; printf("\r\n D4 = $%08X  A4 = $%08X",d4,a4) ;
        move.l    _a4.L,-(A7)
        move.l    _d4.L,-(A7)
-       pea       @m68kde~1_36.L
+       pea       @m68kde~1_35.L
        jsr       (A3)
        add.w     #12,A7
 ; printf("\r\n D5 = $%08X  A5 = $%08X",d5,a5) ;
        move.l    _a5.L,-(A7)
        move.l    _d5.L,-(A7)
-       pea       @m68kde~1_37.L
+       pea       @m68kde~1_36.L
        jsr       (A3)
        add.w     #12,A7
 ; printf("\r\n D6 = $%08X  A6 = $%08X",d6,a6) ;
        move.l    _a6.L,-(A7)
        move.l    _d6.L,-(A7)
-       pea       @m68kde~1_38.L
+       pea       @m68kde~1_37.L
        jsr       (A3)
        add.w     #12,A7
 ; printf("\r\n D7 = $%08X  A7 = $%08X",d7,((SR & (unsigned short int)(0x2000)) == ((unsigned short int)(0x2000))) ? SSP : USP) ;
@@ -1822,29 +1785,29 @@ DumpRegisters_18:
 DumpRegisters_19:
        move.l    D1,-(A7)
        move.l    _d7.L,-(A7)
-       pea       @m68kde~1_39.L
+       pea       @m68kde~1_38.L
        jsr       (A3)
        add.w     #12,A7
 ; printf("\r\n\r\nUSP = $%08X  (A7) User SP", USP ) ;
        move.l    _USP.L,-(A7)
-       pea       @m68kde~1_40.L
+       pea       @m68kde~1_39.L
        jsr       (A3)
        addq.w    #8,A7
 ; printf("\r\nSSP = $%08X  (A7) Supervisor SP", SSP) ;
        move.l    _SSP.L,-(A7)
-       pea       @m68kde~1_41.L
+       pea       @m68kde~1_40.L
        jsr       (A3)
        addq.w    #8,A7
 ; printf("\r\n SR = $%04X   ",SR) ;
        move.w    (A4),D1
        and.l     #65535,D1
        move.l    D1,-(A7)
-       pea       @m68kde~1_42.L
+       pea       @m68kde~1_41.L
        jsr       (A3)
        addq.w    #8,A7
 ; // display the status word in characters etc.
 ; printf("   [") ;
-       pea       @m68kde~1_43.L
+       pea       @m68kde~1_42.L
        jsr       (A3)
        addq.w    #4,A7
 ; if((SR & (unsigned short int)(0x8000)) == (unsigned short int)(0x8000)) putchar('T') ; else putchar('-') ;      // Trace bit(bit 15)
@@ -1993,7 +1956,7 @@ DumpRegisters_39:
        addq.w    #4,A7
 ; printf("\r\n PC = $%08X  ", PC) ;
        move.l    _PC.L,-(A7)
-       pea       @m68kde~1_44.L
+       pea       @m68kde~1_43.L
        jsr       (A3)
        addq.w    #8,A7
 ; if(*(unsigned short int *)(PC) == 0x4e4e)
@@ -2003,7 +1966,7 @@ DumpRegisters_39:
        cmp.w     #20046,D0
        bne.s     DumpRegisters_40
 ; printf("[@ BREAKPOINT]") ;
-       pea       @m68kde~1_45.L
+       pea       @m68kde~1_44.L
        jsr       (A3)
        addq.w    #4,A7
 DumpRegisters_40:
@@ -2035,7 +1998,7 @@ DumpRegisters_42:
        move.l    D1,-(A7)
        ext.l     D4
        move.l    D4,-(A7)
-       pea       @m68kde~1_46.L
+       pea       @m68kde~1_45.L
        jsr       (A3)
        add.w     #12,A7
 DumpRegisters_45:
@@ -2054,21 +2017,21 @@ _DumpRegistersandPause:
        move.l    A2,-(A7)
        lea       _printf.L,A2
 ; printf("\r\n\r\n\r\n\r\n\r\n\r\nSingle Step  :[ON]") ;
-       pea       @m68kde~1_47.L
+       pea       @m68kde~1_46.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nBreak Points :[Disabled]") ;
-       pea       @m68kde~1_48.L
+       pea       @m68kde~1_47.L
        jsr       (A2)
        addq.w    #4,A7
 ; DumpRegisters() ;
        jsr       _DumpRegisters
 ; printf("\r\nPress <SPACE> to Execute Next Instruction");
-       pea       @m68kde~1_49.L
+       pea       @m68kde~1_48.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nPress <ESC> to Resume Program") ;
-       pea       @m68kde~1_50.L
+       pea       @m68kde~1_49.L
        jsr       (A2)
        addq.w    #4,A7
 ; menu() ;
@@ -2121,7 +2084,7 @@ _ChangeRegisters:
        bge.s     ChangeRegisters_3
 ChangeRegisters_5:
 ; printf("\r\nIllegal Data Register : Use D0-D7.....\r\n") ;
-       pea       @m68kde~1_51.L
+       pea       @m68kde~1_50.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -2133,7 +2096,7 @@ ChangeRegisters_3:
        ext.w     D2
        ext.l     D2
        move.l    D2,-(A7)
-       pea       @m68kde~1_52.L
+       pea       @m68kde~1_51.L
        jsr       (A2)
        addq.w    #8,A7
 ; reg_val = Get8HexDigits(0) ;    // read 32 bit value from user keyboard
@@ -2210,7 +2173,7 @@ ChangeRegisters_1:
        bge.s     ChangeRegisters_23
 ChangeRegisters_25:
 ; printf("\r\nIllegal Address Register : Use A0-A7.....\r\n") ;
-       pea       @m68kde~1_53.L
+       pea       @m68kde~1_52.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -2222,7 +2185,7 @@ ChangeRegisters_23:
        ext.w     D2
        ext.l     D2
        move.l    D2,-(A7)
-       pea       @m68kde~1_54.L
+       pea       @m68kde~1_53.L
        jsr       (A2)
        addq.w    #8,A7
 ; reg_val = Get8HexDigits(0) ;    // read 32 bit value from user keyboard
@@ -2305,7 +2268,7 @@ ChangeRegisters_21:
        cmp.l     #112,D0
        bne.s     ChangeRegisters_42
 ; printf("\r\nUser SP = ") ;
-       pea       @m68kde~1_55.L
+       pea       @m68kde~1_54.L
        jsr       (A2)
        addq.w    #4,A7
 ; USP = Get8HexDigits(0) ;    // read 32 bit value from user keyboard
@@ -2318,7 +2281,7 @@ ChangeRegisters_42:
 ; }
 ; else {
 ; printf("\r\nIllegal Register....") ;
-       pea       @m68kde~1_56.L
+       pea       @m68kde~1_55.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -2345,7 +2308,7 @@ ChangeRegisters_40:
        cmp.l     #112,D0
        bne.s     ChangeRegisters_46
 ; printf("\r\nSystem SP = ") ;
-       pea       @m68kde~1_57.L
+       pea       @m68kde~1_56.L
        jsr       (A2)
        addq.w    #4,A7
 ; SSP = Get8HexDigits(0) ;    // read 32 bit value from user keyboard
@@ -2358,7 +2321,7 @@ ChangeRegisters_46:
 ; }
 ; else {
 ; printf("\r\nIllegal Register....") ;
-       pea       @m68kde~1_56.L
+       pea       @m68kde~1_55.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -2375,7 +2338,7 @@ ChangeRegisters_44:
        cmp.b     #99,D2
        bne.s     ChangeRegisters_48
 ; printf("\r\nPC = ") ;
-       pea       @m68kde~1_58.L
+       pea       @m68kde~1_57.L
        jsr       (A2)
        addq.w    #4,A7
 ; PC = Get8HexDigits(0) ;    // read 32 bit value from user keyboard
@@ -2393,7 +2356,7 @@ ChangeRegisters_48:
        cmp.b     #114,D2
        bne.s     ChangeRegisters_50
 ; printf("\r\nSR = ") ;
-       pea       @m68kde~1_59.L
+       pea       @m68kde~1_58.L
        jsr       (A2)
        addq.w    #4,A7
 ; SR = Get4HexDigits(0) ;    // read 16 bit value from user keyboard
@@ -2406,7 +2369,7 @@ ChangeRegisters_50:
 ; }
 ; else
 ; printf("\r\nIllegal Register: Use A0-A7, D0-D7, SSP, USP, PC or SR\r\n") ;
-       pea       @m68kde~1_60.L
+       pea       @m68kde~1_59.L
        jsr       (A2)
        addq.w    #4,A7
 ChangeRegisters_51:
@@ -2450,11 +2413,11 @@ BreakPointDisplay_3:
        cmp.l     #1,D3
        bne.s     BreakPointDisplay_6
 ; printf("\r\n\r\nNum     Address      Instruction") ;
-       pea       @m68kde~1_61.L
+       pea       @m68kde~1_60.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n---     ---------    -----------") ;
-       pea       @m68kde~1_62.L
+       pea       @m68kde~1_61.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     BreakPointDisplay_7
@@ -2462,7 +2425,7 @@ BreakPointDisplay_6:
 ; }
 ; else
 ; printf("\r\nNo BreakPoints Set") ;
-       pea       @m68kde~1_63.L
+       pea       @m68kde~1_62.L
        jsr       (A2)
        addq.w    #4,A7
 BreakPointDisplay_7:
@@ -2499,7 +2462,7 @@ BreakPointDisplay_8:
        lsl.l     #2,D1
        move.l    0(A3,D1.L),-(A7)
        move.l    D2,-(A7)
-       pea       @m68kde~1_64.L
+       pea       @m68kde~1_63.L
        jsr       (A2)
        add.w     #12,A7
 BreakPointDisplay_11:
@@ -2548,11 +2511,11 @@ WatchPointDisplay_3:
        cmp.l     #1,D3
        bne.s     WatchPointDisplay_6
 ; printf("\r\nNum     Address") ;
-       pea       @m68kde~1_65.L
+       pea       @m68kde~1_64.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n---     ---------") ;
-       pea       @m68kde~1_66.L
+       pea       @m68kde~1_65.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     WatchPointDisplay_7
@@ -2560,7 +2523,7 @@ WatchPointDisplay_6:
 ; }
 ; else
 ; printf("\r\nNo WatchPoints Set") ;
-       pea       @m68kde~1_67.L
+       pea       @m68kde~1_66.L
        jsr       (A2)
        addq.w    #4,A7
 WatchPointDisplay_7:
@@ -2582,7 +2545,7 @@ WatchPointDisplay_8:
        lea       _WatchPointAddress.L,A0
        move.l    0(A0,D1.L),-(A7)
        move.l    D2,-(A7)
-       pea       @m68kde~1_64.L
+       pea       @m68kde~1_63.L
        jsr       (A2)
        add.w     #12,A7
 WatchPointDisplay_11:
@@ -2609,7 +2572,7 @@ _BreakPointClear:
 ; BreakPointDisplay() ;
        jsr       _BreakPointDisplay
 ; printf("\r\nEnter Break Point Number: ") ;
-       pea       @m68kde~1_68.L
+       pea       @m68kde~1_67.L
        jsr       (A2)
        addq.w    #4,A7
 ; i = xtod(_getch()) ;           // get break pointer number
@@ -2629,7 +2592,7 @@ _BreakPointClear:
        bls.s     BreakPointClear_1
 BreakPointClear_3:
 ; printf("\r\nIllegal Range : Use 0 - 7") ;
-       pea       @m68kde~1_69.L
+       pea       @m68kde~1_68.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -2670,7 +2633,7 @@ BreakPointClear_1:
        lea       _BreakPointInstruction.L,A0
        clr.w     0(A0,D0.L)
 ; printf("\r\nBreak Point Cleared.....\r\n") ;
-       pea       @m68kde~1_70.L
+       pea       @m68kde~1_69.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     BreakPointClear_6
@@ -2678,7 +2641,7 @@ BreakPointClear_5:
 ; }
 ; else
 ; printf("\r\nBreak Point wasn't Set.....") ;
-       pea       @m68kde~1_71.L
+       pea       @m68kde~1_70.L
        jsr       (A2)
        addq.w    #4,A7
 BreakPointClear_6:
@@ -2700,7 +2663,7 @@ _WatchPointClear:
 ; WatchPointDisplay() ;
        jsr       _WatchPointDisplay
 ; printf("\r\nEnter Watch Point Number: ") ;
-       pea       @m68kde~1_72.L
+       pea       @m68kde~1_71.L
        jsr       (A2)
        addq.w    #4,A7
 ; i = xtod(_getch()) ;           // get watch pointer number
@@ -2720,7 +2683,7 @@ _WatchPointClear:
        bls.s     WatchPointClear_1
 WatchPointClear_3:
 ; printf("\r\nIllegal Range : Use 0 - 7") ;
-       pea       @m68kde~1_69.L
+       pea       @m68kde~1_68.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -2745,7 +2708,7 @@ WatchPointClear_1:
        lea       _WatchPointSetOrCleared.L,A0
        clr.l     0(A0,D0.L)
 ; printf("\r\nWatch Point Cleared.....\r\n") ;
-       pea       @m68kde~1_73.L
+       pea       @m68kde~1_72.L
        jsr       (A2)
        addq.w    #4,A7
        bra.s     WatchPointClear_6
@@ -2753,7 +2716,7 @@ WatchPointClear_5:
 ; }
 ; else
 ; printf("\r\nWatch Point Was not Set.....") ;
-       pea       @m68kde~1_74.L
+       pea       @m68kde~1_73.L
        jsr       (A2)
        addq.w    #4,A7
 WatchPointClear_6:
@@ -2955,7 +2918,7 @@ SetBreakPoint_3:
        cmp.l     #8,D2
        bne.s     SetBreakPoint_6
 ; printf("\r\nNo FREE Break Points.....") ;
-       pea       @m68kde~1_75.L
+       pea       @m68kde~1_74.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -2963,7 +2926,7 @@ SetBreakPoint_3:
 SetBreakPoint_6:
 ; }
 ; printf("\r\nBreak Point Address: ") ;
-       pea       @m68kde~1_76.L
+       pea       @m68kde~1_75.L
        jsr       (A2)
        addq.w    #4,A7
 ; BPAddress = Get8HexDigits(0) ;
@@ -2979,7 +2942,7 @@ SetBreakPoint_6:
        cmp.l     #1,D0
        bne.s     SetBreakPoint_9
 ; printf("\r\nError : Break Points CANNOT be set at ODD addresses") ;
-       pea       @m68kde~1_77.L
+       pea       @m68kde~1_76.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -2990,7 +2953,7 @@ SetBreakPoint_9:
        cmp.l     #32768,D3
        bhs.s     SetBreakPoint_11
 ; printf("\r\nError : Break Points CANNOT be set for ROM in Range : [$0-$00007FFF]") ;
-       pea       @m68kde~1_78.L
+       pea       @m68kde~1_77.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -3011,7 +2974,7 @@ SetBreakPoint_13:
        bne.s     SetBreakPoint_16
 ; printf("\r\nError: Break Point Already Exists at Address : %08x\r\n", BPAddress) ;
        move.l    D3,-(A7)
-       pea       @m68kde~1_79.L
+       pea       @m68kde~1_78.L
        jsr       (A2)
        addq.w    #8,A7
 ; return ;
@@ -3036,7 +2999,7 @@ SetBreakPoint_16:
        move.w    (A0),0(A1,D0.L)
 ; printf("\r\nBreak Point Set at Address: [$%08x]", ProgramBreakPointAddress) ;
        move.l    D4,-(A7)
-       pea       @m68kde~1_80.L
+       pea       @m68kde~1_79.L
        jsr       (A2)
        addq.w    #8,A7
 ; *ProgramBreakPointAddress = (unsigned short int)(0x4e4e)    ;   // put a Trap14 instruction at the user specified address
@@ -3099,7 +3062,7 @@ SetWatchPoint_3:
        cmp.l     #8,D2
        bne.s     SetWatchPoint_6
 ; printf("\r\nNo FREE Watch Points.....") ;
-       pea       @m68kde~1_81.L
+       pea       @m68kde~1_80.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -3107,7 +3070,7 @@ SetWatchPoint_3:
 SetWatchPoint_6:
 ; }
 ; printf("\r\nWatch Point Address: ") ;
-       pea       @m68kde~1_82.L
+       pea       @m68kde~1_81.L
        jsr       (A2)
        addq.w    #4,A7
 ; WPAddress = Get8HexDigits(0) ;
@@ -3131,7 +3094,7 @@ SetWatchPoint_9:
        beq.s     SetWatchPoint_12
 ; printf("\r\nError: Watch Point Already Set at Address : %08x\r\n", WPAddress) ;
        move.l    D3,-(A7)
-       pea       @m68kde~1_83.L
+       pea       @m68kde~1_82.L
        jsr       (A2)
        addq.w    #8,A7
 ; return ;
@@ -3149,7 +3112,7 @@ SetWatchPoint_12:
        move.l    #1,0(A3,D0.L)
 ; printf("\r\nWatch Point Set at Address: [$%08x]", WPAddress) ;
        move.l    D3,-(A7)
-       pea       @m68kde~1_84.L
+       pea       @m68kde~1_83.L
        jsr       (A2)
        addq.w    #8,A7
 ; WatchPointAddress[i] = WPAddress ;                              // record the address of this watch point in the debugger
@@ -3190,15 +3153,15 @@ _HandleBreakPoint:
 ; PC = PC - 2 ;  // ready for user to resume after reaching breakpoint
        subq.l    #2,(A4)
 ; printf("\r\n\r\n\r\n\r\n@BREAKPOINT") ;
-       pea       @m68kde~1_85.L
+       pea       @m68kde~1_84.L
        jsr       (A3)
        addq.w    #4,A7
 ; printf("\r\nSingle Step : [ON]") ;
-       pea       @m68kde~1_86.L
+       pea       @m68kde~1_85.L
        jsr       (A3)
        addq.w    #4,A7
 ; printf("\r\nBreakPoints : [Enabled]") ;
-       pea       @m68kde~1_87.L
+       pea       @m68kde~1_86.L
        jsr       (A3)
        addq.w    #4,A7
 ; // now clear the break point (put original instruction back)
@@ -3247,11 +3210,11 @@ HandleBreakPoint_3:
 ; DumpRegisters() ;
        jsr       _DumpRegisters
 ; printf("\r\nPress <SPACE> to Execute Next Instruction");
-       pea       @m68kde~1_49.L
+       pea       @m68kde~1_48.L
        jsr       (A3)
        addq.w    #4,A7
 ; printf("\r\nPress <ESC> to Resume User Program\r\n") ;
-       pea       @m68kde~1_88.L
+       pea       @m68kde~1_87.L
        jsr       (A3)
        addq.w    #4,A7
 ; menu() ;
@@ -3265,7 +3228,7 @@ HandleBreakPoint_3:
        xdef      _UnknownCommand
 _UnknownCommand:
 ; printf("\r\nUnknown Command.....\r\n") ;
-       pea       @m68kde~1_89.L
+       pea       @m68kde~1_88.L
        jsr       _printf
        addq.w    #4,A7
 ; Help() ;
@@ -3278,7 +3241,7 @@ _UnknownCommand:
        xdef      _CallDebugMonitor
 _CallDebugMonitor:
 ; printf("\r\nProgram Ended (TRAP #15)....") ;
-       pea       @m68kde~1_90.L
+       pea       @m68kde~1_89.L
        jsr       _printf
        addq.w    #4,A7
 ; menu();
@@ -3311,7 +3274,7 @@ Breakpoint_1:
        cmp.b     #75,D2
        bne.s     Breakpoint_3
 ; printf("\r\nKill All Break Points...(y/n)?") ;
-       pea       @m68kde~1_91.L
+       pea       @m68kde~1_90.L
        jsr       _printf
        addq.w    #4,A7
 ; c = toupper(_getch());
@@ -3381,7 +3344,7 @@ Watchpoint_1:
        cmp.b     #75,D2
        bne.s     Watchpoint_3
 ; printf("\r\nKill All Watch Points...(y/n)?") ;
-       pea       @m68kde~1_92.L
+       pea       @m68kde~1_91.L
        jsr       _printf
        addq.w    #4,A7
 ; c = toupper(_getch());
@@ -3432,14 +3395,14 @@ _Help:
        movem.l   D2/A2,-(A7)
        lea       _printf.L,A2
 ; char *banner = "\r\n----------------------------------------------------------------" ;
-       lea       @m68kde~1_93.L,A0
+       lea       @m68kde~1_92.L,A0
        move.l    A0,D2
 ; printf(banner) ;
        move.l    D2,-(A7)
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  Debugger Command Summary") ;
-       pea       @m68kde~1_94.L
+       pea       @m68kde~1_93.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf(banner) ;
@@ -3447,68 +3410,68 @@ _Help:
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  .(reg)       - Change Registers: e.g A0-A7,D0-D7,PC,SSP,USP,SR");
-       pea       @m68kde~1_95.L
+       pea       @m68kde~1_94.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  BD/BS/BC/BK  - Break Point: Display/Set/Clear/Kill") ;
-       pea       @m68kde~1_96.L
+       pea       @m68kde~1_95.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  C            - Copy Program from Flash to Main Memory") ;
-       pea       @m68kde~1_97.L
+       pea       @m68kde~1_96.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  D            - Dump Memory Contents to Screen") ;
-       pea       @m68kde~1_98.L
+       pea       @m68kde~1_97.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  E            - Enter String into Memory") ;
-       pea       @m68kde~1_99.L
+       pea       @m68kde~1_98.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  F            - Fill Memory with Data") ;
-       pea       @m68kde~1_100.L
+       pea       @m68kde~1_99.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  G            - Go Program Starting at Address: $%08X", PC) ;
        move.l    _PC.L,-(A7)
-       pea       @m68kde~1_101.L
+       pea       @m68kde~1_100.L
        jsr       (A2)
        addq.w    #8,A7
 ; printf("\r\n  L            - Load Program (.HEX file) from Laptop") ;
-       pea       @m68kde~1_102.L
+       pea       @m68kde~1_101.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  M            - Memory Examine and Change");
-       pea       @m68kde~1_103.L
+       pea       @m68kde~1_102.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  P            - Program Flash Memory with User Program") ;
-       pea       @m68kde~1_104.L
+       pea       @m68kde~1_103.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  R            - Display 68000 Registers") ;
-       pea       @m68kde~1_105.L
+       pea       @m68kde~1_104.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  S            - Toggle ON/OFF Single Step Mode") ;
-       pea       @m68kde~1_106.L
+       pea       @m68kde~1_105.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  TM           - Test Memory") ;
-       pea       @m68kde~1_107.L
+       pea       @m68kde~1_106.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  TS           - Test Switches: SW7-0") ;
-       pea       @m68kde~1_108.L
+       pea       @m68kde~1_107.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  TD           - Test Displays: LEDs and 7-Segment") ;
-       pea       @m68kde~1_109.L
+       pea       @m68kde~1_108.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\n  WD/WS/WC/WK  - Watch Point: Display/Set/Clear/Kill") ;
-       pea       @m68kde~1_110.L
+       pea       @m68kde~1_109.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf(banner) ;
@@ -3533,7 +3496,7 @@ menu_1:
 ; FlushKeyboard() ;               // dump unread characters from keyboard
        jsr       _FlushKeyboard
 ; printf("\r\n#") ;
-       pea       @m68kde~1_111.L
+       pea       @m68kde~1_110.L
        jsr       (A2)
        addq.w    #4,A7
 ; c = toupper(_getch());
@@ -3577,11 +3540,11 @@ menu_10:
        cmp.b     #71,D2
        bne.s     menu_12
 ; printf("\r\nProgram Running.....") ;
-       pea       @m68kde~1_112.L
+       pea       @m68kde~1_111.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nPress <RESET> button <Key0> on DE1 to stop") ;
-       pea       @m68kde~1_113.L
+       pea       @m68kde~1_112.L
        jsr       (A2)
        addq.w    #4,A7
 ; GoFlag = 1 ;
@@ -3693,7 +3656,7 @@ menu_36:
 ; }
 ; else
 ; printf("\r\nError: Press 'G' first to start program") ;
-       pea       @m68kde~1_114.L
+       pea       @m68kde~1_113.L
        jsr       (A2)
        addq.w    #4,A7
        bra       menu_46
@@ -3708,22 +3671,22 @@ menu_34:
 ; DisableBreakPoints() ;
        jsr       _DisableBreakPoints
 ; printf("\r\nSingle Step  :[ON]") ;
-       pea       @m68kde~1_115.L
+       pea       @m68kde~1_114.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nBreak Points :[Disabled]") ;
-       pea       @m68kde~1_48.L
+       pea       @m68kde~1_47.L
        jsr       (A2)
        addq.w    #4,A7
 ; SR = SR | (unsigned short int)(0x8000) ;    // set T bit in status register
        or.w      #32768,(A5)
 ; printf("\r\nPress 'G' to Trace Program from address $%X.....",PC) ;
        move.l    _PC.L,-(A7)
-       pea       @m68kde~1_116.L
+       pea       @m68kde~1_115.L
        jsr       (A2)
        addq.w    #8,A7
 ; printf("\r\nPush <RESET Button> to Stop.....") ;
-       pea       @m68kde~1_117.L
+       pea       @m68kde~1_116.L
        jsr       (A2)
        addq.w    #4,A7
 ; DumpRegisters() ;
@@ -3749,15 +3712,15 @@ menu_41:
 ; SR = SR & (unsigned short int)(0x7FFF) ;    // clear T bit in status register
        and.w     #32767,(A5)
 ; printf("\r\nSingle Step : [OFF]") ;
-       pea       @m68kde~1_118.L
+       pea       @m68kde~1_117.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nBreak Points :[Enabled]") ;
-       pea       @m68kde~1_119.L
+       pea       @m68kde~1_118.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nPress <ESC> to Resume User Program.....") ;
-       pea       @m68kde~1_120.L
+       pea       @m68kde~1_119.L
        jsr       (A2)
        addq.w    #4,A7
 menu_42:
@@ -3779,19 +3742,19 @@ menu_39:
 ; SR = SR & (unsigned short int)(0x7FFF) ;    // clear T bit in status register
        and.w     #32767,(A5)
 ; printf("\r\nSingle Step  :[OFF]") ;
-       pea       @m68kde~1_121.L
+       pea       @m68kde~1_120.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nBreak Points :[Enabled]");
-       pea       @m68kde~1_119.L
+       pea       @m68kde~1_118.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nProgram Running.....") ;
-       pea       @m68kde~1_112.L
+       pea       @m68kde~1_111.L
        jsr       (A2)
        addq.w    #4,A7
 ; printf("\r\nPress <RESET> button <Key0> on DE1 to stop") ;
-       pea       @m68kde~1_113.L
+       pea       @m68kde~1_112.L
        jsr       (A2)
        addq.w    #4,A7
 ; return ;
@@ -3820,12 +3783,12 @@ menu_38:
 _PrintErrorMessageandAbort:
        link      A6,#0
 ; printf("\r\n\r\nProgram ABORT !!!!!!\r\n") ;
-       pea       @m68kde~1_122.L
+       pea       @m68kde~1_121.L
        jsr       _printf
        addq.w    #4,A7
 ; printf("%s\r\n", string) ;
        move.l    8(A6),-(A7)
-       pea       @m68kde~1_123.L
+       pea       @m68kde~1_122.L
        jsr       _printf
        addq.w    #8,A7
 ; menu() ;
@@ -3838,12 +3801,12 @@ _PrintErrorMessageandAbort:
 _IRQMessage:
        link      A6,#0
 ; printf("\r\n\r\nProgram ABORT !!!!!");
-       pea       @m68kde~1_124.L
+       pea       @m68kde~1_123.L
        jsr       _printf
        addq.w    #4,A7
 ; printf("\r\nUnhandled Interrupt: IRQ%d !!!!!", level) ;
        move.l    8(A6),-(A7)
-       pea       @m68kde~1_125.L
+       pea       @m68kde~1_124.L
        jsr       _printf
        addq.w    #8,A7
 ; menu() ;
@@ -3900,7 +3863,7 @@ _UnhandledIRQ5:
        xdef      _UnhandledIRQ6
 _UnhandledIRQ6:
 ; PrintErrorMessageandAbort("ADDRESS ERROR: 16 or 32 Bit Transfer to/from an ODD Address....") ;
-       pea       @m68kde~1_126.L
+       pea       @m68kde~1_125.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
 ; menu() ;
@@ -3920,7 +3883,7 @@ _UnhandledIRQ7:
        xdef      _UnhandledTrap
 _UnhandledTrap:
 ; PrintErrorMessageandAbort("Unhandled Trap !!!!!") ;
-       pea       @m68kde~1_127.L
+       pea       @m68kde~1_126.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -3929,7 +3892,7 @@ _UnhandledTrap:
        xdef      _BusError
 _BusError:
 ; PrintErrorMessageandAbort("BUS Error!") ;
-       pea       @m68kde~1_128.L
+       pea       @m68kde~1_127.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -3938,7 +3901,7 @@ _BusError:
        xdef      _AddressError
 _AddressError:
 ; PrintErrorMessageandAbort("ADDRESS Error!") ;
-       pea       @m68kde~1_129.L
+       pea       @m68kde~1_128.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -3947,7 +3910,7 @@ _AddressError:
        xdef      _IllegalInstruction
 _IllegalInstruction:
 ; PrintErrorMessageandAbort("ILLEGAL INSTRUCTION") ;
-       pea       @m68kde~1_130.L
+       pea       @m68kde~1_129.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -3956,7 +3919,7 @@ _IllegalInstruction:
        xdef      _Dividebyzero
 _Dividebyzero:
 ; PrintErrorMessageandAbort("DIVIDE BY ZERO") ;
-       pea       @m68kde~1_131.L
+       pea       @m68kde~1_130.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -3965,7 +3928,7 @@ _Dividebyzero:
        xdef      _Check
 _Check:
 ; PrintErrorMessageandAbort("'CHK' INSTRUCTION") ;
-       pea       @m68kde~1_132.L
+       pea       @m68kde~1_131.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -3974,7 +3937,7 @@ _Check:
        xdef      _Trapv
 _Trapv:
 ; PrintErrorMessageandAbort("TRAPV INSTRUCTION") ;
-       pea       @m68kde~1_133.L
+       pea       @m68kde~1_132.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -3983,7 +3946,7 @@ _Trapv:
        xdef      _PrivError
 _PrivError:
 ; PrintErrorMessageandAbort("PRIVILEGE VIOLATION") ;
-       pea       @m68kde~1_134.L
+       pea       @m68kde~1_133.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -3992,7 +3955,7 @@ _PrivError:
        xdef      _UnitIRQ
 _UnitIRQ:
 ; PrintErrorMessageandAbort("UNINITIALISED IRQ") ;
-       pea       @m68kde~1_135.L
+       pea       @m68kde~1_134.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -4001,7 +3964,7 @@ _UnitIRQ:
        xdef      _Spurious
 _Spurious:
 ; PrintErrorMessageandAbort("SPURIOUS IRQ") ;
-       pea       @m68kde~1_136.L
+       pea       @m68kde~1_135.L
        jsr       _PrintErrorMessageandAbort
        addq.w    #4,A7
        rts
@@ -4015,7 +3978,7 @@ _EnterString:
 ; unsigned char *Start;
 ; unsigned char c;
 ; printf("\r\nStart Address in Memory: ") ;
-       pea       @m68kde~1_137.L
+       pea       @m68kde~1_136.L
        jsr       _printf
        addq.w    #4,A7
 ; Start = Get8HexDigits(0) ;
@@ -4024,7 +3987,7 @@ _EnterString:
        addq.w    #4,A7
        move.l    D0,D2
 ; printf("\r\nEnter String (ESC to end) :") ;
-       pea       @m68kde~1_138.L
+       pea       @m68kde~1_137.L
        jsr       _printf
        addq.w    #4,A7
 ; while((c = getchar()) != 0x1b)
@@ -4118,7 +4081,7 @@ _MemoryTest:
        jsr       _memset
        add.w     #12,A7
 ; printf("\nEnter what size of memory you want to read/write\n Byte = 0\n Word = 1\n Long Word = 2\n");
-       pea       @m68kde~1_139.L
+       pea       @m68kde~1_138.L
        jsr       (A2)
        addq.w    #4,A7
 ; dataSize = _getch() - 48;
@@ -4126,14 +4089,14 @@ _MemoryTest:
        sub.l     #48,D0
        move.l    D0,D5
 ; printf("\n");
-       pea       @m68kde~1_140.L
+       pea       @m68kde~1_139.L
        jsr       (A2)
        addq.w    #4,A7
 ; if (dataSize == 0) {
        tst.l     D5
        bne       MemoryTest_1
 ; printf("\nEnter which data pattern you want to write into memory\n 0x00 = 0\n 0xB2 = 1\n 0xC3 = 2\n 0xD4 = 3\n");
-       pea       @m68kde~1_141.L
+       pea       @m68kde~1_140.L
        jsr       (A2)
        addq.w    #4,A7
 ; intBuffer = _getch() - 48;
@@ -4184,7 +4147,7 @@ MemoryTest_1:
        cmp.l     #1,D5
        bne       MemoryTest_10
 ; printf("\nEnter which data pattern you want to write into memory\n 0x0000 = 0\n 0x1234 = 1\n 0xA1B2 = 2\n 0xC3D4 = 3\n");
-       pea       @m68kde~1_142.L
+       pea       @m68kde~1_141.L
        jsr       (A2)
        addq.w    #4,A7
 ; intBuffer = _getch() - 48;
@@ -4232,7 +4195,7 @@ MemoryTest_13:
 MemoryTest_10:
 ; } else {
 ; printf("\nEnter which data pattern you want to write into memory\n 0x0000_0000 = 0\n 0xAABB_CCDD = 1\n 0x1122_3344 = 2\n 0x7654_3210 = 3\n");
-       pea       @m68kde~1_143.L
+       pea       @m68kde~1_142.L
        jsr       (A2)
        addq.w    #4,A7
 ; intBuffer = _getch() - 48;
@@ -4302,7 +4265,7 @@ MemoryTest_29:
 ; (unsigned int) startAddressPtr < 0x08020000 || 
 ; (unsigned int) startAddressPtr > 0x0B000000 - byteLength) {
 ; printf("\nProvide Start Address in hex (do not use 0x prefix)\n0x");
-       pea       @m68kde~1_144.L
+       pea       @m68kde~1_143.L
        jsr       (A2)
        addq.w    #4,A7
 ; startAddressPtr =  Get8HexDigits(0);
@@ -4324,7 +4287,7 @@ MemoryTest_31:
 MemoryTest_34:
 ; (unsigned int) endAddressPtr < startAddress + byteLength) {
 ; printf("\nProvide End Address in hex (do not use 0x prefix)\n0x");
-       pea       @m68kde~1_145.L
+       pea       @m68kde~1_144.L
        jsr       (A2)
        addq.w    #4,A7
 ; endAddressPtr =  Get8HexDigits(0);
@@ -4337,12 +4300,12 @@ MemoryTest_33:
 ; }
 ; printf("\nStart Address 0x%08x\n", (unsigned int) startAddressPtr);
        move.l    D2,-(A7)
-       pea       @m68kde~1_146.L
+       pea       @m68kde~1_145.L
        jsr       (A2)
        addq.w    #8,A7
 ; printf("\nEnd Address: 0x%08x\n",(unsigned int) endAddressPtr);
        move.l    D6,-(A7)
-       pea       @m68kde~1_147.L
+       pea       @m68kde~1_146.L
        jsr       (A2)
        addq.w    #8,A7
 ; addrCount = 0;
@@ -4364,7 +4327,7 @@ MemoryTest_35:
        bls.s     MemoryTest_38
 ; printf("ERROR... Address 0x%x is beyond the memory range\n", (void*)startAddressPtr);
        move.l    D2,-(A7)
-       pea       @m68kde~1_148.L
+       pea       @m68kde~1_147.L
        jsr       (A2)
        addq.w    #8,A7
 ; break;
@@ -4394,7 +4357,7 @@ MemoryTest_38:
        and.l     #255,D1
        move.l    D1,-(A7)
        move.l    D2,-(A7)
-       pea       @m68kde~1_149.L
+       pea       @m68kde~1_148.L
        jsr       (A2)
        add.w     #16,A7
 MemoryTest_42:
@@ -4418,7 +4381,7 @@ MemoryTest_40:
        and.l     #255,D1
        move.l    D1,-(A7)
        move.l    D2,-(A7)
-       pea       @m68kde~1_149.L
+       pea       @m68kde~1_148.L
        jsr       (A2)
        add.w     #16,A7
 MemoryTest_46:
@@ -4438,7 +4401,7 @@ MemoryTest_44:
        and.l     #255,D1
        move.l    D1,-(A7)
        move.l    D2,-(A7)
-       pea       @m68kde~1_149.L
+       pea       @m68kde~1_148.L
        jsr       (A2)
        add.w     #16,A7
 MemoryTest_48:
@@ -4466,7 +4429,7 @@ MemoryTest_48:
        and.l     #255,D1
        move.l    D1,-(A7)
        move.l    D2,-(A7)
-       pea       @m68kde~1_150.L
+       pea       @m68kde~1_149.L
        jsr       (A2)
        add.w     #12,A7
        bra.s     MemoryTest_55
@@ -4481,7 +4444,7 @@ MemoryTest_52:
        and.l     #65535,D1
        move.l    D1,-(A7)
        move.l    A4,-(A7)
-       pea       @m68kde~1_151.L
+       pea       @m68kde~1_150.L
        jsr       (A2)
        add.w     #12,A7
        bra.s     MemoryTest_55
@@ -4492,7 +4455,7 @@ MemoryTest_54:
 ; printf("Address: 0x%x Value: 0x%08X\n",
        move.l    (A3),-(A7)
        move.l    A3,-(A7)
-       pea       @m68kde~1_152.L
+       pea       @m68kde~1_151.L
        jsr       (A2)
        add.w     #12,A7
 MemoryTest_55:
@@ -4520,10 +4483,10 @@ _main:
 ; char c ;
 ; int i, j ;
 ; char *BugMessage = "DE1-68k Bug V1.77";
-       lea       @m68kde~1_153.L,A0
+       lea       @m68kde~1_152.L,A0
        move.l    A0,D3
 ; char *CopyrightMessage = "Copyright (C) PJ Davies 2016";
-       lea       @m68kde~1_154.L,A0
+       lea       @m68kde~1_153.L,A0
        move.l    A0,-4(A6)
 ; KillAllBreakPoints() ;
        jsr       _KillAllBreakPoints
@@ -4715,28 +4678,26 @@ main_6:
 ; TraceException = 0 ;                     // clear trace exception port to remove any software generated single step/trace
        clr.b     4194314
 ; // test for auto flash boot and run from Flash by reading switch 9 on DE1-soc board. If set, copy program from flash into Dram and run
-; while(((char)(PortB & 0x02)) == (char)(0x02))    {
-main_7:
+; if (((char)(PortB & 0x02)) == (char)(0x02))    {
        move.b    4194306,D0
        and.b     #2,D0
        cmp.b     #2,D0
-       bne.s     main_9
+       bne.s     main_7
 ; LoadFromFlashChip();
        jsr       _LoadFromFlashChip
 ; printf("\r\nRunning.....") ;
-       pea       @m68kde~1_155.L
+       pea       @m68kde~1_154.L
        jsr       (A3)
        addq.w    #4,A7
 ; Oline1("Running.....") ;
-       pea       @m68kde~1_156.L
+       pea       @m68kde~1_155.L
        jsr       _Oline1
        addq.w    #4,A7
 ; GoFlag = 1;
        move.l    #1,_GoFlag.L
 ; go() ;
        jsr       _go
-       bra       main_7
-main_9:
+main_7:
 ; }
 ; // otherwise start the debug monitor
 ; Oline0(BugMessage) ;
@@ -4744,21 +4705,21 @@ main_9:
        jsr       _Oline0
        addq.w    #4,A7
 ; Oline1("By: PJ Davies") ;
-       pea       @m68kde~1_157.L
+       pea       @m68kde~1_156.L
        jsr       _Oline1
        addq.w    #4,A7
 ; printf("\r\n%s", BugMessage) ;
        move.l    D3,-(A7)
-       pea       @m68kde~1_158.L
+       pea       @m68kde~1_157.L
        jsr       (A3)
        addq.w    #8,A7
 ; printf("\r\n%s", CopyrightMessage) ;
        move.l    -4(A6),-(A7)
-       pea       @m68kde~1_158.L
+       pea       @m68kde~1_157.L
        jsr       (A3)
        addq.w    #8,A7
 ; printf("\n Student Names:\n Zachariah Joseph: 45500055 \n Umair Mazhar: 20333308\n");
-       pea       @m68kde~1_159.L
+       pea       @m68kde~1_158.L
        jsr       (A3)
        addq.w    #4,A7
 ; menu();
@@ -4844,436 +4805,432 @@ main_9:
 @m68kde~1_22:
        dc.b      10,69,114,97,115,105,110,103,46,46,46,10,0
 @m68kde~1_23:
-       dc.b      13,10,32,83,116,97,114,116,105,110,103,32,80
-       dc.b      114,111,103,114,97,109,109,105,110,103,46,46
-       dc.b      46,0
-@m68kde~1_24:
        dc.b      13,10,32,80,114,111,103,114,97,109,109,105,110
        dc.b      103,32,67,111,109,112,108,101,116,101,33,0
-@m68kde~1_25:
+@m68kde~1_24:
        dc.b      13,10,32,76,111,97,100,105,110,103,32,80,114
        dc.b      111,103,114,97,109,32,70,114,111,109,32,83,80
        dc.b      73,32,70,108,97,115,104,46,46,46,46,0
-@m68kde~1_26:
+@m68kde~1_25:
        dc.b      13,10,32,82,101,97,100,32,68,97,116,97,58,32
        dc.b      37,48,56,120,32,10,0
-@m68kde~1_27:
+@m68kde~1_26:
        dc.b      36,37,48,56,88,32,32,0
-@m68kde~1_28:
+@m68kde~1_27:
        dc.b      32,0
-@m68kde~1_29:
+@m68kde~1_28:
        dc.b      46,0
-@m68kde~1_30:
+@m68kde~1_29:
        dc.b      37,99,0
-@m68kde~1_31:
+@m68kde~1_30:
        dc.b      0
-@m68kde~1_32:
+@m68kde~1_31:
        dc.b      13,10,13,10,32,68,48,32,61,32,36,37,48,56,88
        dc.b      32,32,65,48,32,61,32,36,37,48,56,88,0
-@m68kde~1_33:
+@m68kde~1_32:
        dc.b      13,10,32,68,49,32,61,32,36,37,48,56,88,32,32
        dc.b      65,49,32,61,32,36,37,48,56,88,0
-@m68kde~1_34:
+@m68kde~1_33:
        dc.b      13,10,32,68,50,32,61,32,36,37,48,56,88,32,32
        dc.b      65,50,32,61,32,36,37,48,56,88,0
-@m68kde~1_35:
+@m68kde~1_34:
        dc.b      13,10,32,68,51,32,61,32,36,37,48,56,88,32,32
        dc.b      65,51,32,61,32,36,37,48,56,88,0
-@m68kde~1_36:
+@m68kde~1_35:
        dc.b      13,10,32,68,52,32,61,32,36,37,48,56,88,32,32
        dc.b      65,52,32,61,32,36,37,48,56,88,0
-@m68kde~1_37:
+@m68kde~1_36:
        dc.b      13,10,32,68,53,32,61,32,36,37,48,56,88,32,32
        dc.b      65,53,32,61,32,36,37,48,56,88,0
-@m68kde~1_38:
+@m68kde~1_37:
        dc.b      13,10,32,68,54,32,61,32,36,37,48,56,88,32,32
        dc.b      65,54,32,61,32,36,37,48,56,88,0
-@m68kde~1_39:
+@m68kde~1_38:
        dc.b      13,10,32,68,55,32,61,32,36,37,48,56,88,32,32
        dc.b      65,55,32,61,32,36,37,48,56,88,0
-@m68kde~1_40:
+@m68kde~1_39:
        dc.b      13,10,13,10,85,83,80,32,61,32,36,37,48,56,88
        dc.b      32,32,40,65,55,41,32,85,115,101,114,32,83,80
        dc.b      0
-@m68kde~1_41:
+@m68kde~1_40:
        dc.b      13,10,83,83,80,32,61,32,36,37,48,56,88,32,32
        dc.b      40,65,55,41,32,83,117,112,101,114,118,105,115
        dc.b      111,114,32,83,80,0
-@m68kde~1_42:
+@m68kde~1_41:
        dc.b      13,10,32,83,82,32,61,32,36,37,48,52,88,32,32
        dc.b      32,0
-@m68kde~1_43:
+@m68kde~1_42:
        dc.b      32,32,32,91,0
-@m68kde~1_44:
+@m68kde~1_43:
        dc.b      13,10,32,80,67,32,61,32,36,37,48,56,88,32,32
        dc.b      0
-@m68kde~1_45:
+@m68kde~1_44:
        dc.b      91,64,32,66,82,69,65,75,80,79,73,78,84,93,0
-@m68kde~1_46:
+@m68kde~1_45:
        dc.b      13,10,87,80,37,100,32,61,32,37,115,0
-@m68kde~1_47:
+@m68kde~1_46:
        dc.b      13,10,13,10,13,10,13,10,13,10,13,10,83,105,110
        dc.b      103,108,101,32,83,116,101,112,32,32,58,91,79
        dc.b      78,93,0
-@m68kde~1_48:
+@m68kde~1_47:
        dc.b      13,10,66,114,101,97,107,32,80,111,105,110,116
        dc.b      115,32,58,91,68,105,115,97,98,108,101,100,93
        dc.b      0
-@m68kde~1_49:
+@m68kde~1_48:
        dc.b      13,10,80,114,101,115,115,32,60,83,80,65,67,69
        dc.b      62,32,116,111,32,69,120,101,99,117,116,101,32
        dc.b      78,101,120,116,32,73,110,115,116,114,117,99
        dc.b      116,105,111,110,0
-@m68kde~1_50:
+@m68kde~1_49:
        dc.b      13,10,80,114,101,115,115,32,60,69,83,67,62,32
        dc.b      116,111,32,82,101,115,117,109,101,32,80,114
        dc.b      111,103,114,97,109,0
-@m68kde~1_51:
+@m68kde~1_50:
        dc.b      13,10,73,108,108,101,103,97,108,32,68,97,116
        dc.b      97,32,82,101,103,105,115,116,101,114,32,58,32
        dc.b      85,115,101,32,68,48,45,68,55,46,46,46,46,46
        dc.b      13,10,0
-@m68kde~1_52:
+@m68kde~1_51:
        dc.b      13,10,68,37,99,32,61,32,0
-@m68kde~1_53:
+@m68kde~1_52:
        dc.b      13,10,73,108,108,101,103,97,108,32,65,100,100
        dc.b      114,101,115,115,32,82,101,103,105,115,116,101
        dc.b      114,32,58,32,85,115,101,32,65,48,45,65,55,46
        dc.b      46,46,46,46,13,10,0
-@m68kde~1_54:
+@m68kde~1_53:
        dc.b      13,10,65,37,99,32,61,32,0
-@m68kde~1_55:
+@m68kde~1_54:
        dc.b      13,10,85,115,101,114,32,83,80,32,61,32,0
-@m68kde~1_56:
+@m68kde~1_55:
        dc.b      13,10,73,108,108,101,103,97,108,32,82,101,103
        dc.b      105,115,116,101,114,46,46,46,46,0
-@m68kde~1_57:
+@m68kde~1_56:
        dc.b      13,10,83,121,115,116,101,109,32,83,80,32,61
        dc.b      32,0
-@m68kde~1_58:
+@m68kde~1_57:
        dc.b      13,10,80,67,32,61,32,0
-@m68kde~1_59:
+@m68kde~1_58:
        dc.b      13,10,83,82,32,61,32,0
-@m68kde~1_60:
+@m68kde~1_59:
        dc.b      13,10,73,108,108,101,103,97,108,32,82,101,103
        dc.b      105,115,116,101,114,58,32,85,115,101,32,65,48
        dc.b      45,65,55,44,32,68,48,45,68,55,44,32,83,83,80
        dc.b      44,32,85,83,80,44,32,80,67,32,111,114,32,83
        dc.b      82,13,10,0
-@m68kde~1_61:
+@m68kde~1_60:
        dc.b      13,10,13,10,78,117,109,32,32,32,32,32,65,100
        dc.b      100,114,101,115,115,32,32,32,32,32,32,73,110
        dc.b      115,116,114,117,99,116,105,111,110,0
-@m68kde~1_62:
+@m68kde~1_61:
        dc.b      13,10,45,45,45,32,32,32,32,32,45,45,45,45,45
        dc.b      45,45,45,45,32,32,32,32,45,45,45,45,45,45,45
        dc.b      45,45,45,45,0
-@m68kde~1_63:
+@m68kde~1_62:
        dc.b      13,10,78,111,32,66,114,101,97,107,80,111,105
        dc.b      110,116,115,32,83,101,116,0
-@m68kde~1_64:
+@m68kde~1_63:
        dc.b      13,10,37,51,100,32,32,32,32,32,36,37,48,56,120
        dc.b      0
-@m68kde~1_65:
+@m68kde~1_64:
        dc.b      13,10,78,117,109,32,32,32,32,32,65,100,100,114
        dc.b      101,115,115,0
-@m68kde~1_66:
+@m68kde~1_65:
        dc.b      13,10,45,45,45,32,32,32,32,32,45,45,45,45,45
        dc.b      45,45,45,45,0
-@m68kde~1_67:
+@m68kde~1_66:
        dc.b      13,10,78,111,32,87,97,116,99,104,80,111,105
        dc.b      110,116,115,32,83,101,116,0
-@m68kde~1_68:
+@m68kde~1_67:
        dc.b      13,10,69,110,116,101,114,32,66,114,101,97,107
        dc.b      32,80,111,105,110,116,32,78,117,109,98,101,114
        dc.b      58,32,0
-@m68kde~1_69:
+@m68kde~1_68:
        dc.b      13,10,73,108,108,101,103,97,108,32,82,97,110
        dc.b      103,101,32,58,32,85,115,101,32,48,32,45,32,55
        dc.b      0
-@m68kde~1_70:
+@m68kde~1_69:
        dc.b      13,10,66,114,101,97,107,32,80,111,105,110,116
        dc.b      32,67,108,101,97,114,101,100,46,46,46,46,46
        dc.b      13,10,0
-@m68kde~1_71:
+@m68kde~1_70:
        dc.b      13,10,66,114,101,97,107,32,80,111,105,110,116
        dc.b      32,119,97,115,110,39,116,32,83,101,116,46,46
        dc.b      46,46,46,0
-@m68kde~1_72:
+@m68kde~1_71:
        dc.b      13,10,69,110,116,101,114,32,87,97,116,99,104
        dc.b      32,80,111,105,110,116,32,78,117,109,98,101,114
        dc.b      58,32,0
-@m68kde~1_73:
+@m68kde~1_72:
        dc.b      13,10,87,97,116,99,104,32,80,111,105,110,116
        dc.b      32,67,108,101,97,114,101,100,46,46,46,46,46
        dc.b      13,10,0
-@m68kde~1_74:
+@m68kde~1_73:
        dc.b      13,10,87,97,116,99,104,32,80,111,105,110,116
        dc.b      32,87,97,115,32,110,111,116,32,83,101,116,46
        dc.b      46,46,46,46,0
-@m68kde~1_75:
+@m68kde~1_74:
        dc.b      13,10,78,111,32,70,82,69,69,32,66,114,101,97
        dc.b      107,32,80,111,105,110,116,115,46,46,46,46,46
        dc.b      0
-@m68kde~1_76:
+@m68kde~1_75:
        dc.b      13,10,66,114,101,97,107,32,80,111,105,110,116
        dc.b      32,65,100,100,114,101,115,115,58,32,0
-@m68kde~1_77:
+@m68kde~1_76:
        dc.b      13,10,69,114,114,111,114,32,58,32,66,114,101
        dc.b      97,107,32,80,111,105,110,116,115,32,67,65,78
        dc.b      78,79,84,32,98,101,32,115,101,116,32,97,116
        dc.b      32,79,68,68,32,97,100,100,114,101,115,115,101
        dc.b      115,0
-@m68kde~1_78:
+@m68kde~1_77:
        dc.b      13,10,69,114,114,111,114,32,58,32,66,114,101
        dc.b      97,107,32,80,111,105,110,116,115,32,67,65,78
        dc.b      78,79,84,32,98,101,32,115,101,116,32,102,111
        dc.b      114,32,82,79,77,32,105,110,32,82,97,110,103
        dc.b      101,32,58,32,91,36,48,45,36,48,48,48,48,55,70
        dc.b      70,70,93,0
-@m68kde~1_79:
+@m68kde~1_78:
        dc.b      13,10,69,114,114,111,114,58,32,66,114,101,97
        dc.b      107,32,80,111,105,110,116,32,65,108,114,101
        dc.b      97,100,121,32,69,120,105,115,116,115,32,97,116
        dc.b      32,65,100,100,114,101,115,115,32,58,32,37,48
        dc.b      56,120,13,10,0
-@m68kde~1_80:
+@m68kde~1_79:
        dc.b      13,10,66,114,101,97,107,32,80,111,105,110,116
        dc.b      32,83,101,116,32,97,116,32,65,100,100,114,101
        dc.b      115,115,58,32,91,36,37,48,56,120,93,0
-@m68kde~1_81:
+@m68kde~1_80:
        dc.b      13,10,78,111,32,70,82,69,69,32,87,97,116,99
        dc.b      104,32,80,111,105,110,116,115,46,46,46,46,46
        dc.b      0
-@m68kde~1_82:
+@m68kde~1_81:
        dc.b      13,10,87,97,116,99,104,32,80,111,105,110,116
        dc.b      32,65,100,100,114,101,115,115,58,32,0
-@m68kde~1_83:
+@m68kde~1_82:
        dc.b      13,10,69,114,114,111,114,58,32,87,97,116,99
        dc.b      104,32,80,111,105,110,116,32,65,108,114,101
        dc.b      97,100,121,32,83,101,116,32,97,116,32,65,100
        dc.b      100,114,101,115,115,32,58,32,37,48,56,120,13
        dc.b      10,0
-@m68kde~1_84:
+@m68kde~1_83:
        dc.b      13,10,87,97,116,99,104,32,80,111,105,110,116
        dc.b      32,83,101,116,32,97,116,32,65,100,100,114,101
        dc.b      115,115,58,32,91,36,37,48,56,120,93,0
-@m68kde~1_85:
+@m68kde~1_84:
        dc.b      13,10,13,10,13,10,13,10,64,66,82,69,65,75,80
        dc.b      79,73,78,84,0
-@m68kde~1_86:
+@m68kde~1_85:
        dc.b      13,10,83,105,110,103,108,101,32,83,116,101,112
        dc.b      32,58,32,91,79,78,93,0
-@m68kde~1_87:
+@m68kde~1_86:
        dc.b      13,10,66,114,101,97,107,80,111,105,110,116,115
        dc.b      32,58,32,91,69,110,97,98,108,101,100,93,0
-@m68kde~1_88:
+@m68kde~1_87:
        dc.b      13,10,80,114,101,115,115,32,60,69,83,67,62,32
        dc.b      116,111,32,82,101,115,117,109,101,32,85,115
        dc.b      101,114,32,80,114,111,103,114,97,109,13,10,0
-@m68kde~1_89:
+@m68kde~1_88:
        dc.b      13,10,85,110,107,110,111,119,110,32,67,111,109
        dc.b      109,97,110,100,46,46,46,46,46,13,10,0
-@m68kde~1_90:
+@m68kde~1_89:
        dc.b      13,10,80,114,111,103,114,97,109,32,69,110,100
        dc.b      101,100,32,40,84,82,65,80,32,35,49,53,41,46
        dc.b      46,46,46,0
-@m68kde~1_91:
+@m68kde~1_90:
        dc.b      13,10,75,105,108,108,32,65,108,108,32,66,114
        dc.b      101,97,107,32,80,111,105,110,116,115,46,46,46
        dc.b      40,121,47,110,41,63,0
-@m68kde~1_92:
+@m68kde~1_91:
        dc.b      13,10,75,105,108,108,32,65,108,108,32,87,97
        dc.b      116,99,104,32,80,111,105,110,116,115,46,46,46
        dc.b      40,121,47,110,41,63,0
-@m68kde~1_93:
+@m68kde~1_92:
        dc.b      13,10,45,45,45,45,45,45,45,45,45,45,45,45,45
        dc.b      45,45,45,45,45,45,45,45,45,45,45,45,45,45,45
        dc.b      45,45,45,45,45,45,45,45,45,45,45,45,45,45,45
        dc.b      45,45,45,45,45,45,45,45,45,45,45,45,45,45,45
        dc.b      45,45,45,45,45,45,0
-@m68kde~1_94:
+@m68kde~1_93:
        dc.b      13,10,32,32,68,101,98,117,103,103,101,114,32
        dc.b      67,111,109,109,97,110,100,32,83,117,109,109
        dc.b      97,114,121,0
-@m68kde~1_95:
+@m68kde~1_94:
        dc.b      13,10,32,32,46,40,114,101,103,41,32,32,32,32
        dc.b      32,32,32,45,32,67,104,97,110,103,101,32,82,101
        dc.b      103,105,115,116,101,114,115,58,32,101,46,103
        dc.b      32,65,48,45,65,55,44,68,48,45,68,55,44,80,67
        dc.b      44,83,83,80,44,85,83,80,44,83,82,0
-@m68kde~1_96:
+@m68kde~1_95:
        dc.b      13,10,32,32,66,68,47,66,83,47,66,67,47,66,75
        dc.b      32,32,45,32,66,114,101,97,107,32,80,111,105
        dc.b      110,116,58,32,68,105,115,112,108,97,121,47,83
        dc.b      101,116,47,67,108,101,97,114,47,75,105,108,108
        dc.b      0
-@m68kde~1_97:
+@m68kde~1_96:
        dc.b      13,10,32,32,67,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,67,111,112,121,32,80,114,111,103
        dc.b      114,97,109,32,102,114,111,109,32,70,108,97,115
        dc.b      104,32,116,111,32,77,97,105,110,32,77,101,109
        dc.b      111,114,121,0
-@m68kde~1_98:
+@m68kde~1_97:
        dc.b      13,10,32,32,68,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,68,117,109,112,32,77,101,109,111
        dc.b      114,121,32,67,111,110,116,101,110,116,115,32
        dc.b      116,111,32,83,99,114,101,101,110,0
-@m68kde~1_99:
+@m68kde~1_98:
        dc.b      13,10,32,32,69,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,69,110,116,101,114,32,83,116,114
        dc.b      105,110,103,32,105,110,116,111,32,77,101,109
        dc.b      111,114,121,0
-@m68kde~1_100:
+@m68kde~1_99:
        dc.b      13,10,32,32,70,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,70,105,108,108,32,77,101,109,111
        dc.b      114,121,32,119,105,116,104,32,68,97,116,97,0
-@m68kde~1_101:
+@m68kde~1_100:
        dc.b      13,10,32,32,71,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,71,111,32,80,114,111,103,114,97
        dc.b      109,32,83,116,97,114,116,105,110,103,32,97,116
        dc.b      32,65,100,100,114,101,115,115,58,32,36,37,48
        dc.b      56,88,0
-@m68kde~1_102:
+@m68kde~1_101:
        dc.b      13,10,32,32,76,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,76,111,97,100,32,80,114,111,103
        dc.b      114,97,109,32,40,46,72,69,88,32,102,105,108
        dc.b      101,41,32,102,114,111,109,32,76,97,112,116,111
        dc.b      112,0
-@m68kde~1_103:
+@m68kde~1_102:
        dc.b      13,10,32,32,77,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,77,101,109,111,114,121,32,69,120
        dc.b      97,109,105,110,101,32,97,110,100,32,67,104,97
        dc.b      110,103,101,0
-@m68kde~1_104:
+@m68kde~1_103:
        dc.b      13,10,32,32,80,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,80,114,111,103,114,97,109,32,70
        dc.b      108,97,115,104,32,77,101,109,111,114,121,32
        dc.b      119,105,116,104,32,85,115,101,114,32,80,114
        dc.b      111,103,114,97,109,0
-@m68kde~1_105:
+@m68kde~1_104:
        dc.b      13,10,32,32,82,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,68,105,115,112,108,97,121,32,54
        dc.b      56,48,48,48,32,82,101,103,105,115,116,101,114
        dc.b      115,0
-@m68kde~1_106:
+@m68kde~1_105:
        dc.b      13,10,32,32,83,32,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,84,111,103,103,108,101,32,79,78
        dc.b      47,79,70,70,32,83,105,110,103,108,101,32,83
        dc.b      116,101,112,32,77,111,100,101,0
-@m68kde~1_107:
+@m68kde~1_106:
        dc.b      13,10,32,32,84,77,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,84,101,115,116,32,77,101,109,111
        dc.b      114,121,0
-@m68kde~1_108:
+@m68kde~1_107:
        dc.b      13,10,32,32,84,83,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,84,101,115,116,32,83,119,105,116
        dc.b      99,104,101,115,58,32,83,87,55,45,48,0
-@m68kde~1_109:
+@m68kde~1_108:
        dc.b      13,10,32,32,84,68,32,32,32,32,32,32,32,32,32
        dc.b      32,32,45,32,84,101,115,116,32,68,105,115,112
        dc.b      108,97,121,115,58,32,76,69,68,115,32,97,110
        dc.b      100,32,55,45,83,101,103,109,101,110,116,0
-@m68kde~1_110:
+@m68kde~1_109:
        dc.b      13,10,32,32,87,68,47,87,83,47,87,67,47,87,75
        dc.b      32,32,45,32,87,97,116,99,104,32,80,111,105,110
        dc.b      116,58,32,68,105,115,112,108,97,121,47,83,101
        dc.b      116,47,67,108,101,97,114,47,75,105,108,108,0
-@m68kde~1_111:
+@m68kde~1_110:
        dc.b      13,10,35,0
-@m68kde~1_112:
+@m68kde~1_111:
        dc.b      13,10,80,114,111,103,114,97,109,32,82,117,110
        dc.b      110,105,110,103,46,46,46,46,46,0
-@m68kde~1_113:
+@m68kde~1_112:
        dc.b      13,10,80,114,101,115,115,32,60,82,69,83,69,84
        dc.b      62,32,98,117,116,116,111,110,32,60,75,101,121
        dc.b      48,62,32,111,110,32,68,69,49,32,116,111,32,115
        dc.b      116,111,112,0
-@m68kde~1_114:
+@m68kde~1_113:
        dc.b      13,10,69,114,114,111,114,58,32,80,114,101,115
        dc.b      115,32,39,71,39,32,102,105,114,115,116,32,116
        dc.b      111,32,115,116,97,114,116,32,112,114,111,103
        dc.b      114,97,109,0
-@m68kde~1_115:
+@m68kde~1_114:
        dc.b      13,10,83,105,110,103,108,101,32,83,116,101,112
        dc.b      32,32,58,91,79,78,93,0
-@m68kde~1_116:
+@m68kde~1_115:
        dc.b      13,10,80,114,101,115,115,32,39,71,39,32,116
        dc.b      111,32,84,114,97,99,101,32,80,114,111,103,114
        dc.b      97,109,32,102,114,111,109,32,97,100,100,114
        dc.b      101,115,115,32,36,37,88,46,46,46,46,46,0
-@m68kde~1_117:
+@m68kde~1_116:
        dc.b      13,10,80,117,115,104,32,60,82,69,83,69,84,32
        dc.b      66,117,116,116,111,110,62,32,116,111,32,83,116
        dc.b      111,112,46,46,46,46,46,0
-@m68kde~1_118:
+@m68kde~1_117:
        dc.b      13,10,83,105,110,103,108,101,32,83,116,101,112
        dc.b      32,58,32,91,79,70,70,93,0
-@m68kde~1_119:
+@m68kde~1_118:
        dc.b      13,10,66,114,101,97,107,32,80,111,105,110,116
        dc.b      115,32,58,91,69,110,97,98,108,101,100,93,0
-@m68kde~1_120:
+@m68kde~1_119:
        dc.b      13,10,80,114,101,115,115,32,60,69,83,67,62,32
        dc.b      116,111,32,82,101,115,117,109,101,32,85,115
        dc.b      101,114,32,80,114,111,103,114,97,109,46,46,46
        dc.b      46,46,0
-@m68kde~1_121:
+@m68kde~1_120:
        dc.b      13,10,83,105,110,103,108,101,32,83,116,101,112
        dc.b      32,32,58,91,79,70,70,93,0
-@m68kde~1_122:
+@m68kde~1_121:
        dc.b      13,10,13,10,80,114,111,103,114,97,109,32,65
        dc.b      66,79,82,84,32,33,33,33,33,33,33,13,10,0
-@m68kde~1_123:
+@m68kde~1_122:
        dc.b      37,115,13,10,0
-@m68kde~1_124:
+@m68kde~1_123:
        dc.b      13,10,13,10,80,114,111,103,114,97,109,32,65
        dc.b      66,79,82,84,32,33,33,33,33,33,0
-@m68kde~1_125:
+@m68kde~1_124:
        dc.b      13,10,85,110,104,97,110,100,108,101,100,32,73
        dc.b      110,116,101,114,114,117,112,116,58,32,73,82
        dc.b      81,37,100,32,33,33,33,33,33,0
-@m68kde~1_126:
+@m68kde~1_125:
        dc.b      65,68,68,82,69,83,83,32,69,82,82,79,82,58,32
        dc.b      49,54,32,111,114,32,51,50,32,66,105,116,32,84
        dc.b      114,97,110,115,102,101,114,32,116,111,47,102
        dc.b      114,111,109,32,97,110,32,79,68,68,32,65,100
        dc.b      100,114,101,115,115,46,46,46,46,0
-@m68kde~1_127:
+@m68kde~1_126:
        dc.b      85,110,104,97,110,100,108,101,100,32,84,114
        dc.b      97,112,32,33,33,33,33,33,0
-@m68kde~1_128:
+@m68kde~1_127:
        dc.b      66,85,83,32,69,114,114,111,114,33,0
-@m68kde~1_129:
+@m68kde~1_128:
        dc.b      65,68,68,82,69,83,83,32,69,114,114,111,114,33
        dc.b      0
-@m68kde~1_130:
+@m68kde~1_129:
        dc.b      73,76,76,69,71,65,76,32,73,78,83,84,82,85,67
        dc.b      84,73,79,78,0
-@m68kde~1_131:
+@m68kde~1_130:
        dc.b      68,73,86,73,68,69,32,66,89,32,90,69,82,79,0
-@m68kde~1_132:
+@m68kde~1_131:
        dc.b      39,67,72,75,39,32,73,78,83,84,82,85,67,84,73
        dc.b      79,78,0
-@m68kde~1_133:
+@m68kde~1_132:
        dc.b      84,82,65,80,86,32,73,78,83,84,82,85,67,84,73
        dc.b      79,78,0
-@m68kde~1_134:
+@m68kde~1_133:
        dc.b      80,82,73,86,73,76,69,71,69,32,86,73,79,76,65
        dc.b      84,73,79,78,0
-@m68kde~1_135:
+@m68kde~1_134:
        dc.b      85,78,73,78,73,84,73,65,76,73,83,69,68,32,73
        dc.b      82,81,0
-@m68kde~1_136:
+@m68kde~1_135:
        dc.b      83,80,85,82,73,79,85,83,32,73,82,81,0
-@m68kde~1_137:
+@m68kde~1_136:
        dc.b      13,10,83,116,97,114,116,32,65,100,100,114,101
        dc.b      115,115,32,105,110,32,77,101,109,111,114,121
        dc.b      58,32,0
-@m68kde~1_138:
+@m68kde~1_137:
        dc.b      13,10,69,110,116,101,114,32,83,116,114,105,110
        dc.b      103,32,40,69,83,67,32,116,111,32,101,110,100
        dc.b      41,32,58,0
-@m68kde~1_139:
+@m68kde~1_138:
        dc.b      10,69,110,116,101,114,32,119,104,97,116,32,115
        dc.b      105,122,101,32,111,102,32,109,101,109,111,114
        dc.b      121,32,121,111,117,32,119,97,110,116,32,116
@@ -5281,9 +5238,9 @@ main_9:
        dc.b      10,32,66,121,116,101,32,61,32,48,10,32,87,111
        dc.b      114,100,32,61,32,49,10,32,76,111,110,103,32
        dc.b      87,111,114,100,32,61,32,50,10,0
-@m68kde~1_140:
+@m68kde~1_139:
        dc.b      10,0
-@m68kde~1_141:
+@m68kde~1_140:
        dc.b      10,69,110,116,101,114,32,119,104,105,99,104
        dc.b      32,100,97,116,97,32,112,97,116,116,101,114,110
        dc.b      32,121,111,117,32,119,97,110,116,32,116,111
@@ -5292,7 +5249,7 @@ main_9:
        dc.b      61,32,48,10,32,48,120,66,50,32,61,32,49,10,32
        dc.b      48,120,67,51,32,61,32,50,10,32,48,120,68,52
        dc.b      32,61,32,51,10,0
-@m68kde~1_142:
+@m68kde~1_141:
        dc.b      10,69,110,116,101,114,32,119,104,105,99,104
        dc.b      32,100,97,116,97,32,112,97,116,116,101,114,110
        dc.b      32,121,111,117,32,119,97,110,116,32,116,111
@@ -5301,7 +5258,7 @@ main_9:
        dc.b      48,32,61,32,48,10,32,48,120,49,50,51,52,32,61
        dc.b      32,49,10,32,48,120,65,49,66,50,32,61,32,50,10
        dc.b      32,48,120,67,51,68,52,32,61,32,51,10,0
-@m68kde~1_143:
+@m68kde~1_142:
        dc.b      10,69,110,116,101,114,32,119,104,105,99,104
        dc.b      32,100,97,116,97,32,112,97,116,116,101,114,110
        dc.b      32,121,111,117,32,119,97,110,116,32,116,111
@@ -5312,66 +5269,66 @@ main_9:
        dc.b      120,49,49,50,50,95,51,51,52,52,32,61,32,50,10
        dc.b      32,48,120,55,54,53,52,95,51,50,49,48,32,61,32
        dc.b      51,10,0
-@m68kde~1_144:
+@m68kde~1_143:
        dc.b      10,80,114,111,118,105,100,101,32,83,116,97,114
        dc.b      116,32,65,100,100,114,101,115,115,32,105,110
        dc.b      32,104,101,120,32,40,100,111,32,110,111,116
        dc.b      32,117,115,101,32,48,120,32,112,114,101,102
        dc.b      105,120,41,10,48,120,0
-@m68kde~1_145:
+@m68kde~1_144:
        dc.b      10,80,114,111,118,105,100,101,32,69,110,100
        dc.b      32,65,100,100,114,101,115,115,32,105,110,32
        dc.b      104,101,120,32,40,100,111,32,110,111,116,32
        dc.b      117,115,101,32,48,120,32,112,114,101,102,105
        dc.b      120,41,10,48,120,0
-@m68kde~1_146:
+@m68kde~1_145:
        dc.b      10,83,116,97,114,116,32,65,100,100,114,101,115
        dc.b      115,32,48,120,37,48,56,120,10,0
-@m68kde~1_147:
+@m68kde~1_146:
        dc.b      10,69,110,100,32,65,100,100,114,101,115,115
        dc.b      58,32,48,120,37,48,56,120,10,0
-@m68kde~1_148:
+@m68kde~1_147:
        dc.b      69,82,82,79,82,46,46,46,32,65,100,100,114,101
        dc.b      115,115,32,48,120,37,120,32,105,115,32,98,101
        dc.b      121,111,110,100,32,116,104,101,32,109,101,109
        dc.b      111,114,121,32,114,97,110,103,101,10,0
-@m68kde~1_149:
+@m68kde~1_148:
        dc.b      69,82,82,79,82,46,46,46,32,86,97,108,117,101
        dc.b      32,119,114,105,116,116,101,110,32,116,111,32
        dc.b      97,100,100,114,101,115,115,32,48,120,37,120
        dc.b      32,61,61,32,48,120,37,120,46,32,86,97,108,117
        dc.b      101,32,69,120,112,101,99,116,101,100,58,32,48
        dc.b      120,37,120,10,0
-@m68kde~1_150:
+@m68kde~1_149:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,50,88
        dc.b      10,0
-@m68kde~1_151:
+@m68kde~1_150:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,52,88
        dc.b      10,0
-@m68kde~1_152:
+@m68kde~1_151:
        dc.b      65,100,100,114,101,115,115,58,32,48,120,37,120
        dc.b      32,86,97,108,117,101,58,32,48,120,37,48,56,88
        dc.b      10,0
-@m68kde~1_153:
+@m68kde~1_152:
        dc.b      68,69,49,45,54,56,107,32,66,117,103,32,86,49
        dc.b      46,55,55,0
-@m68kde~1_154:
+@m68kde~1_153:
        dc.b      67,111,112,121,114,105,103,104,116,32,40,67
        dc.b      41,32,80,74,32,68,97,118,105,101,115,32,50,48
        dc.b      49,54,0
-@m68kde~1_155:
+@m68kde~1_154:
        dc.b      13,10,82,117,110,110,105,110,103,46,46,46,46
        dc.b      46,0
-@m68kde~1_156:
+@m68kde~1_155:
        dc.b      82,117,110,110,105,110,103,46,46,46,46,46,0
-@m68kde~1_157:
+@m68kde~1_156:
        dc.b      66,121,58,32,80,74,32,68,97,118,105,101,115
        dc.b      0
-@m68kde~1_158:
+@m68kde~1_157:
        dc.b      13,10,37,115,0
-@m68kde~1_159:
+@m68kde~1_158:
        dc.b      10,32,83,116,117,100,101,110,116,32,78,97,109
        dc.b      101,115,58,10,32,90,97,99,104,97,114,105,97
        dc.b      104,32,74,111,115,101,112,104,58,32,52,53,53
