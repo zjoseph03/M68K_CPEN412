@@ -1,5 +1,5 @@
 Analysis & Synthesis report for MC68K
-Sun Feb 23 03:16:47 2025
+Mon Mar 03 14:21:21 2025
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -122,7 +122,7 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                  ;
 +---------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status     ; Successful - Sun Feb 23 03:16:47 2025       ;
+; Analysis & Synthesis Status     ; Successful - Mon Mar 03 14:21:21 2025       ;
 ; Quartus Prime Version           ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                   ; MC68K                                       ;
 ; Top-level Entity Name           ; MC68K                                       ;
@@ -3331,7 +3331,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+--------------+
 ; Partition Name ; Elapsed Time ;
 +----------------+--------------+
-; Top            ; 00:00:56     ;
+; Top            ; 00:00:58     ;
 +----------------+--------------+
 
 
@@ -3462,10 +3462,14 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Sun Feb 23 03:14:59 2025
+    Info: Processing started: Mon Mar 03 14:19:30 2025
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off MC68K -c MC68K
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
+Info (12021): Found 1 design units, including 1 entities, in source file m68kcachecontroller.v
+    Info (12023): Found entity 1: M68kCacheController_Verilog File: C:/M68kV6.0 - 800by480/M68KCacheController.v Line: 10
+Info (12021): Found 1 design units, including 1 entities, in source file addresscomparator.v
+    Info (12023): Found entity 1: AddressComparator File: C:/M68kV6.0 - 800by480/AddressComparator.v Line: 1
 Info (12021): Found 1 design units, including 1 entities, in source file spi_bus_decoder.v
     Info (12023): Found entity 1: SPI_BUS_Decoder File: C:/M68kV6.0 - 800by480/SPI_BUS_Decoder.v Line: 1
 Info (12021): Found 2 design units, including 2 entities, in source file simple_spi_top.v
@@ -3597,6 +3601,20 @@ Info (12021): Found 1 design units, including 1 entities, in source file dtack_g
     Info (12023): Found entity 1: Dtack_Generator_Verilog File: C:/M68kV6.0 - 800by480/Dtack_Generator_Verilog.v Line: 1
 Info (12021): Found 1 design units, including 1 entities, in source file onchiprom16kword.v
     Info (12023): Found entity 1: OnChipRom16KWord File: C:/M68kV6.0 - 800by480/OnChipRom16KWord.v Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file sramblockvalidity_32bit.v
+    Info (12023): Found entity 1: SramBlockValidity_32Bit File: C:/M68kV6.0 - 800by480/SramBlockValidity_32Bit.v Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file valid.bdf
+    Info (12023): Found entity 1: Valid
+Info (12021): Found 1 design units, including 1 entities, in source file sramblockcachetag.v
+    Info (12023): Found entity 1: SramBlockCacheTag File: C:/M68kV6.0 - 800by480/SramBlockCacheTag.v Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file tagmemory.bdf
+    Info (12023): Found entity 1: TagMemory
+Info (12021): Found 1 design units, including 1 entities, in source file sramblockcachedata.v
+    Info (12023): Found entity 1: SramBlockCacheData File: C:/M68kV6.0 - 800by480/SramBlockCacheData.v Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file cachedatamemory.bdf
+    Info (12023): Found entity 1: CacheDataMemory
+Info (12021): Found 1 design units, including 1 entities, in source file dramcache.bdf
+    Info (12023): Found entity 1: DramCache
 Info (12127): Elaborating entity "MC68K" for the top level hierarchy
 Info (12128): Elaborating entity "OnChipM68xxIO" for hierarchy "OnChipM68xxIO:inst11"
 Info (12128): Elaborating entity "ACIA_6850" for hierarchy "OnChipM68xxIO:inst11|ACIA_6850:inst16"
@@ -3840,9 +3858,9 @@ Info (12128): Elaborating entity "altsyncram_v3k1" for hierarchy "OnChipROM16KWo
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_hol2.tdf
     Info (12023): Found entity 1: altsyncram_hol2 File: C:/M68kV6.0 - 800by480/db/altsyncram_hol2.tdf Line: 33
 Info (12128): Elaborating entity "altsyncram_hol2" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|altsyncram_hol2:altsyncram1" File: C:/M68kV6.0 - 800by480/db/altsyncram_v3k1.tdf Line: 34
-Warning (113028): 5990 out of 16384 addresses are uninitialized. The Quartus Prime software will initialize them to "0". There are 2 warnings found, and 2 warnings are reported. File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
+Warning (113028): 5586 out of 16384 addresses are uninitialized. The Quartus Prime software will initialize them to "0". There are 2 warnings found, and 2 warnings are reported. File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
     Warning (113027): Addresses ranging from 96 to 511 are not initialized File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
-    Warning (113027): Addresses ranging from 10810 to 16383 are not initialized File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
+    Warning (113027): Addresses ranging from 11214 to 16383 are not initialized File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
 Info (12021): Found 1 design units, including 1 entities, in source file db/decode_5la.tdf
     Info (12023): Found entity 1: decode_5la File: C:/M68kV6.0 - 800by480/db/decode_5la.tdf Line: 22
 Info (12128): Elaborating entity "decode_5la" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|altsyncram_hol2:altsyncram1|decode_5la:decode4" File: C:/M68kV6.0 - 800by480/db/altsyncram_hol2.tdf Line: 47
@@ -3976,7 +3994,7 @@ Info (12021): Found 1 design units, including 1 entities, in source file db/cmpr
     Info (12023): Found entity 1: cmpr_99c File: C:/M68kV6.0 - 800by480/db/cmpr_99c.tdf Line: 22
 Info (12033): Analysis and Synthesis generated Signal Tap or debug node instance "auto_signaltap_0"
 Info (11170): Starting IP generation for the debug fabric: alt_sld_fab.
-Info (11172): 2025.02.23.03:15:37 Progress: Loading sldbe7d4d23/alt_sld_fab_wrapper_hw.tcl
+Info (11172): 2025.03.03.14:20:10 Progress: Loading sldbe7d4d23/alt_sld_fab_wrapper_hw.tcl
 Info (11172): Alt_sld_fab.alt_sld_fab: SLD fabric agents which did not specify prefer_host were connected to JTAG
 Info (11172): Alt_sld_fab: Generating alt_sld_fab "alt_sld_fab" for QUARTUS_SYNTH
 Info (11172): Alt_sld_fab: "alt_sld_fab" instantiated alt_sld_fab "alt_sld_fab"
@@ -4225,9 +4243,9 @@ Info (21057): Implemented 6183 device resources after synthesis - the final reso
     Info (21065): Implemented 4 PLLs
 Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 146 warnings
     Info: Peak virtual memory: 5059 megabytes
-    Info: Processing ended: Sun Feb 23 03:16:47 2025
-    Info: Elapsed time: 00:01:48
-    Info: Total CPU time (on all processors): 00:01:14
+    Info: Processing ended: Mon Mar 03 14:21:21 2025
+    Info: Elapsed time: 00:01:51
+    Info: Total CPU time (on all processors): 00:01:25
 
 
 +------------------------------------------+
