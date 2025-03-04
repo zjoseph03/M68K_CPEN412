@@ -23,7 +23,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect 16 48 184 64)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "Word[2..0]" (rect 5 0 57 12)(font "Arial" ))
+	(text "Word[2..0]" (rect 5 0 56 12)(font "Arial" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -39,7 +39,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect 16 72 184 88)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "Index[4..0]" (rect 5 0 54 17)(font "Intel Clear" ))
+	(text "Index[4..0]" (rect 5 0 53 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -55,7 +55,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect 16 120 184 136)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "DataIn[15..0]" (rect 5 0 66 17)(font "Intel Clear" ))
+	(text "DataIn[15..0]" (rect 5 0 65 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -71,7 +71,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect -160 280 8 296)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "WE_L" (rect 5 0 34 17)(font "Intel Clear" ))
+	(text "WE_L" (rect 5 0 33 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -87,7 +87,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect -176 392 -8 408)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "UDS_L" (rect 5 0 37 17)(font "Intel Clear" ))
+	(text "UDS_L" (rect 5 0 36 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -103,7 +103,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect -176 416 -8 432)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "LDS_L" (rect 5 0 36 17)(font "Intel Clear" ))
+	(text "LDS_L" (rect 5 0 35 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -119,7 +119,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect -176 448 -8 464)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "Clock" (rect 5 0 33 17)(font "Intel Clear" ))
+	(text "Clock" (rect 5 0 32 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -459,40 +459,9 @@ refer to the applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 352 344)
-	(pt 296 344)
-	(bus)
-)
-(connector
 	(text "Address[7..3]" (rect 194 64 255 81)(font "Intel Clear" ))
 	(pt 184 80)
 	(pt 296 80)
-	(bus)
-)
-(connector
-	(pt 296 160)
-	(pt 352 160)
-	(bus)
-)
-(connector
-	(pt 296 160)
-	(pt 296 344)
-	(bus)
-)
-(connector
-	(text "Address[2..0]" (rect 194 40 255 57)(font "Intel Clear" ))
-	(pt 184 56)
-	(pt 296 56)
-	(bus)
-)
-(connector
-	(pt 296 56)
-	(pt 296 80)
-	(bus)
-)
-(connector
-	(pt 296 80)
-	(pt 296 160)
 	(bus)
 )
 (connector
@@ -544,28 +513,6 @@ refer to the applicable agreement for further details.
 	(pt 88 320)
 )
 (connector
-	(text "Data[7..0]" (rect 234 296 280 313)(font "Intel Clear" ))
-	(pt 352 312)
-	(pt 216 312)
-	(bus)
-)
-(connector
-	(pt 216 128)
-	(pt 216 312)
-	(bus)
-)
-(connector
-	(pt 184 128)
-	(pt 216 128)
-	(bus)
-)
-(connector
-	(text "Data[15..8]" (rect 306 112 357 129)(font "Intel Clear" ))
-	(pt 216 128)
-	(pt 352 128)
-	(bus)
-)
-(connector
 	(pt 200 328)
 	(pt 352 328)
 )
@@ -592,6 +539,60 @@ refer to the applicable agreement for further details.
 (connector
 	(pt 48 288)
 	(pt 48 320)
+)
+(connector
+	(text "Address[2..0]" (rect 194 40 255 57)(font "Intel Clear" ))
+	(pt 184 56)
+	(pt 296 56)
+	(bus)
+)
+(connector
+	(pt 352 344)
+	(pt 296 344)
+	(bus)
+)
+(connector
+	(text "Address[7..0]" (rect 306 144 367 161)(font "Intel Clear" ))
+	(pt 296 160)
+	(pt 352 160)
+	(bus)
+)
+(connector
+	(pt 296 160)
+	(pt 296 344)
+	(bus)
+)
+(connector
+	(pt 296 56)
+	(pt 296 80)
+	(bus)
+)
+(connector
+	(pt 296 80)
+	(pt 296 160)
+	(bus)
+)
+(connector
+	(pt 216 128)
+	(pt 216 312)
+	(bus)
+)
+(connector
+	(pt 184 128)
+	(pt 216 128)
+	(bus)
+)
+(connector
+	(text "DataIn[15..8]" (rect 306 112 366 129)(font "Intel Clear" ))
+	(pt 216 128)
+	(pt 352 128)
+	(bus)
+)
+(connector
+	(text "DataIn[7..0]" (rect 218 296 272 313)(font "Intel Clear" ))
+	(pt 352 312)
+	(pt 216 312)
+	(bus)
 )
 (junction (pt 792 216))
 (junction (pt 296 160))

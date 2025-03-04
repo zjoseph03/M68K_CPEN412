@@ -187,8 +187,8 @@ refer to the applicable agreement for further details.
 	(port
 		(pt 432 192)
 		(output)
-		(text "CacheState[2..0]" (rect 0 0 97 19)(font "Intel Clear" (font_size 8)))
-		(text "CacheState[2..0]" (rect 314 187 411 206)(font "Intel Clear" (font_size 8)))
+		(text "CacheState[4..0]" (rect 0 0 97 19)(font "Intel Clear" (font_size 8)))
+		(text "CacheState[4..0]" (rect 314 187 411 206)(font "Intel Clear" (font_size 8)))
 		(line (pt 432 192)(pt 416 192)(line_width 3))
 	)
 	(port

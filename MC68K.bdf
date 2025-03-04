@@ -787,7 +787,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
-	(annotation_block (location)(rect 64 632 128 648))
+	(annotation_block (location)(rect 64 616 128 632))
 )
 (pin
 	(output)
@@ -4187,10 +4187,6 @@ refer to the applicable agreement for further details.
 	(pt 112 768)
 )
 (connector
-	(pt 632 784)
-	(pt 112 784)
-)
-(connector
 	(pt 1064 640)
 	(pt 1160 640)
 )
@@ -4816,14 +4812,6 @@ refer to the applicable agreement for further details.
 (connector
 	(pt 1408 528)
 	(pt 2232 528)
-)
-(connector
-	(pt 1424 640)
-	(pt 1424 544)
-)
-(connector
-	(pt 1424 544)
-	(pt 2232 544)
 )
 (connector
 	(pt 1096 592)
@@ -5507,10 +5495,6 @@ refer to the applicable agreement for further details.
 	(pt -272 1304)
 )
 (connector
-	(pt -224 -96)
-	(pt 632 -96)
-)
-(connector
 	(pt -224 240)
 	(pt -224 -96)
 )
@@ -5601,22 +5585,6 @@ refer to the applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 1488 -160)
-	(pt 1312 -160)
-)
-(connector
-	(pt 1160 640)
-	(pt 1312 640)
-)
-(connector
-	(pt 1312 640)
-	(pt 1424 640)
-)
-(connector
-	(pt 1312 640)
-	(pt 1312 -160)
-)
-(connector
 	(pt 1296 -600)
 	(pt 1296 -128)
 	(bus)
@@ -5701,44 +5669,12 @@ refer to the applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 1904 152)
-	(pt 632 152)
-)
-(connector
-	(pt 632 -96)
-	(pt 632 152)
-)
-(connector
 	(pt 1776 -64)
 	(pt 1904 -64)
 )
 (connector
-	(pt 1120 -184)
-	(pt -240 -184)
-)
-(connector
-	(pt -240 -184)
-	(pt -240 272)
-)
-(connector
 	(pt -240 272)
 	(pt -240 624)
-)
-(connector
-	(pt 1120 192)
-	(pt 1888 192)
-)
-(connector
-	(pt 1120 -632)
-	(pt 1120 -184)
-)
-(connector
-	(pt 1120 -184)
-	(pt 1120 192)
-)
-(connector
-	(pt 632 152)
-	(pt 632 784)
 )
 (connector
 	(pt 1776 -48)
@@ -5787,12 +5723,68 @@ refer to the applicable agreement for further details.
 	(pt 1904 32)
 )
 (connector
+	(pt 1424 640)
+	(pt 1424 544)
+)
+(connector
+	(pt 2232 544)
+	(pt 1424 544)
+)
+(connector
+	(pt 1488 -160)
+	(pt 1312 -160)
+)
+(connector
+	(pt 1312 640)
+	(pt 1312 -160)
+)
+(connector
+	(pt 1160 640)
+	(pt 1312 640)
+)
+(connector
+	(pt 1312 640)
+	(pt 1424 640)
+)
+(connector
+	(pt -224 -96)
+	(pt 632 -96)
+)
+(connector
+	(pt 632 152)
 	(pt 1904 152)
-	(pt 1904 32)
 )
 (connector
 	(pt 1904 -64)
 	(pt 1904 32)
+)
+(connector
+	(pt 1904 32)
+	(pt 1904 152)
+)
+(connector
+	(pt 632 -96)
+	(pt 632 152)
+)
+(connector
+	(pt 1120 -632)
+	(pt 1120 192)
+)
+(connector
+	(pt 664 784)
+	(pt 112 784)
+)
+(connector
+	(pt 664 192)
+	(pt 664 784)
+)
+(connector
+	(pt 664 192)
+	(pt 1120 192)
+)
+(connector
+	(pt 1120 192)
+	(pt 1888 192)
 )
 (junction (pt 1280 224))
 (junction (pt 1376 224))
@@ -5817,7 +5809,6 @@ refer to the applicable agreement for further details.
 (junction (pt 1160 640))
 (junction (pt 1312 640))
 (junction (pt -256 224))
-(junction (pt -240 272))
 (junction (pt 136 384))
 (junction (pt 1200 256))
 (junction (pt 1392 608))
@@ -5893,10 +5884,9 @@ refer to the applicable agreement for further details.
 (junction (pt 1360 -64))
 (junction (pt 1328 -96))
 (junction (pt 1280 -144))
-(junction (pt 632 152))
-(junction (pt 1120 -184))
 (junction (pt 1888 -16))
 (junction (pt 1904 32))
+(junction (pt 1120 192))
 (text "Push Button 1" (rect -800 280 -721 294)(font "Arial" (font_size 8)))
 (text "Push Button 2" (rect -800 344 -721 358)(font "Arial" (font_size 8)))
 (text "Push Button 3" (rect -784 -240 -705 -226)(font "Arial" (font_size 8)))
@@ -5961,7 +5951,7 @@ refer to the applicable agreement for further details.
 (text "UDS_L mapped to Pin H8" (rect 2456 88 2596 102)(font "Arial" (font_size 8)))
 (text "RW mapped to Pin F9" (rect 2456 120 2576 134)(font "Arial" (font_size 8)))
 (text "LDS_L mapped to Pin AK3" (rect 2456 104 2604 118)(font "Arial" (font_size 8)))
-(text "Dtack_L mapped to Pin H7" (rect 80 616 227 630)(font "Arial" (font_size 8)))
+(text "Dtack_L mapped to Pin H7" (rect 80 584 227 598)(font "Arial" (font_size 8)))
 (text "RomSelect_H mapped to Pin K8" (rect 2448 504 2625 518)(font "Arial" (font_size 8)))
 (text "RamSelect mapped to Pin K7" (rect 2448 520 2609 534)(font "Arial" (font_size 8)))
 (text "BG_L mapped to Pin AJ4" (rect 2448 488 2588 502)(font "Arial" (font_size 8)))
@@ -5980,7 +5970,7 @@ refer to the applicable agreement for further details.
 (text "FOR SIMULATION PURPOSES" (rect 2448 472 2615 486)(font "Arial" (color 202 38 16)(font_size 8)))
 (text "FOR SIMULATION PURPOSES" (rect 3152 -144 3319 -130)(font "Arial" (color 202 38 16)(font_size 8)))
 (text "FOR SIMULATION PURPOSES" (rect -32 -952 135 -938)(font "Arial" (color 202 38 16)(font_size 8)))
-(text "FOR SIMULATION PURPOSES" (rect 80 600 247 614)(font "Arial" (color 202 38 16)(font_size 8)))
+(text "FOR SIMULATION PURPOSES" (rect 80 568 247 582)(font "Arial" (color 202 38 16)(font_size 8)))
 (text "SDA and SCL need pullup resistors as they are open drain output" (rect 2264 2392 2635 2406)(font "Arial" (color 0 0 255)(font_size 8)))
 (text "CANBUS 0  Tx and Rx signals " (rect 2264 2800 2437 2814)(font "Arial" (color 0 0 255)(font_size 8)))
 (text "CANBUS 1  Tx and Rx signals " (rect 2264 2936 2437 2950)(font "Arial" (color 0 0 255)(font_size 8)))
