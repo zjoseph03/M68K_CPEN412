@@ -3320,7 +3320,7 @@ refer to the applicable agreement for further details.
 	)
 )
 (symbol
-	(rect -488 -952 -328 -688)
+	(rect -488 -936 -328 -672)
 	(text "ClockGen" (rect 52 -1 119 15)(font "Arial" (font_size 10)))
 	(text "inst7" (rect 8 248 31 260)(font "Arial" ))
 	(port
@@ -4627,29 +4627,12 @@ refer to the applicable agreement for further details.
 	(pt 1984 2984)
 )
 (connector
-	(text "Clock30Mhz" (rect -190 -856 -131 -844)(font "Arial" ))
-	(pt -328 -840)
-	(pt -136 -840)
-)
-(connector
 	(pt -576 -840)
 	(pt -560 -840)
 )
 (connector
 	(pt -576 -664)
 	(pt -576 -840)
-)
-(connector
-	(pt -512 -840)
-	(pt -488 -840)
-)
-(connector
-	(pt -256 -880)
-	(pt -256 -496)
-)
-(connector
-	(pt -328 -880)
-	(pt -256 -880)
 )
 (connector
 	(pt -232 -928)
@@ -4756,10 +4739,6 @@ refer to the applicable agreement for further details.
 	(pt 1736 704)
 	(pt 1952 704)
 	(bus)
-)
-(connector
-	(pt 1160 -800)
-	(pt 1160 -680)
 )
 (connector
 	(pt 2176 224)
@@ -5332,10 +5311,6 @@ refer to the applicable agreement for further details.
 	(pt 1176 -208)
 )
 (connector
-	(pt 1176 -760)
-	(pt 1176 -208)
-)
-(connector
 	(pt 1328 -552)
 	(pt 1328 -96)
 )
@@ -5362,10 +5337,6 @@ refer to the applicable agreement for further details.
 )
 (connector
 	(pt 1488 -192)
-	(pt 1160 -192)
-)
-(connector
-	(pt 1160 -680)
 	(pt 1160 -192)
 )
 (connector
@@ -5508,10 +5479,6 @@ refer to the applicable agreement for further details.
 	(pt 1888 192)
 )
 (connector
-	(pt -592 -880)
-	(pt -592 -976)
-)
-(connector
 	(text "Clock50Mhz" (rect -350 -992 -291 -975)(font "Intel Clear" ))
 	(pt -592 -976)
 	(pt -48 -976)
@@ -5520,16 +5487,6 @@ refer to the applicable agreement for further details.
 	(text "Clock45Mhz" (rect -198 -896 -139 -884)(font "Arial" ))
 	(pt -232 -880)
 	(pt -136 -880)
-)
-(connector
-	(text "Clock90Mhz" (rect -190 -816 -131 -804)(font "Arial" ))
-	(pt 1160 -800)
-	(pt -328 -800)
-)
-(connector
-	(text "Clock90Mhz_Inverted" (rect -230 -776 -124 -764)(font "Arial" ))
-	(pt -328 -760)
-	(pt 1176 -760)
 )
 (connector
 	(pt -640 304)
@@ -5585,10 +5542,6 @@ refer to the applicable agreement for further details.
 	(pt -592 -880)
 )
 (connector
-	(pt -592 -880)
-	(pt -488 -880)
-)
-(connector
 	(text "Clock45Mhz" (rect 1353 2295 1365 2354)(font "Arial" )(vertical))
 	(pt 1376 2328)
 	(pt 1376 2448)
@@ -5604,6 +5557,69 @@ refer to the applicable agreement for further details.
 (connector
 	(pt 1344 -112)
 	(pt 1344 296)
+)
+(connector
+	(pt -512 -840)
+	(pt -496 -840)
+)
+(connector
+	(text "Clock30Mhz" (rect -190 -840 -131 -828)(font "Arial" ))
+	(pt -328 -824)
+	(pt -136 -824)
+)
+(connector
+	(pt -256 -864)
+	(pt -328 -864)
+)
+(connector
+	(pt -496 -840)
+	(pt -496 -824)
+)
+(connector
+	(pt -496 -824)
+	(pt -488 -824)
+)
+(connector
+	(pt 1176 -208)
+	(pt 1176 -744)
+)
+(connector
+	(text "Clock90Mhz" (rect -190 -800 -131 -788)(font "Arial" ))
+	(pt 1160 -784)
+	(pt -328 -784)
+)
+(connector
+	(text "Clock90Mhz_Inverted" (rect -230 -760 -124 -748)(font "Arial" ))
+	(pt 1176 -744)
+	(pt -328 -744)
+)
+(connector
+	(pt -592 -864)
+	(pt -488 -864)
+)
+(connector
+	(pt -256 -880)
+	(pt -256 -864)
+)
+(connector
+	(pt -256 -864)
+	(pt -256 -496)
+)
+(connector
+	(pt 1160 -784)
+	(pt 1160 -680)
+)
+(connector
+	(pt 1160 -680)
+	(pt 1160 -192)
+)
+(connector
+	(pt -592 -976)
+	(pt -592 -880)
+)
+(connector
+	(pt -592 -880)
+	(pt -592 -864)
 )
 (junction (pt 1280 224))
 (junction (pt 1376 224))
@@ -5693,7 +5709,6 @@ refer to the applicable agreement for further details.
 (junction (pt 1952 848))
 (junction (pt 1952 704))
 (junction (pt 1952 256))
-(junction (pt -256 -880))
 (junction (pt -232 -880))
 (junction (pt 1848 2568))
 (junction (pt 1376 720))
@@ -5713,6 +5728,7 @@ refer to the applicable agreement for further details.
 (junction (pt 1448 1224))
 (junction (pt -616 -664))
 (junction (pt -616 -880))
+(junction (pt -256 -864))
 (text "Push Button 1" (rect -800 280 -721 294)(font "Arial" (font_size 8)))
 (text "Push Button 2" (rect -800 344 -721 358)(font "Arial" (font_size 8)))
 (text "Push Button 3" (rect -784 -240 -705 -226)(font "Arial" (font_size 8)))

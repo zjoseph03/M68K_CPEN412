@@ -1,12 +1,12 @@
-Fitter Status : Successful - Wed Mar 05 15:01:50 2025
+Fitter Status : Successful - Wed Mar 05 15:14:37 2025
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : MC68K
 Top-level Entity Name : MC68K
 Family : Cyclone V
 Device : 5CSEMA5F31C6
 Timing Models : Final
-Logic utilization (in ALMs) : 2,991 / 32,070 ( 9 % )
-Total registers : 2279
+Logic utilization (in ALMs) : 2,989 / 32,070 ( 9 % )
+Total registers : 2260
 Total pins : 238 / 457 ( 52 % )
 Total virtual pins : 0
 Total block memory bits : 2,370,544 / 4,065,280 ( 58 % )

@@ -1,5 +1,5 @@
 Flow report for MC68K
-Wed Mar 05 15:02:46 2025
+Wed Mar 05 15:15:59 2025
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -40,15 +40,15 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------------------+
 ; Flow Summary                                                                  ;
 +---------------------------------+---------------------------------------------+
-; Flow Status                     ; Successful - Wed Mar 05 15:02:46 2025       ;
+; Flow Status                     ; Successful - Wed Mar 05 15:15:59 2025       ;
 ; Quartus Prime Version           ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                   ; MC68K                                       ;
 ; Top-level Entity Name           ; MC68K                                       ;
 ; Family                          ; Cyclone V                                   ;
 ; Device                          ; 5CSEMA5F31C6                                ;
 ; Timing Models                   ; Final                                       ;
-; Logic utilization (in ALMs)     ; 2,991 / 32,070 ( 9 % )                      ;
-; Total registers                 ; 2279                                        ;
+; Logic utilization (in ALMs)     ; 2,989 / 32,070 ( 9 % )                      ;
+; Total registers                 ; 2260                                        ;
 ; Total pins                      ; 238 / 457 ( 52 % )                          ;
 ; Total virtual pins              ; 0                                           ;
 ; Total block memory bits         ; 2,370,544 / 4,065,280 ( 58 % )              ;
@@ -67,7 +67,7 @@ refer to the applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 03/05/2025 14:55:38 ;
+; Start date & time ; 03/05/2025 15:08:33 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; MC68K               ;
 +-------------------+---------------------+
@@ -79,7 +79,7 @@ refer to the applicable agreement for further details.
 ; Assignment Name                                   ; Value                                                                                                                                                            ; Default Value ; Entity Name ; Section Id       ;
 +---------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------+-------------+------------------+
 ; ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP               ; On                                                                                                                                                               ; Off           ; --          ; --               ;
-; COMPILER_SIGNATURE_ID                             ; 130071495237165.174121533820864                                                                                                                                  ; --            ; --          ; --               ;
+; COMPILER_SIGNATURE_ID                             ; 130071495237165.174121611234716                                                                                                                                  ; --            ; --          ; --               ;
 ; DO_COMBINED_ANALYSIS                              ; -- (Not supported for targeted family)                                                                                                                           ; Off           ; --          ; --               ;
 ; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; Off                                                                                                                                                              ; --            ; --          ; eda_simulation   ;
 ; EDA_GENERATE_GATE_LEVEL_SIMULATION_COMMAND_SCRIPT ; Off                                                                                                                                                              ; --            ; --          ; eda_simulation   ;
@@ -165,12 +165,12 @@ refer to the applicable agreement for further details.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:01:22     ; 1.0                     ; 5064 MB             ; 00:01:17                           ;
-; Fitter               ; 00:04:47     ; 1.5                     ; 8191 MB             ; 00:19:56                           ;
-; Assembler            ; 00:00:12     ; 1.0                     ; 4921 MB             ; 00:00:10                           ;
-; Timing Analyzer      ; 00:00:31     ; 4.9                     ; 5575 MB             ; 00:01:26                           ;
-; EDA Netlist Writer   ; 00:00:05     ; 1.0                     ; 4972 MB             ; 00:00:04                           ;
-; Total                ; 00:06:57     ; --                      ; --                  ; 00:22:53                           ;
+; Analysis & Synthesis ; 00:01:24     ; 1.0                     ; 5067 MB             ; 00:01:19                           ;
+; Fitter               ; 00:04:36     ; 1.5                     ; 8192 MB             ; 00:20:26                           ;
+; Assembler            ; 00:00:15     ; 1.0                     ; 4921 MB             ; 00:00:12                           ;
+; Timing Analyzer      ; 00:00:36     ; 3.5                     ; 5583 MB             ; 00:01:25                           ;
+; EDA Netlist Writer   ; 00:00:12     ; 1.0                     ; 4976 MB             ; 00:00:05                           ;
+; Total                ; 00:07:03     ; --                      ; --                  ; 00:23:27                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
