@@ -173,7 +173,7 @@ module M68kCacheController_Verilog (
 // Main IDLE state: 
 ///////////////////////////////////////////////
 		else if(CurrentState == IdleState) begin	  							// if we are in the idle state
-			if (AS_L && DramSelect68_H) begin
+			if (AS_L == 0 && DramSelect68_H == 1) begin
 				if (WE_L) begin
 					UDS_DramController_L	<= 0;
 					LDS_DramController_L	<= 0;
@@ -200,7 +200,7 @@ module M68kCacheController_Verilog (
 			LDS_DramController_L		<= 0;
 			if(CacheHit_H && ValidBitIn_H) begin
 				WordAddress				<= AddressBusInFrom68k[3:1];
-				DtackTo68k_L			<= 1;
+				DtackTo68k_L			<= 0;
 				NextState				<= WaitForEndOfCacheRead;
 			end
 			else begin
@@ -221,7 +221,9 @@ module M68kCacheController_Verilog (
 			DtackTo68k_L				<= 0;
 			if (AS_L == 0) begin
 				NextState				<= WaitForEndOfCacheRead;
-			end	
+      end	else begin
+        NextState				<= IdleState;
+      end
 
 		end
 			
@@ -304,6 +306,7 @@ module M68kCacheController_Verilog (
 			DtackTo68k_L			<= 0;
 			UDS_DramController_L	<= 0;
 			LDS_DramController_L	<= 0;
+      DataBusOutTo68k <= DataBusInFromCache;
 
 			WordAddress 			<= AddressBusInFrom68k[3:1];
 

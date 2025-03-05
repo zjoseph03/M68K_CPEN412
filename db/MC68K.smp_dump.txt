@@ -1,18 +1,4 @@
 
-State Machine - |MC68K|CachedDramController:inst|DramCache:inst1|M68kCacheController_Verilog:inst|CurrentState
-Name CurrentState.WaitForEndOfCacheRead CurrentState.WriteDataToDram CurrentState.EndBurstFill CurrentState.BurstFill CurrentState.CASDelay2 CurrentState.CASDelay1 CurrentState.ReadDataFromDramIntoCache CurrentState.CheckForCacheHit CurrentState.IdleState CurrentState.InvalidateCache CurrentState.Reset 
-CurrentState.Reset 0 0 0 0 0 0 0 0 0 0 0 
-CurrentState.InvalidateCache 0 0 0 0 0 0 0 0 0 1 1 
-CurrentState.IdleState 0 0 0 0 0 0 0 0 1 0 1 
-CurrentState.CheckForCacheHit 0 0 0 0 0 0 0 1 0 0 1 
-CurrentState.ReadDataFromDramIntoCache 0 0 0 0 0 0 1 0 0 0 1 
-CurrentState.CASDelay1 0 0 0 0 0 1 0 0 0 0 1 
-CurrentState.CASDelay2 0 0 0 0 1 0 0 0 0 0 1 
-CurrentState.BurstFill 0 0 0 1 0 0 0 0 0 0 1 
-CurrentState.EndBurstFill 0 0 1 0 0 0 0 0 0 0 1 
-CurrentState.WriteDataToDram 0 1 0 0 0 0 0 0 0 0 1 
-CurrentState.WaitForEndOfCacheRead 1 0 0 0 0 0 0 0 0 0 1 
-
 State Machine - |MC68K|OnChipIO:inst8|LCD_Controller:inst2|Current_state
 Name Current_state.RemoveData Current_state.RemoveRW Current_state.RemoveE Current_state.WaitingForETimer Current_state.AssertE_Data Current_state.Dummy1 Current_state.AssertRW Current_state.Idle 
 Current_state.Idle 0 0 0 0 0 0 0 0 

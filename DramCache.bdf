@@ -813,35 +813,6 @@ refer to the applicable agreement for further details.
 	)
 )
 (symbol
-	(rect 688 696 888 776)
-	(text "AddressComparator" (rect 5 0 102 12)(font "Arial" ))
-	(text "inst2" (rect 8 64 30 81)(font "Intel Clear" ))
-	(port
-		(pt 0 32)
-		(input)
-		(text "AddressBus[22..0]" (rect 0 0 90 12)(font "Arial" ))
-		(text "AddressBus[22..0]" (rect 21 27 111 39)(font "Arial" ))
-		(line (pt 0 32)(pt 16 32)(line_width 3))
-	)
-	(port
-		(pt 0 48)
-		(input)
-		(text "TagData[22..0]" (rect 0 0 73 12)(font "Arial" ))
-		(text "TagData[22..0]" (rect 21 43 94 55)(font "Arial" ))
-		(line (pt 0 48)(pt 16 48)(line_width 3))
-	)
-	(port
-		(pt 200 32)
-		(output)
-		(text "Hit_H" (rect 0 0 28 12)(font "Arial" ))
-		(text "Hit_H" (rect 156 27 184 39)(font "Arial" ))
-		(line (pt 200 32)(pt 184 32))
-	)
-	(drawing
-		(rectangle (rect 16 16 184 64))
-	)
-)
-(symbol
 	(rect 1088 688 1304 848)
 	(text "CacheDataMemory" (rect 5 0 117 19)(font "Intel Clear" (font_size 8)))
 	(text "inst3" (rect 8 139 30 156)(font "Intel Clear" ))
@@ -1010,6 +981,35 @@ refer to the applicable agreement for further details.
 	)
 	(drawing
 		(rectangle (rect 16 16 192 112))
+	)
+)
+(symbol
+	(rect 688 696 888 776)
+	(text "AddressComparator" (rect 5 0 102 12)(font "Arial" ))
+	(text "inst2" (rect 8 64 30 81)(font "Intel Clear" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "AddressBus[22..0]" (rect 0 0 90 12)(font "Arial" ))
+		(text "AddressBus[22..0]" (rect 21 27 111 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32)(line_width 3))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "TagData[22..0]" (rect 0 0 73 12)(font "Arial" ))
+		(text "TagData[22..0]" (rect 21 43 94 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48)(line_width 3))
+	)
+	(port
+		(pt 200 32)
+		(output)
+		(text "Hit_H" (rect 0 0 28 12)(font "Arial" ))
+		(text "Hit_H" (rect 156 27 184 39)(font "Arial" ))
+		(line (pt 200 32)(pt 184 32))
+	)
+	(drawing
+		(rectangle (rect 16 16 184 64))
 	)
 )
 (connector

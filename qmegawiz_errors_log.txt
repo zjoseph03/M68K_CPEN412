@@ -118,3 +118,68 @@ C:/M68kV6.0 - 800by480/lpm_bustri2.vhd
 
 Feb 22 06PM:50:04>: Megafunction LPM_BUSTRI is not listed in any 
 wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:48:13>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:48:16>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:48:23>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:48:25>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:48:29>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:48:38>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:50:08>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:50:09>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:51:00>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:51:02>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:51:03>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:51:05>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+C:/M68kV6.0 - 800by480/ClockGen.vhd
+
+Mar 05 02PM:51:09>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
