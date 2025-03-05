@@ -4,7 +4,7 @@
 // designed to work with TG68 (68000 based) cpu with 16 bit data bus and 32 bit address bus
 // separate upper and lowe data stobes for individual byte and also 16 bit word access
 //
-// Copyright PJ Davies August 2017
+// Copyright PJ Davies August 201`
 ///////////////////////////////////////////////////////////////////////////////////////
 
 module M68kCacheController_Verilog (
