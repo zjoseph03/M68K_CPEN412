@@ -1,4 +1,4 @@
-Analysis & Synthesis Status : Successful - Wed Mar 05 15:10:00 2025
+Analysis & Synthesis Status : Successful - Wed Mar 05 16:53:30 2025
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : MC68K
 Top-level Entity Name : MC68K
@@ -7,7 +7,7 @@ Logic utilization (in ALMs) : N/A
 Total registers : 2132
 Total pins : 238
 Total virtual pins : 0
-Total block memory bits : 2,370,544
+Total block memory bits : 2,441,456
 Total DSP Blocks : 0
 Total HSSI RX PCSs : 0
 Total HSSI PMA RX Deserializers : 0
