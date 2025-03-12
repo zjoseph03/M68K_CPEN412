@@ -1,5 +1,5 @@
 Flow report for MC68K
-Sun Feb 23 03:22:21 2025
+Wed Mar 12 16:45:45 2025
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -40,18 +40,18 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------------------+
 ; Flow Summary                                                                  ;
 +---------------------------------+---------------------------------------------+
-; Flow Status                     ; Successful - Sun Feb 23 03:22:21 2025       ;
+; Flow Status                     ; Successful - Wed Mar 12 16:45:45 2025       ;
 ; Quartus Prime Version           ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                   ; MC68K                                       ;
 ; Top-level Entity Name           ; MC68K                                       ;
 ; Family                          ; Cyclone V                                   ;
 ; Device                          ; 5CSEMA5F31C6                                ;
 ; Timing Models                   ; Final                                       ;
-; Logic utilization (in ALMs)     ; 2,879 / 32,070 ( 9 % )                      ;
-; Total registers                 ; 2262                                        ;
+; Logic utilization (in ALMs)     ; 3,099 / 32,070 ( 10 % )                     ;
+; Total registers                 ; 2270                                        ;
 ; Total pins                      ; 238 / 457 ( 52 % )                          ;
 ; Total virtual pins              ; 0                                           ;
-; Total block memory bits         ; 2,365,680 / 4,065,280 ( 58 % )              ;
+; Total block memory bits         ; 2,370,608 / 4,065,280 ( 58 % )              ;
 ; Total DSP Blocks                ; 0 / 87 ( 0 % )                              ;
 ; Total HSSI RX PCSs              ; 0                                           ;
 ; Total HSSI PMA RX Deserializers ; 0                                           ;
@@ -67,7 +67,7 @@ refer to the applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 02/23/2025 03:15:01 ;
+; Start date & time ; 03/12/2025 16:38:18 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; MC68K               ;
 +-------------------+---------------------+
@@ -79,7 +79,7 @@ refer to the applicable agreement for further details.
 ; Assignment Name                                   ; Value                                                                                                                                                            ; Default Value ; Entity Name ; Section Id       ;
 +---------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------+-------------+------------------+
 ; ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP               ; On                                                                                                                                                               ; Off           ; --          ; --               ;
-; COMPILER_SIGNATURE_ID                             ; 130071495237165.174030930148920                                                                                                                                  ; --            ; --          ; --               ;
+; COMPILER_SIGNATURE_ID                             ; 130071495237165.174182269824288                                                                                                                                  ; --            ; --          ; --               ;
 ; DO_COMBINED_ANALYSIS                              ; -- (Not supported for targeted family)                                                                                                                           ; Off           ; --          ; --               ;
 ; EDA_GENERATE_FUNCTIONAL_NETLIST                   ; Off                                                                                                                                                              ; --            ; --          ; eda_simulation   ;
 ; EDA_GENERATE_GATE_LEVEL_SIMULATION_COMMAND_SCRIPT ; Off                                                                                                                                                              ; --            ; --          ; eda_simulation   ;
@@ -107,6 +107,14 @@ refer to the applicable agreement for further details.
 ; MISC_FILE                                         ; OnChipRom16KWord.bsf                                                                                                                                             ; --            ; --          ; --               ;
 ; MISC_FILE                                         ; OnChipRom16KWord_bb.v                                                                                                                                            ; --            ; --          ; --               ;
 ; MISC_FILE                                         ; OnChipRom16KWord.cmp                                                                                                                                             ; --            ; --          ; --               ;
+; MISC_FILE                                         ; Valid_Bit_Associative.bsf                                                                                                                                        ; --            ; --          ; --               ;
+; MISC_FILE                                         ; Valid_Bit_Associative_bb.v                                                                                                                                       ; --            ; --          ; --               ;
+; MISC_FILE                                         ; Tag_Data_Associative.bsf                                                                                                                                         ; --            ; --          ; --               ;
+; MISC_FILE                                         ; Tag_Data_Associative_bb.v                                                                                                                                        ; --            ; --          ; --               ;
+; MISC_FILE                                         ; CachedData_Associative.bsf                                                                                                                                       ; --            ; --          ; --               ;
+; MISC_FILE                                         ; CachedData_Associative_bb.v                                                                                                                                      ; --            ; --          ; --               ;
+; MISC_FILE                                         ; PLRU_Bits.bsf                                                                                                                                                    ; --            ; --          ; --               ;
+; MISC_FILE                                         ; PLRU_Bits_bb.v                                                                                                                                                   ; --            ; --          ; --               ;
 ; MUX_RESTRUCTURE                                   ; Off                                                                                                                                                              ; Auto          ; --          ; --               ;
 ; PARTITION_COLOR                                   ; -- (Not supported for targeted family)                                                                                                                           ; --            ; --          ; Top              ;
 ; PARTITION_FITTER_PRESERVATION_LEVEL               ; -- (Not supported for targeted family)                                                                                                                           ; --            ; --          ; Top              ;
@@ -159,12 +167,12 @@ refer to the applicable agreement for further details.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:01:44     ; 1.0                     ; 5059 MB             ; 00:01:12                           ;
-; Fitter               ; 00:04:36     ; 1.5                     ; 8193 MB             ; 00:17:45                           ;
-; Assembler            ; 00:00:16     ; 1.0                     ; 4917 MB             ; 00:00:09                           ;
-; Timing Analyzer      ; 00:00:27     ; 4.4                     ; 5578 MB             ; 00:01:21                           ;
-; EDA Netlist Writer   ; 00:00:04     ; 1.0                     ; 4973 MB             ; 00:00:03                           ;
-; Total                ; 00:07:07     ; --                      ; --                  ; 00:20:30                           ;
+; Analysis & Synthesis ; 00:01:41     ; 1.0                     ; 5069 MB             ; 00:01:28                           ;
+; Fitter               ; 00:04:47     ; 1.5                     ; 8212 MB             ; 00:20:14                           ;
+; Assembler            ; 00:00:19     ; 1.0                     ; 4924 MB             ; 00:00:13                           ;
+; Timing Analyzer      ; 00:00:23     ; 4.8                     ; 5579 MB             ; 00:01:24                           ;
+; EDA Netlist Writer   ; 00:00:04     ; 1.0                     ; 4979 MB             ; 00:00:04                           ;
+; Total                ; 00:07:14     ; --                      ; --                  ; 00:23:23                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

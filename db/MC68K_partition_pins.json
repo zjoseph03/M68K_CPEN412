@@ -208,10 +208,6 @@
 					"strict" : false
 				},
 				{
-					"name" : "DramDtack_L",
-					"strict" : false
-				},
-				{
 					"name" : "AS_L",
 					"strict" : false
 				},
@@ -869,6 +865,10 @@
 				},
 				{
 					"name" : "Reset_L",
+					"strict" : false
+				},
+				{
+					"name" : "CLOCK_50",
 					"strict" : false
 				},
 				{

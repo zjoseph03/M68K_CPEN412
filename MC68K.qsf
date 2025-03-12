@@ -718,6 +718,6 @@ set_global_assignment -name BDF_FILE AssociativeCache_Set.bdf
 set_global_assignment -name BDF_FILE CacheData_Associative.bdf
 set_global_assignment -name QIP_FILE PLRU_Bits.qip
 set_global_assignment -name BDF_FILE PseudoLRU_Bits.bdf
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name BDF_FILE AssociativeCachedDramController.bdf
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name SLD_FILE db/dramcontroller_auto_stripped.stp

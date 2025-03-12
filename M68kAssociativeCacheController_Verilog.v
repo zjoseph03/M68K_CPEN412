@@ -226,9 +226,9 @@ module M68kAssociativeCacheController_Verilog (
 ///////////////////////////////////////////////
 
 		else if(CurrentState == Idle) begin									// if we are in the idle state
-			if (!AS_L && DramSelect68_H) begin
+			if (!AS_L && DramSelect68k_H) begin
 				LRUBits_Load_H <= 1;
-				if (!WE_L) begin
+				if (WE_L) begin
 					UDS_DramController_L <= 0;
 					LDS_DramController_L <= 0;
 					NextState <= CheckForCacheHit;
@@ -236,10 +236,10 @@ module M68kAssociativeCacheController_Verilog (
 					ValidBitOut_H <= 0;
 					if (|ValidHit_H) begin
 						case (ValidHit_H)
-							1'b0001: ValidBit_WE_L <= 4'b1110;
-							1'b0010: ValidBit_WE_L <= 4'b1101;
-							1'b0100: ValidBit_WE_L <= 4'b1011;
-							1'b1000: ValidBit_WE_L <= 4'b0111;
+							4'b0001: ValidBit_WE_L <= 4'b1110;
+							4'b0010: ValidBit_WE_L <= 4'b1101;
+							4'b0100: ValidBit_WE_L <= 4'b1011;
+							4'b1000: ValidBit_WE_L <= 4'b0111;
 							default: ValidBit_WE_L <= 4'b1111;
 						endcase
 		
@@ -307,8 +307,8 @@ module M68kAssociativeCacheController_Verilog (
             UDS_DramController_L <= 0;
             LDS_DramController_L <= 0;
             WordAddress <= AddressBusInFrom68k[3:1];
-            DtackFromDram_L <= 0;
-            if (AS_L) begin
+            DtackTo68k_L <= 0;
+            if (!AS_L) begin
                 NextState <= WaitForEndOfCacheRead;
             end
 		end
@@ -431,4 +431,5 @@ module M68kAssociativeCacheController_Verilog (
 
 		end		
 	end
+  end
 endmodule

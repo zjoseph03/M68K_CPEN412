@@ -61,8 +61,8 @@ refer to the applicable agreement for further details.
 	(port
 		(pt 0 112)
 		(input)
-		(text "DataBus[31..0]" (rect 0 0 88 19)(font "Intel Clear" (font_size 8)))
-		(text "DataBus[31..0]" (rect 21 107 109 126)(font "Intel Clear" (font_size 8)))
+		(text "DataBusIn[15..0]" (rect 0 0 99 19)(font "Intel Clear" (font_size 8)))
+		(text "DataBusIn[15..0]" (rect 21 107 120 126)(font "Intel Clear" (font_size 8)))
 		(line (pt 0 112)(pt 16 112)(line_width 3))
 	)
 	(port

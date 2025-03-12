@@ -23,7 +23,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect -136 -72 32 -56)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "Clock_Inverted" (rect 5 0 77 17)(font "Intel Clear" ))
+	(text "Clock_Inverted" (rect 5 0 76 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -39,7 +39,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect -136 -56 32 -40)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "Clock" (rect 5 0 33 17)(font "Intel Clear" ))
+	(text "Clock" (rect 5 0 32 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -55,7 +55,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect -136 -40 32 -24)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "Reset_L" (rect 5 0 47 12)(font "Arial" ))
+	(text "Reset_L" (rect 5 0 46 12)(font "Arial" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -66,12 +66,13 @@ refer to the applicable agreement for further details.
 		(line (pt 109 12)(pt 113 8))
 	)
 	(text "VCC" (rect 128 7 148 17)(font "Arial" (font_size 6)))
+	(annotation_block (location)(rect -208 -24 -136 0))
 )
 (pin
 	(input)
 	(rect -112 152 56 168)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "DramSelect_H" (rect 5 0 74 17)(font "Intel Clear" ))
+	(text "DramSelect_H" (rect 5 0 73 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -87,7 +88,7 @@ refer to the applicable agreement for further details.
 	(input)
 	(rect -128 168 56 184)
 	(text "INPUT" (rect 141 0 169 10)(font "Arial" (font_size 6)))
-	(text "AddressBus[31..0]" (rect 5 0 90 17)(font "Intel Clear" ))
+	(text "AddressBus[31..0]" (rect 5 0 89 17)(font "Intel Clear" ))
 	(pt 184 8)
 	(drawing
 		(line (pt 100 12)(pt 125 12))
@@ -98,28 +99,13 @@ refer to the applicable agreement for further details.
 		(line (pt 125 12)(pt 129 8))
 	)
 	(text "VCC" (rect 144 7 164 17)(font "Arial" (font_size 6)))
-)
-(pin
-	(input)
-	(rect -112 184 56 200)
-	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "DataBus[31..0]" (rect 5 0 75 17)(font "Intel Clear" ))
-	(pt 168 8)
-	(drawing
-		(line (pt 84 12)(pt 109 12))
-		(line (pt 84 4)(pt 109 4))
-		(line (pt 113 8)(pt 168 8))
-		(line (pt 84 12)(pt 84 4))
-		(line (pt 109 4)(pt 113 8))
-		(line (pt 109 12)(pt 113 8))
-	)
-	(text "VCC" (rect 128 7 148 17)(font "Arial" (font_size 6)))
+	(annotation_block (location)(rect -184 184 -128 208))
 )
 (pin
 	(input)
 	(rect -112 200 56 216)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "UDS_L" (rect 5 0 37 17)(font "Intel Clear" ))
+	(text "UDS_L" (rect 5 0 36 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -130,12 +116,13 @@ refer to the applicable agreement for further details.
 		(line (pt 109 12)(pt 113 8))
 	)
 	(text "VCC" (rect 128 7 148 17)(font "Arial" (font_size 6)))
+	(annotation_block (location)(rect -168 216 -112 240))
 )
 (pin
 	(input)
 	(rect -112 216 56 232)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "LDS_L" (rect 5 0 36 17)(font "Intel Clear" ))
+	(text "LDS_L" (rect 5 0 35 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -146,12 +133,13 @@ refer to the applicable agreement for further details.
 		(line (pt 109 12)(pt 113 8))
 	)
 	(text "VCC" (rect 128 7 148 17)(font "Arial" (font_size 6)))
+	(annotation_block (location)(rect -176 232 -112 256))
 )
 (pin
 	(input)
 	(rect -112 232 56 248)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "RW" (rect 5 0 23 17)(font "Intel Clear" ))
+	(text "RW" (rect 5 0 22 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -162,12 +150,13 @@ refer to the applicable agreement for further details.
 		(line (pt 109 12)(pt 113 8))
 	)
 	(text "VCC" (rect 128 7 148 17)(font "Arial" (font_size 6)))
+	(annotation_block (location)(rect -168 248 -112 272))
 )
 (pin
 	(input)
 	(rect -112 248 56 264)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "AS_L" (rect 5 0 30 17)(font "Intel Clear" ))
+	(text "AS_L" (rect 5 0 29 17)(font "Intel Clear" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -178,6 +167,23 @@ refer to the applicable agreement for further details.
 		(line (pt 109 12)(pt 113 8))
 	)
 	(text "VCC" (rect 128 7 148 17)(font "Arial" (font_size 6)))
+	(annotation_block (location)(rect -168 264 -112 288))
+)
+(pin
+	(input)
+	(rect -120 184 56 200)
+	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
+	(text "DataBusIn[15..0]" (rect 5 0 83 17)(font "Intel Clear" ))
+	(pt 176 8)
+	(drawing
+		(line (pt 92 12)(pt 117 12))
+		(line (pt 92 4)(pt 117 4))
+		(line (pt 121 8)(pt 176 8))
+		(line (pt 92 12)(pt 92 4))
+		(line (pt 117 4)(pt 121 8))
+		(line (pt 117 12)(pt 121 8))
+	)
+	(text "VCC" (rect 136 7 156 17)(font "Arial" (font_size 6)))
 )
 (pin
 	(output)
@@ -194,6 +200,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1569 200 1633 224))
 )
 (pin
 	(output)
@@ -210,6 +217,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1568 120 1640 144))
 )
 (pin
 	(output)
@@ -226,6 +234,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1568 136 1632 160))
 )
 (pin
 	(output)
@@ -242,6 +251,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1568 88 1640 112))
 )
 (pin
 	(output)
@@ -258,6 +268,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1568 104 1640 128))
 )
 (pin
 	(output)
@@ -274,6 +285,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1568 152 1640 176))
 )
 (pin
 	(output)
@@ -290,6 +302,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1582 168 1646 192))
 )
 (pin
 	(output)
@@ -306,6 +319,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1568 184 1632 208))
 )
 (pin
 	(output)
@@ -338,6 +352,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1576 320 1648 344))
 )
 (pin
 	(output)
@@ -354,6 +369,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1576 336 1648 360))
 )
 (pin
 	(output)
@@ -370,6 +386,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1583 416 1639 440))
 )
 (pin
 	(output)
@@ -514,6 +531,7 @@ refer to the applicable agreement for further details.
 		(line (pt 82 8)(pt 78 12))
 		(line (pt 78 12)(pt 82 8))
 	)
+	(annotation_block (location)(rect 1544 -40 1616 -16))
 )
 (symbol
 	(rect 224 80 648 400)
