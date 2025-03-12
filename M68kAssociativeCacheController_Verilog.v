@@ -225,16 +225,77 @@ module M68kAssociativeCacheController_Verilog (
 // Main IDLE state: 
 ///////////////////////////////////////////////
 
-		else if(CurrentState == Idle) begin									// if we are in the idle state				
-
-		end
+		else if(CurrentState == Idle) begin									// if we are in the idle state
+			if (!AS_L && DramSelect68_H) begin
+				LRUBits_Load_H <= 1;
+				if (!WE_L) begin
+					UDS_DramController_L <= 0;
+					LDS_DramController_L <= 0;
+					NextState <= CheckForCacheHit;
+				end else begin
+					ValidBitOut_H <= 0;
+					if (|ValidHit_H) begin
+						case (ValidHit_H)
+							1'b0001: ValidBit_WE_L <= 4'b1110;
+							1'b0010: ValidBit_WE_L <= 4'b1101;
+							1'b0100: ValidBit_WE_L <= 4'b1011;
+							1'b1000: ValidBit_WE_L <= 4'b0111;
+							default: ValidBit_WE_L <= 4'b1111;
+						endcase
+		
+						DramSelectFromCache_L <= 0;
+						NextState <= WriteDataToDram;
+					end
+				end
+			end
 		
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Check if we have a Cache HIT. If so give data to 68k or if not, go generate a burst fill
 // update the Least Recently Used Bits (LRUBits)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		else if(CurrentState == CheckForCacheHit) begin				// we are looking for a Cache hit			
+		else if(CurrentState == CheckForCacheHit) begin				// we are looking for a Cache hit
+			UDS_DramController_L <= 0;
+			LDS_DramController_L <= 0;
+			if (|ValidHit_H) begin
+				WordAddress <= AddressBusInFrom68k[3:1];
+				DtackTo68k_L <= 0;
+				NextState <= WaitForEndOfCacheRead;
+
+				if (!LRUBits[0] && !LRUBits[1]) begin
+					LRUBits_Out <= {LRUBits[2], 2'b11}; //block 0
+				end else if (!LRUBits[0] && LRUBits[1]) begin           
+					LRUBits_Out <= {LRUBits[2], 2'b01}; //block 1
+				end else if (LRUBits[0] && !LRUBits[2]) begin
+					LRUBits_Out <= {1'b1, LRUBits[1], 1'b0};  //block 2
+				end else begin
+					LRUBits_Out <= {1'b0, LRUBits[1], 1'b0} ; //block 3 
+				end
+				LRU_WE_L <= 0;
+				
+			end else begin
+				DramSelectFromCache_L <= 0;
+
+				if (!LRUBits[0] && !LRUBits[1]) begin 
+					ReplaceBlockNumberData <= 2'b00;    //block 0
+					LRUBits_Out <= {LRUBits[2], 2'b11};
+                end else if (!LRUBits[0] && LRUBits[1]) begin
+                    ReplaceBlockNumberData <= 2'b01;    //block 1
+                    LRUBits_Out <= {LRUBits[2], 2'b01};
+                end else if (LRUBits[0] && !LRUBits[2]) begin
+                    ReplaceBlockNumberData <= 2'b10;    //block 2
+                    LRUBits_Out <= {1'b1, LRUBits[1], 1'b0};
+                end else begin
+                    ReplaceBlockNumberData <= 2'b11;    //block 3
+                    LRUBits_Out <= {1'b0, LRUBits[1], 1'b0};
+                end
+                LRU_WE_L <= 0;
+                LoadReplacementBlockNumber_H <= 1;
+
+                NextState <= ReadDataFromDramIntoCache;
+            end
+
+			
 
 		end
 
@@ -242,8 +303,14 @@ module M68kAssociativeCacheController_Verilog (
 // Got a Cache hit, so give the 68k the Cache data now then wait for the 68k to end bus cycle 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-		else if(CurrentState == WaitForEndOfCacheRead) begin		
-
+		else if(CurrentState == WaitForEndOfCacheRead) begin
+            UDS_DramController_L <= 0;
+            LDS_DramController_L <= 0;
+            WordAddress <= AddressBusInFrom68k[3:1];
+            DtackFromDram_L <= 0;
+            if (AS_L) begin
+                NextState <= WaitForEndOfCacheRead;
+            end
 		end
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,6 +319,29 @@ module M68kAssociativeCacheController_Verilog (
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		else if(CurrentState == ReadDataFromDramIntoCache) begin
+            UDS_DramController_L <= 0;
+            LDS_DramController_L <= 0;
+            DramSelectFromCache_L <= 0;
+
+            NextState <=ReadDataFromDramIntoCache;
+            if (!CAS_Dram_L && RAS_Dram_L) begin
+                NextState <= CASDelay1;
+            end
+            ValidBitOut_H <= 1;
+
+            if (ReplaceBlockNumber == 2'b00) begin
+                TagCache_WE_L[0] <= 0;
+                ValidBit_WE_L[0] <= 0; 
+            end else if (ReplaceBlockNumber == 2'b01) begin
+                TagCache_WE_L[1] <= 0;
+                ValidBit_WE_L[1] <= 0;
+            end else if (ReplaceBlockNumber == 2'b10) begin
+                TagCache_WE_L[2] <= 0;
+                ValidBit_WE_L[2] <= 0;
+            end else begin
+                TagCache_WE_L[3] <= 0;
+                ValidBit_WE_L[3] <= 0;
+            end
 
 		end
 						
@@ -259,15 +349,23 @@ module M68kAssociativeCacheController_Verilog (
 // Wait for 1st CAS clock (latency)
 ///////////////////////////////////////////////////////////////////////////////////////
 			
-		else if(CurrentState == CASDelay1) begin						
-
+		else if(CurrentState == CASDelay1) begin
+            UDS_DramController_L <= 0;
+            LDS_DramController_L <= 0;
+            DramSelectFromCache_L <= 0;
+            NextState <= CASDelay2;
 		end
 		
 ///////////////////////////////////////////////////////////////////////////////////////
 // Wait for 2nd CAS Clock Latency
 ///////////////////////////////////////////////////////////////////////////////////////
 			
-		else if(CurrentState == CASDelay2) begin						
+		else if(CurrentState == CASDelay2) begin
+            UDS_DramController_L <= 0;
+            LDS_DramController_L <= 0;
+            DramSelectFromCache_L <= 0;
+            BurstCounterReset_L <= 0;
+            NextState <= BurstFill;						
 
 		end
 
@@ -276,6 +374,24 @@ module M68kAssociativeCacheController_Verilog (
 /////////////////////////////////////////////////////////////////////////////////////////////
 		
 		else if(CurrentState == BurstFill) begin
+            UDS_DramController_L <= 0;
+            LDS_DramController_L <= 0;
+            DramSelectFromCache_L <= 0;
+            NextState <= BurstFill;
+            if (BurstCounter == 8) begin
+                NextState <= EndBurstFill;
+            end else begin
+                WordAddress <= BurstCounter[2:0];
+                if (ReplaceBlockNumber == 2'b00) begin
+                    DataCache_WE_L[0] <= 0;
+                end else if (ReplaceBlockNumber == 2'b01) begin
+                    DataCache_WE_L[1] <= 0;
+                end else if (ReplaceBlockNumber == 2'b10) begin
+                    DataCache_WE_L[2] <= 0;
+                end else begin
+                    DataCache_WE_L[3] <= 0;
+                end
+            end
 
 		end
 			
@@ -283,6 +399,19 @@ module M68kAssociativeCacheController_Verilog (
 // End Burst fill and give the CPU the data from the cache
 ///////////////////////////////////////////////////////////////////////////////////////
 		else if(CurrentState == EndBurstFill) begin							// wait for Dram case signal to go low
+            UDS_DramController_L <= 0;
+            LDS_DramController_L <= 0;
+            DramSelectFromCache_L <= 1;
+            DtackTo68k_L <= 0;
+
+            WordAddress <= AddressBusInFrom68k[3:1];
+            DataBusOutTo68k <= DataBusInFromCache;
+
+            if (AS_L || !DramSelect68k_H) begin
+                NextState <= Idle;
+            end else begin
+                NextState <= EndBurstFill;
+            end
 
 		end
 		
@@ -290,6 +419,15 @@ module M68kAssociativeCacheController_Verilog (
 // Write Data to Dram State (no Burst)
 ///////////////////////////////////////////////
 		else if(CurrentState == WriteDataToDram) begin	  					// if we are writing data to Dram
+            AddressBusOutToDramController <= AddressBusInFrom68k;
+            DramSelectFromCache_L <= 0;
+            DtackTo68k_L <= DtackFromDram_L;
+
+            if (AS_L || !DramSelect68k_H) begin
+                NextState <= Idle;
+            end else begin
+                NextState <= WriteDataToDram;
+            end
 
 		end		
 	end
