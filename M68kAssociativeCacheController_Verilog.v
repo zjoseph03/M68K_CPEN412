@@ -270,53 +270,52 @@ module M68kAssociativeCacheController_Verilog (
 				DtackTo68k_L <= 0;
 				NextState <= WaitForEndOfCacheRead;
 
-				if (!LRUBits[0] && !LRUBits[1] && !LRUBits[3]) begin //xxx0x00
-					LRUBits_Out <= {LRUBits[2], 2'b11}; //block 0
-				end else if (!LRUBits[0] && !LRUBits[1] && LRUBits[3]) begin //xxx1x00
-					LRUBits_Out <= {LRUBits[2], 2'b10}; //block 1
-				end else if (!LRUBits[0] && LRUBits[1] && !LRUBits[4]) begin //xx0xx10
-					LRUBits_Out <= {1'b1, LRUBits[3], 1'b1}; //block 2
-				end else if (!LRUBits[0] && LRUBits[1] && LRUBits[4]) begin //xx1xx10
-					LRUBits_Out <= {1'b0, LRUBits[3], 1'b1}; //block 3
-				end else if (LRUBits[0] && !LRUBits[2] && !LRUBits[5]) begin //x0xx0x1
-					LRUBits_Out <= {LRUBits[1], 1'b1, LRUBits[4]}; //block 4
-				end else if (LRUBits[0] && !LRUBits[2] && LRUBits[5]) begin //x1xx0x1
-					LRUBits_Out <= {LRUBits[1], 1'b0, LRUBits[4]}; //block 5
-				end else if (LRUBits[0] && LRUBits[2] && !LRUBits[6]) begin //0xxx1x1
-					LRUBits_Out <= {1'b1, LRUBits[1], LRUBits[4]}; //block 6
-				end else begin //1xxx1x1
-					LRUBits_Out <= {1'b0, LRUBits[1], LRUBits[4]}; //block 7
-				end
+				casex (LRUBits)
+					7'bxxx0x00: LRUBits_Out <= {LRUBits[6:4], 1'b1, LRUBits[2], 2'b11}; 		// Block 1
+					7'bxxx1x00: LRUBits_Out <= {LRUBits[6:4], 1'b0, LRUBits[2], 2'b11}; 		// Block 2
+					7'bxx0xx10: LRUBits_Out <= {LRUBits[6:5], 1'b1, LRUBits[3:2], 1'b0, 1'b1}; 	// Block 3
+					7'bxx1xx10: LRUBits_Out <= {LRUBits[6:5], 1'b0, LRUBits[3:2], 1'b0, 1'b1}; 	// Block 4
+					7'bx0xx0x1: LRUBits_Out <= {LRUBits[6], 1'b1, LRUBits[4:3], 1'b1, LRUBits[1], 1'b0}; 	// Block 5
+					7'bx1xx0x1: LRUBits_Out <= {LRUBits[6], 1'b0, LRUBits[4:3], 1'b1, LRUBits[1], 1'b0}; 	// Block 6
+					7'b0xxx1x1: LRUBits_Out <= {1'b1, LRUBits[5:3], 1'b0, LRUBits[1], 1'b0}; 				// Block 7
+					7'b1xxx1x1: LRUBits_Out <= {1'b0, LRUBits[5:3], 1'b0, LRUBits[1], 1'b0}; 				// Block 8
+					default:    LRUBits_Out <= LRUBits; 
+				endcase
+
 				LRU_WE_L <= 0;
-				
-			end else begin
+
+			end else begin  // No hit, need to replace a block
 				DramSelectFromCache_L <= 0;
 
-				if (!LRUBits[0] && !LRUBits[1] && !LRUBits[3]) begin 
-					ReplaceBlockNumberData <= 3'b000;    //block 0
-					LRUBits_Out <= {LRUBits[2], 2'b11};
-				end else if (!LRUBits[0] && !LRUBits[1] && LRUBits[3]) begin
-					ReplaceBlockNumberData <= 3'b001;    //block 1
-					LRUBits_Out <= {LRUBits[2], 2'b10};
-				end else if (!LRUBits[0] && LRUBits[1] && !LRUBits[4]) begin
-					ReplaceBlockNumberData <= 3'b010;    //block 2
-					LRUBits_Out <= {1'b1, LRUBits[3], 1'b1};
-				end else if (!LRUBits[0] && LRUBits[1] && LRUBits[4]) begin
-					ReplaceBlockNumberData <= 3'b011;    //block 3
-					LRUBits_Out <= {1'b0, LRUBits[3], 1'b1};
-				end else if (LRUBits[0] && !LRUBits[2] && !LRUBits[5]) begin
-					ReplaceBlockNumberData <= 3'b100;    //block 4
-					LRUBits_Out <= {LRUBits[1], 1'b1, LRUBits[4]};
-				end else if (LRUBits[0] && !LRUBits[2] && LRUBits[5]) begin
-					ReplaceBlockNumberData <= 3'b101;    //block 5
-					LRUBits_Out <= {LRUBits[1], 1'b0, LRUBits[4]};
-				end else if (LRUBits[0] && LRUBits[2] && !LRUBits[6]) begin
-					ReplaceBlockNumberData <= 3'b110;    //block 6
-					LRUBits_Out <= {1'b1, LRUBits[1], LRUBits[4]};
-				end else begin
-					ReplaceBlockNumberData <= 3'b111;    //block 7
-					LRUBits_Out <= {1'b0, LRUBits[1], LRUBits[4]};
-				end
+				casex (LRUBits)
+					7'bxxx0x00: begin 
+						ReplaceBlockNumberData <= 3'b000; 
+						LRUBits_Out <= {LRUBits[6:4], 1'b1, LRUBits[2], 2'b11}; end // Block 1
+					7'bxxx1x00: begin 
+						ReplaceBlockNumberData <= 3'b001; 
+						LRUBits_Out <= {LRUBits[6:4], 1'b0, LRUBits[2], 2'b11}; end // Block 2
+					7'bxx0xx10: begin 
+						ReplaceBlockNumberData <= 3'b010; 
+						LRUBits_Out <= {LRUBits[6:5], 1'b1, LRUBits[3:2], 1'b0, 1'b1}; end // Block 3
+					7'bxx1xx10: begin 
+						ReplaceBlockNumberData <= 3'b011; 
+						LRUBits_Out <= {LRUBits[6:5], 1'b0, LRUBits[3:2], 1'b0, 1'b1}; end // Block 4
+					7'bx0xx0x1: begin 
+						ReplaceBlockNumberData <= 3'b100; 
+						LRUBits_Out <= {LRUBits[6], 1'b1, LRUBits[4:3], 1'b1, LRUBits[1], 1'b0}; end // Block 5
+					7'bx1xx0x1: begin 
+						ReplaceBlockNumberData <= 3'b101; 
+						LRUBits_Out <= {LRUBits[6], 1'b0, LRUBits[4:3], 1'b1, LRUBits[1], 1'b0}; end // Block 6
+					7'b0xxx1x1: begin 
+						ReplaceBlockNumberData <= 3'b110; 
+						LRUBits_Out <= {1'b1, LRUBits[5:3], 1'b0, LRUBits[1], 1'b0}; end // Block 7
+					7'b1xxx1x1: begin 
+						ReplaceBlockNumberData <= 3'b111; 
+						LRUBits_Out <= {1'b0, LRUBits[5:3], 1'b0, LRUBits[1], 1'b0}; end // Block 8
+					default:    begin 
+						ReplaceBlockNumberData <= 3'b000; 
+						LRUBits_Out <= LRUBits; end
+				endcase
 				LRU_WE_L <= 0;
 				LoadReplacementBlockNumber_H <= 1;
 
