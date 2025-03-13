@@ -234,18 +234,12 @@ module M68kAssociativeCacheController_Verilog (
 					NextState <= CheckForCacheHit;
 				end else begin
 					ValidBitOut_H <= 0;
-					if (|ValidHit_H) begin
-						case (ValidHit_H)
-							4'b0001: ValidBit_WE_L <= 4'b1110;
-							4'b0010: ValidBit_WE_L <= 4'b1101;
-							4'b0100: ValidBit_WE_L <= 4'b1011;
-							4'b1000: ValidBit_WE_L <= 4'b0111;
-							default: ValidBit_WE_L <= 4'b1111;
-						endcase
-		
-						DramSelectFromCache_L <= 0;
-						NextState <= WriteDataToDram;
+					if (|ValidHit_H[3:0]) begin
+						ValidBit_WE_L <= ~ValidHit_H;
 					end
+					DramSelectFromCache_L <= 0;
+					NextState <= WriteDataToDram;
+				end
 				end
 			end
 		
@@ -257,7 +251,7 @@ module M68kAssociativeCacheController_Verilog (
 		else if(CurrentState == CheckForCacheHit) begin				// we are looking for a Cache hit
 			UDS_DramController_L <= 0;
 			LDS_DramController_L <= 0;
-			if (|ValidHit_H) begin
+			if (|ValidHit_H[3:0]) begin
 				WordAddress <= AddressBusInFrom68k[3:1];
 				DtackTo68k_L <= 0;
 				NextState <= WaitForEndOfCacheRead;
@@ -431,5 +425,4 @@ module M68kAssociativeCacheController_Verilog (
 
 		end		
 	end
-  end
 endmodule
