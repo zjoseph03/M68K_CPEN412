@@ -194,15 +194,15 @@ refer to the applicable agreement for further details.
 	(port
 		(pt 424 208)
 		(output)
-		(text "DataCacheWE_L[3..0]" (rect 0 0 127 19)(font "Intel Clear" (font_size 8)))
-		(text "DataCacheWE_L[3..0]" (rect 276 203 403 222)(font "Intel Clear" (font_size 8)))
+		(text "DataCacheWE_L[7..0]" (rect 0 0 127 19)(font "Intel Clear" (font_size 8)))
+		(text "DataCacheWE_L[7..0]" (rect 276 203 403 222)(font "Intel Clear" (font_size 8)))
 		(line (pt 424 208)(pt 408 208)(line_width 3))
 	)
 	(port
 		(pt 424 224)
 		(output)
-		(text "TagCacheWE_L[3..0]" (rect 0 0 121 19)(font "Intel Clear" (font_size 8)))
-		(text "TagCacheWE_L[3..0]" (rect 282 219 403 238)(font "Intel Clear" (font_size 8)))
+		(text "TagCacheWE_L[7..0]" (rect 0 0 121 19)(font "Intel Clear" (font_size 8)))
+		(text "TagCacheWE_L[7..0]" (rect 282 219 403 238)(font "Intel Clear" (font_size 8)))
 		(line (pt 424 224)(pt 408 224)(line_width 3))
 	)
 	(port
@@ -215,15 +215,15 @@ refer to the applicable agreement for further details.
 	(port
 		(pt 424 256)
 		(output)
-		(text "Valid_H[3..0]" (rect 0 0 77 19)(font "Intel Clear" (font_size 8)))
-		(text "Valid_H[3..0]" (rect 326 251 403 270)(font "Intel Clear" (font_size 8)))
+		(text "Valid_H[7..0]" (rect 0 0 77 19)(font "Intel Clear" (font_size 8)))
+		(text "Valid_H[7..0]" (rect 326 251 403 270)(font "Intel Clear" (font_size 8)))
 		(line (pt 424 256)(pt 408 256)(line_width 3))
 	)
 	(port
 		(pt 424 272)
 		(output)
-		(text "ValidHit_H[3..0]" (rect 0 0 95 19)(font "Intel Clear" (font_size 8)))
-		(text "ValidHit_H[3..0]" (rect 308 267 403 286)(font "Intel Clear" (font_size 8)))
+		(text "ValidHit_H[7..0]" (rect 0 0 95 19)(font "Intel Clear" (font_size 8)))
+		(text "ValidHit_H[7..0]" (rect 308 267 403 286)(font "Intel Clear" (font_size 8)))
 		(line (pt 424 272)(pt 408 272)(line_width 3))
 	)
 	(drawing

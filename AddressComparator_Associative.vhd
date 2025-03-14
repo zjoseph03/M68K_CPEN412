@@ -5,8 +5,8 @@ USE ieee.std_logic_unsigned.all;
 
 ENTITY AddressComparator_Associative IS
     PORT (
-        AddressBus : IN std_logic_vector(24 DOWNTO 0);
-        TagData    : IN std_logic_vector(24 DOWNTO 0);
+        AddressBus : IN std_logic_vector(20 DOWNTO 0);
+        TagData    : IN std_logic_vector(20 DOWNTO 0);
         Hit_H      : OUT std_logic
     );
 END ENTITY;
