@@ -4990,10 +4990,6 @@ refer to the applicable agreement for further details.
 	(bus)
 )
 (connector
-	(pt 1376 2448)
-	(pt 1376 2816)
-)
-(connector
 	(pt 1392 2128)
 	(pt 1392 2464)
 )
@@ -5509,11 +5505,6 @@ refer to the applicable agreement for further details.
 	(pt -592 -880)
 )
 (connector
-	(text "Clock45Mhz" (rect 1353 2295 1365 2354)(font "Arial" )(vertical))
-	(pt 1376 2328)
-	(pt 1376 2448)
-)
-(connector
 	(pt 1456 -568)
 	(pt 1344 -568)
 )
@@ -5615,6 +5606,27 @@ refer to the applicable agreement for further details.
 (connector
 	(pt 1776 -192)
 	(pt 2056 -192)
+)
+(connector
+	(text "Clock45Mhz" (rect 1353 2295 1365 2354)(font "Arial" )(vertical))
+	(pt 1376 2296)
+	(pt 1376 2448)
+)
+(connector
+	(pt 1376 2448)
+	(pt 1376 2816)
+)
+(connector
+	(pt -136 -880)
+	(pt -136 -960)
+)
+(connector
+	(pt -1224 -960)
+	(pt -136 -960)
+)
+(connector
+	(pt -1224 2296)
+	(pt -1224 -960)
 )
 (junction (pt 1280 224))
 (junction (pt 1376 224))

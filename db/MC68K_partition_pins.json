@@ -764,6 +764,14 @@
 					"strict" : false
 				},
 				{
+					"name" : "SCL",
+					"strict" : false
+				},
+				{
+					"name" : "SDA",
+					"strict" : false
+				},
+				{
 					"name" : "DRAM_DQ[15]",
 					"strict" : false
 				},
