@@ -661,6 +661,40 @@ void LoadFromFlashChip(void)
   printf("\r\n Read Data: %08x \n", readData);
 }
 
+// I2C Driver Functions
+
+// Initialize and enable I2C controller
+// No interrupts and set clock frequency to 100Khz
+// Connect controller to 25 or 45 Mhz CPU clock
+
+// Check if device is ready before writing anything over I2C bus ie) TX register has written previous command.
+// Check the status register TIP bit to see when transmission has finished
+// Wait for ACK from slave after each write
+
+// Transmit a byte to the I2C bus
+// write the data to be transmitted into TX register and then write something to the command register that indiciates that you want to write
+// If you want to generate a start or stop condition, set the STA or STO bits in command register when you write to it,
+// Clear the ACK bit if you want to generate an ACK when reading data back from the slave
+
+
+
+// EEPROM Functions
+
+// Write a byte to the EEPROM
+// Start write by writing a slave address and sett bit 0 of the data to be transmitted to 0, to indicate that you are writing an address to the slave
+// Generate start condition, and set the bit select and chip select bits, and set bits [7:4] to 1010
+// Write 2 bytes which correspond to the the 2 byte internal 64k address inside the chip, and then write the data to be stored at that address
+
+// Read a byte from the EEPROM
+// Write a slave address along with a start condition
+// Write 2 bytes which correspond to the 2 internal address bytes of the EEPROM
+// Send repeated start condition and set RD bit and ACK bit in command register
+// Set stop bit, and don't forget to set IACK bit to clear any pending interrupt flag
+// When data is recieved from slave, you can find it in the I2C Rx register
+// Poll I2C controller to determine when the data has been read from the slave which can be done by checking the IF flag in status register
+// when IF flag == 1, the data has been received.
+// Clear the IF flag with each byte read 
+// If slave does not recieve ACK from I2C controller, it will not send any more data
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

@@ -643,6 +643,7 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_COUNTER_PIPELINE=
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
+set_global_assignment -name VHDL_FILE I2CSPISelect.vhd
 set_global_assignment -name VHDL_FILE i2c_master_top.vhd
 set_global_assignment -name VHDL_FILE i2c_master_byte_ctrl.vhd
 set_global_assignment -name VHDL_FILE i2c_master_bit_ctrl.vhd
