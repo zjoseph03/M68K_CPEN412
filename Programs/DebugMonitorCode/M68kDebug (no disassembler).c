@@ -671,7 +671,7 @@ void printBinary(unsigned char value) {
 }
 
 void IICCoreEnable() {
-  IIC_CTR |= 0xC0;     // Enable I2C core in control register (1000_0000)
+  IIC_CTR |= 0x80;     // Enable I2C core in control register (1000_0000)
 }
 
 void IICCoreDisable() {
@@ -685,14 +685,17 @@ void IIC_Init(void) {
   IICCoreEnable();
 }
 
+void wait5ms(void) {
+  int i;
+  for (i = 0; i < 10000; i++); // Wait for 5 ms
+}
+
 void checkTIP() {
   while (IIC_CRSR & TIP);
 }
 
-int checkAck() {
+void checkAck() {
   while ((IIC_CRSR & RXACK) == 1);
-    printf("\r\n ACK Received\n");
-    return 0;
 }
 
 void IICStopCondition() {
@@ -726,7 +729,7 @@ void EEPROMByteWrite(int data, short int deviceAddr, short int memoryAddr) {
   // Control code, chip select, and block select (ie: Slave Address) and the R/W bit (== 0) are sent
   IIC_TXRX = ((deviceAddr << 1) & 0xFE);
   IIC_CRSR = START | WRITE | IACK;
-  printf("Sent Slave Address: %02x\n", (deviceAddr << 1) & 0xFE);
+  // printf("Sent Slave Address: %02x\n", (deviceAddr << 1) & 0xFE);
   checkTIP();
   checkAck();
   // printf("Status Register 2: %x\n", IIC_CRSR);
@@ -735,18 +738,18 @@ void EEPROMByteWrite(int data, short int deviceAddr, short int memoryAddr) {
   // printf("\r\n Slave Address Ack Status: : %d\n", checkAck()); //TIP is checked in checkAck function
   
   // Send the high-order byte of the address
-  IIC_TXRX = (memoryAddr >> 8);
+  IIC_TXRX = (memoryAddr >> 8) & 0xFF;
   IIC_CRSR = WRITE | IACK;
   checkTIP();
   checkAck();
-  printf("Sent Upper Memory Byte: %02x\n", memoryAddr >> 8);
+  // printf("Sent Upper Memory Byte: %02x\n", memoryAddr >> 8);
   
   // Send the lower-order byte of the address
   IIC_TXRX = (memoryAddr & 0xFF);
   IIC_CRSR = WRITE | IACK;
   checkTIP();
   checkAck();
-  printf("Sent Lower Memory Byte: %02x\n", memoryAddr & 0xFF);
+  //printf("Sent Lower Memory Byte: %02x\n", memoryAddr & 0xFF);
   // printf("Status Register 4: %x\n", IIC_CRSR);
 
   // Transmit byte to be written
@@ -754,13 +757,14 @@ void EEPROMByteWrite(int data, short int deviceAddr, short int memoryAddr) {
   IIC_CRSR = STOP | WRITE | IACK;
   checkTIP();
   checkAck();
-  printf("Sent Data: %02x\n", data);
-  printf("Sent Stop Condition");
+  wait5ms();
+  // printf("Sent Data: %02x\n", data);
+  // printf("Sent Stop Condition");
 
   // printf("Status Register 6: %x\n", IIC_CRSR);
   
   // IICCoreDisable();
-  printf("\r\nI2C Byte Write Complete\n");
+  //printf("\r\nI2C Byte Write Complete\n");
 }
 
 void EEPROMFlashPageWrite(int* data, int adr, int numBytes) {
@@ -780,19 +784,19 @@ int EEPROMRandomRead(int deviceAddr, int readAddr) {
     IIC_CRSR = START | WRITE | IACK;
     checkTIP();
     checkAck();
-    printf("Sending Slave Address: %02x\n", (deviceAddr << 1) & 0xFE);
+    //printf("Sending Slave Address: %02x\n", (deviceAddr << 1) & 0xFE);
 
     // Send the high-order byte of the address
-    IIC_TXRX = (readAddr >> 8);
+    IIC_TXRX = (readAddr >> 8) & 0xFF;
     IIC_CRSR = WRITE | IACK;
-    printf("Sent Upper Memory Byte: %02x\n", readAddr >> 8);
+    //printf("Sent Upper Memory Byte: %02x\n", readAddr >> 8);
     checkTIP();
     checkAck();
 
     // Send the low-order byte of the address
     IIC_TXRX = (readAddr & 0xFF);
     IIC_CRSR = WRITE | IACK;
-    printf("Sent Lower Memory Byte: %02x\n", readAddr & 0xFF);
+    //printf("Sent Lower Memory Byte: %02x\n", readAddr & 0xFF);
     checkTIP();
     checkAck();
     
@@ -801,8 +805,8 @@ int EEPROMRandomRead(int deviceAddr, int readAddr) {
     IIC_CRSR = START | WRITE | IACK;
     checkTIP();
     checkAck();
-    printf("Sent Start Condition with Read Bit Set\n");
-    printf("Sent Slave Address with Read Bit Set: %02x\n", (deviceAddr << 1) | 0x01);
+    //printf("Sent Start Condition with Read Bit Set\n");
+    //printf("Sent Slave Address with Read Bit Set: %02x\n", (deviceAddr << 1) | 0x01);
 
     // // Print TXRX register
     // printf("IIC_TXRX read: %02x", IIC_TXRX);
@@ -812,14 +816,15 @@ int EEPROMRandomRead(int deviceAddr, int readAddr) {
     IIC_CRSR &= NACK; // NACK
     checkTIP();
 
-    printf("Sent Stop Condition\n");
+    //printf("Sent Stop Condition\n");
     
     // Check if IF flag is sent, and if so read the data
     while (!(IIC_CRSR & 0x1));
     readData = IIC_TXRX;
-    printf("\r\n Data Read: %02x", readData);
+    //printf("\r\n Data Read: %02x", readData);
     
     // IICCoreDisable();
+    // wait5ms();
     return readData;    
 }   
 
@@ -827,6 +832,7 @@ I2CTest() {
   int IICData[5] = {0x01, 0x02, 0x03, 0x04, 0x05};
   int writeData = 0xAB;
   int readData;
+  int i;
 
   printf("\r\n I2C Test");
   IIC_Init();
@@ -834,11 +840,22 @@ I2CTest() {
   
   
   printf("\r\n Starting EEPROM Write: Writing 0x%.2x to address 0x00\n", writeData); // Debug: Indicate the start of EEPROM write
-  EEPROMByteWrite(0xBC, EEPROM0, 0x0);
+  for (i = 0; i < 50; i++) {
+    printf("\r\n Writing %d to address %d\n", i, i);
+    EEPROMByteWrite(i, EEPROM0, i); // Write data to EEPROM
+    // readData = EEPROMRandomRead(EEPROM0, i);
+    // printf("\r\n Address: %d: %d\n", i, readData);
+  }
+  // EEPROMByteWrite(0xBC, EEPROM0, 0x0);
   
-  printf("\r\nFinished write, Starting EEPROM Read\n");
-  readData = EEPROMRandomRead(EEPROM0, 0x0);
-  printf("\r\n Address: %d: %d\n", 0x0, readData);
+  // printf("\r\nFinished write, Starting EEPROM Read\n");
+  for (i = 0; i < 50; i++) {
+    readData = EEPROMRandomRead(EEPROM0, i); // Read data from EEPROM
+    printf("\r\n Address: %d: %d\n", i, readData); // Debug: Indicate the address being read and the data read
+  }
+  // readData = EEPROMRandomRead(EEPROM0, 0x0);
+  IICCoreDisable();
+  // printf("\r\n Address: %d: %d\n", 0x0, readData);
 }
 
 // Initialize and enable I2C controller
