@@ -112,6 +112,29 @@
 #define SPI_Data    (*(volatile unsigned char *)(0x00408024))
 #define SPI_Ext     (*(volatile unsigned char *)(0x00408026))
 #define SPI_CS      (*(volatile unsigned char *)(0x00408028))
+
+// IIC Registers
+#define IIC_PRER_LO (*(volatile unsigned char *)(0x00408000))
+#define IIC_PRER_HI (*(volatile unsigned char *)(0x00408002))
+#define IIC_CTR     (*(volatile unsigned char *)(0x00408004))
+#define IIC_TXRX    (*(volatile unsigned char *)(0x00408006))
+#define IIC_CRSR    (*(volatile unsigned char *)(0x00408008))
+
+#define EEPROM0     (0x50)
+
+// I2C Command/Status Register Macro Mask
+#define START 0x80
+#define STOP  0x40
+#define READ  0x20
+#define WRITE 0x10
+#define ACK   0x8
+#define IACK  0x1
+
+#define NACK  0xF7
+#define RXACK 0x80
+#define TIP   0x2
+#define INTF  0x01
+
 // these two macros enable or disable the flash memory chip enable off SSN_O[7..0]
 // in this case we assume there is only 1 device connected to SSN_O[0] so we can
 // write hex FE to the SPI_CS to enable it (the enable on the flash chip is active low)

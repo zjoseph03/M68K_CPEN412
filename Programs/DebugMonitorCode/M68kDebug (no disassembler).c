@@ -661,7 +661,185 @@ void LoadFromFlashChip(void)
   printf("\r\n Read Data: %08x \n", readData);
 }
 
+void printBinary(unsigned char value) {
+  int i;
+    printf("IIC_CRSR Transmit (Binary): ");
+    for (i = 7; i >= 0; i--) { // Loop through each bit (from MSB to LSB)
+        printf("%d", (value >> i) & 1); // Shift and mask to extract each bit
+    }
+    printf("\n");
+}
+
+void IICCoreEnable() {
+  IIC_CTR |= 0xC0;     // Enable I2C core in control register (1000_0000)
+}
+
+void IICCoreDisable() {
+  IIC_CTR &= 0x7F;    // Disable I2C core in control register (0011_1111)
+}
 // I2C Driver Functions
+void IIC_Init(void) {
+  IIC_PRER_LO = 0x59;  // Scale the I2C clock from 45 Mhz to 100 Khz
+  IIC_PRER_HI = 0x00;  // Scale the I2C clock from 45 Mhz to 100 Khz
+  IIC_CTR &= 0xBF;     // Disable interrupt in control register (1011_1111)
+  IICCoreEnable();
+}
+
+void checkTIP() {
+  while (IIC_CRSR & TIP);
+}
+
+int checkAck() {
+  while ((IIC_CRSR & RXACK) == 1);
+    printf("\r\n ACK Received\n");
+    return 0;
+}
+
+void IICStopCondition() {
+  IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
+  checkTIP();
+}
+
+void IICStartCondition(int rwBit) {
+  if (rwBit == 0) {
+    IIC_CRSR |= START | WRITE | IACK; // START + WRITE + IACK
+  } else {
+    IIC_CRSR |= START | READ | IACK; // Start condition with read bit set
+  }
+  checkTIP();
+  checkAck();
+}
+
+// EEPROM Address: 101000{B0} 
+// EEPROM Specific Functions
+
+void EEPROMByteWrite(int data, short int deviceAddr, short int memoryAddr) {
+  // Check if there is a transmission in progress
+  // IICCoreEnable();
+  checkTIP();
+  
+  // Set the start condition
+  // IICStartCondition(0);
+  // printf("Status Register 1: %x\n", IIC_CRSR);
+  // printf("Status Register 1: %x\n", IIC_CRSR);
+  
+  // Control code, chip select, and block select (ie: Slave Address) and the R/W bit (== 0) are sent
+  IIC_TXRX = ((deviceAddr << 1) & 0xFE);
+  IIC_CRSR = START | WRITE | IACK;
+  printf("Sent Slave Address: %02x\n", (deviceAddr << 1) & 0xFE);
+  checkTIP();
+  checkAck();
+  // printf("Status Register 2: %x\n", IIC_CRSR);
+
+  // Check for ACK
+  // printf("\r\n Slave Address Ack Status: : %d\n", checkAck()); //TIP is checked in checkAck function
+  
+  // Send the high-order byte of the address
+  IIC_TXRX = (memoryAddr >> 8);
+  IIC_CRSR = WRITE | IACK;
+  checkTIP();
+  checkAck();
+  printf("Sent Upper Memory Byte: %02x\n", memoryAddr >> 8);
+  
+  // Send the lower-order byte of the address
+  IIC_TXRX = (memoryAddr & 0xFF);
+  IIC_CRSR = WRITE | IACK;
+  checkTIP();
+  checkAck();
+  printf("Sent Lower Memory Byte: %02x\n", memoryAddr & 0xFF);
+  // printf("Status Register 4: %x\n", IIC_CRSR);
+
+  // Transmit byte to be written
+  IIC_TXRX = data;
+  IIC_CRSR = STOP | WRITE | IACK;
+  checkTIP();
+  checkAck();
+  printf("Sent Data: %02x\n", data);
+  printf("Sent Stop Condition");
+
+  // printf("Status Register 6: %x\n", IIC_CRSR);
+  
+  // IICCoreDisable();
+  printf("\r\nI2C Byte Write Complete\n");
+}
+
+void EEPROMFlashPageWrite(int* data, int adr, int numBytes) {
+
+}
+
+int EEPROMRandomRead(int deviceAddr, int readAddr) {
+    int readData;
+    // Wait for bus to be idle
+    // IICCoreEnable(); 
+    checkTIP(); 
+    // Print TXRX register
+    // printf("IIC_TXRX read before: %02x", IIC_TXRX);
+
+    // Send start condition for a write
+    IIC_TXRX = ((deviceAddr << 1) & 0xFE);
+    IIC_CRSR = START | WRITE | IACK;
+    checkTIP();
+    checkAck();
+    printf("Sending Slave Address: %02x\n", (deviceAddr << 1) & 0xFE);
+
+    // Send the high-order byte of the address
+    IIC_TXRX = (readAddr >> 8);
+    IIC_CRSR = WRITE | IACK;
+    printf("Sent Upper Memory Byte: %02x\n", readAddr >> 8);
+    checkTIP();
+    checkAck();
+
+    // Send the low-order byte of the address
+    IIC_TXRX = (readAddr & 0xFF);
+    IIC_CRSR = WRITE | IACK;
+    printf("Sent Lower Memory Byte: %02x\n", readAddr & 0xFF);
+    checkTIP();
+    checkAck();
+    
+    // send START condition again followed by slave address with R/W set to 1
+    IIC_TXRX = 0xA1; //((deviceAddr << 1) | 0x01);
+    IIC_CRSR = START | WRITE | IACK;
+    checkTIP();
+    checkAck();
+    printf("Sent Start Condition with Read Bit Set\n");
+    printf("Sent Slave Address with Read Bit Set: %02x\n", (deviceAddr << 1) | 0x01);
+
+    // // Print TXRX register
+    // printf("IIC_TXRX read: %02x", IIC_TXRX);
+    
+    // IICStopCondition();
+    IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
+    IIC_CRSR &= NACK; // NACK
+    checkTIP();
+
+    printf("Sent Stop Condition\n");
+    
+    // Check if IF flag is sent, and if so read the data
+    while (!(IIC_CRSR & 0x1));
+    readData = IIC_TXRX;
+    printf("\r\n Data Read: %02x", readData);
+    
+    // IICCoreDisable();
+    return readData;    
+}   
+
+I2CTest() {
+  int IICData[5] = {0x01, 0x02, 0x03, 0x04, 0x05};
+  int writeData = 0xAB;
+  int readData;
+
+  printf("\r\n I2C Test");
+  IIC_Init();
+  //IICWriteData(IICData, 0x50, 5);
+  
+  
+  printf("\r\n Starting EEPROM Write: Writing 0x%.2x to address 0x00\n", writeData); // Debug: Indicate the start of EEPROM write
+  EEPROMByteWrite(0xBC, EEPROM0, 0x0);
+  
+  printf("\r\nFinished write, Starting EEPROM Read\n");
+  readData = EEPROMRandomRead(EEPROM0, 0x0);
+  printf("\r\n Address: %d: %d\n", 0x0, readData);
+}
 
 // Initialize and enable I2C controller
 // No interrupts and set clock frequency to 100Khz
@@ -1330,7 +1508,6 @@ void menu(void)
 
         else if( c == (char)('M'))           // memory examine and modify
              MemoryChange() ;
-
         else if( c == (char)('P'))            // Program Flash Chip
              ProgramFlashChip() ;
 
@@ -1707,6 +1884,7 @@ void main(void)
     Init_RS232() ;     // initialise the RS232 port
     Init_LCD() ;
     SPI_Init();
+    IIC_Init();
 
     for( i = 32; i < 48; i++)
        InstallExceptionHandler(UnhandledTrap, i) ;		        // install Trap exception handler on vector 32-47
@@ -1758,6 +1936,8 @@ void main(void)
     printf("\r\n%s", CopyrightMessage) ;
     printf("\n Student Names:\n Zachariah Joseph: 45500055 \n Umair Mazhar: 20333308\n");
 
+    printf("Initializing i2c test...\n");
+    I2CTest();
     menu();
 }
 
