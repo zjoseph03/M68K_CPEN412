@@ -812,15 +812,16 @@ int EEPROMRandomRead(int deviceAddr, int readAddr) {
     // printf("IIC_TXRX read: %02x", IIC_TXRX);
     
     // IICStopCondition();
-    IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
-    IIC_CRSR &= NACK; // NACK
+    IIC_CRSR = STOP | READ | IACK | NACK; // STOP + READ + IACK + NACK
     checkTIP();
 
     //printf("Sent Stop Condition\n");
     
     // Check if IF flag is sent, and if so read the data
     while (!(IIC_CRSR & 0x1));
+    IIC_CRSR = 0;
     readData = IIC_TXRX;
+    
     //printf("\r\n Data Read: %02x", readData);
     
     // IICCoreDisable();
@@ -843,17 +844,18 @@ I2CTest() {
   for (i = 0; i < 50; i++) {
     printf("\r\n Writing %d to address %d\n", i, i);
     EEPROMByteWrite(i, EEPROM0, i); // Write data to EEPROM
+    // wait5ms(); wait5ms(); wait5ms(); wait5ms(); wait5ms(); wait5ms(); wait5ms(); wait5ms(); // Wait for 5 ms
     // readData = EEPROMRandomRead(EEPROM0, i);
     // printf("\r\n Address: %d: %d\n", i, readData);
   }
   // EEPROMByteWrite(0xBC, EEPROM0, 0x0);
   
-  // printf("\r\nFinished write, Starting EEPROM Read\n");
+  printf("\r\nFinished write, Starting EEPROM Read\n");
   for (i = 0; i < 50; i++) {
     readData = EEPROMRandomRead(EEPROM0, i); // Read data from EEPROM
     printf("\r\n Address: %d: %d\n", i, readData); // Debug: Indicate the address being read and the data read
   }
-  // readData = EEPROMRandomRead(EEPROM0, 0x0);
+  readData = EEPROMRandomRead(EEPROM0, 0x0);
   IICCoreDisable();
   // printf("\r\n Address: %d: %d\n", 0x0, readData);
 }

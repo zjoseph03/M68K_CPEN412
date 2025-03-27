@@ -130,7 +130,7 @@
 #define ACK   0x8
 #define IACK  0x1
 
-#define NACK  0xF7
+#define NACK  0x8
 #define RXACK 0x80
 #define TIP   0x2
 #define INTF  0x01
