@@ -121,6 +121,7 @@
 #define IIC_CRSR    (*(volatile unsigned char *)(0x00408008))
 
 #define EEPROM0     (0x50)
+#define EEPROM1     (0x51)
 
 // I2C Command/Status Register Macro Mask
 #define START 0x80
