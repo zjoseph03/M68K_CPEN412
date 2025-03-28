@@ -719,6 +719,11 @@ void IICStartCondition(int rwBit) {
 void EEPROMByteWrite(unsigned int data, unsigned int deviceAddr, unsigned int memoryAddr) {
   // Check if there is a transmission in progress
   // IICCoreEnable();
+  if (memoryAddr < 0x10000) {
+    deviceAddr = EEPROM0;
+  } else {
+    deviceAddr = EEPROM1;
+  }
   checkTIP();
   
   // Set the start condition
@@ -753,7 +758,7 @@ void EEPROMByteWrite(unsigned int data, unsigned int deviceAddr, unsigned int me
   // printf("Status Register 4: %x\n", IIC_CRSR);
 
   // Transmit byte to be written
-  IIC_TXRX = 0xAA; //data;
+  IIC_TXRX = data;
   IIC_CRSR = STOP | WRITE | IACK;
   checkTIP();
   checkAck();
@@ -767,7 +772,7 @@ void EEPROMByteWrite(unsigned int data, unsigned int deviceAddr, unsigned int me
   //printf("\r\nI2C Byte Write Complete\n");
 }
 
-void EEPROMFlashPageWrite(int* data, unsigned int startingGlobalAddress, unsigned int numBytes) {
+void EEPROMFlashPageWrite(int* data, unsigned int startingGlobalAddress, unsigned int numBytes, int fullMemory) {
   
     unsigned int currentAddress = startingGlobalAddress; 
     unsigned int endAddress = startingGlobalAddress + numBytes;
@@ -824,8 +829,12 @@ void EEPROMFlashPageWrite(int* data, unsigned int startingGlobalAddress, unsigne
     checkTIP();
     checkAck();
   
-    while (pageFlag) {        
-      IIC_TXRX = 0xAD; //data[currIndex];
+    while (pageFlag) {
+      if (fullMemory) {        
+        IIC_TXRX = data[0];
+      } else {
+        IIC_TXRX = data[currIndex];
+      }
 
       
       if (currentAddress == 0xFFFF) {
@@ -854,6 +863,12 @@ void EEPROMFlashPageWrite(int* data, unsigned int startingGlobalAddress, unsigne
 
 int EEPROMRandomRead(unsigned int deviceAddr, unsigned readAddr) {
     unsigned int readData;
+
+    if (readAddr < 0x10000) {
+      deviceAddr = EEPROM0;
+    } else {
+      deviceAddr = EEPROM1;
+    }
     // Wait for bus to be idle
     // IICCoreEnable(); 
     checkTIP(); 
@@ -1037,14 +1052,110 @@ int EEPROMSequentialRead(unsigned int startGlobalAddr, int readLen) {
 }
 
 
-I2CTest() {
+// I2CTest() {
+//     unsigned int i, j;
+//     unsigned int readData;
+//     char c, text[150];
+//     unsigned char dataByte;
+//     unsigned int address, size, intBuffer;
+//     unsigned int testChoice = 0;
+//     unsigned char startAddress;
+//     unsigned int dataPattern = 0;
+
+//     printf("\r\n I2C Test\n");
+//     printf("\r\nInitializing I2C...\n");
+    
+//     IIC_Init();
+    
+//     scanflush();
+//     memset(text, 0, sizeof(text));  // fills with zeros
+
+//     printf("\r\nChoose option:\n");  // Fixed missing \n
+//     printf("1 Read Single Byte from EEPROM\n");
+//     printf("2 Write Single Byte to EEPROM\n");
+//     printf("3 Read Block of Data from EEPROM\n");
+//     printf("4 Write Block of Data to EEPROM\n");
+    
+//     testChoice = _getch() - 48;    
+    
+//     // Option 1: Read Single Byte
+//     if (testChoice == 1) {
+//         printf("\r\nRead Single Byte\n");
+//         printf("Enter address: 0x");
+//         address = Get8HexDigits(0);
+        
+//         dataByte = EEPROMRandomRead(EEPROM0, address);
+//         printf("Read from address 0x%X: 0x%02X\n", address, dataByte);
+//     }
+    
+//     // Option 2: Write Single Byte
+//     if (testChoice == 2) {
+//         printf("\r\nWrite Single Byte\n"); 
+//         printf("Enter address: 0x");
+//         address = Get8HexDigits(0);
+        
+//         printf("\nEnter which data pattern you want to write into memory\n 0x00 = 0\n 0xB2 = 1\n 0xC3 = 2\n 0xD4 = 3\n");
+//         intBuffer = _getch() - 48;
+//         // scanf("%d", &intBuffer);
+//         switch (intBuffer) {
+//             case(0):
+//                 dataPattern = 0x00; break;
+//             case(1):
+//                 dataPattern = 0xB2; break;
+//             case(2):
+//                 dataPattern = 0xC3; break;
+//             case(3):
+//                 dataPattern = 0xD4; break;
+//         }
+//         dataPattern &= 0xFF;
+        
+//         EEPROMByteWrite(dataPattern, EEPROM0, address);
+
+//         printf("Wrote 0x%02X to address 0x%X\n", dataPattern, address);
+        
+//         readData = EEPROMRandomRead(EEPROM0, address);
+//         printf("Read back: 0x%02X\n", readData);
+//     }
+    
+//     // Option 3: Read Block of Data
+//     if (testChoice == 3) {
+//         printf("\r\nRead Block of Data\n");
+//         printf("Enter start address (hex): 0x");
+//         startAddress = Get8HexDigits(0);
+        
+//         switch (intBuffer) {
+//             case(0):
+//                 dataPattern = 0x00; break;
+//             case(1):
+//                 dataPattern = 0xB2; break;
+//             case(2):
+//                 dataPattern = 0xC3; break;
+//             case(3):
+//                 dataPattern = 0xD4; break;
+//         }
+        
+//         printf("\nReading %d bytes starting from address 0x%X...\n", numBytes, startAddress);
+//         EEPROMSequentialRead(startAddress, numBytes);
+
+//     }
+
+//     // Option 4: Write Block of Data
+//     if (testChoice == 4) {
+//     }
+        
+// Updated I2CTest function with improved EEPROM read and write functionality
+int I2CTest() {
     unsigned int i, j;
     unsigned int readData;
     char c, text[150];
     unsigned char dataByte;
     unsigned int address, size, intBuffer;
-    unsigned int testChoice = 0;  
-
+    unsigned int testChoice = 0;
+    unsigned int startAddress;
+    unsigned int dataPattern = 0;
+    unsigned int numBytes = 0;
+    unsigned int totalsize = 0;
+    int arr[1];
 
     printf("\r\n I2C Test\n");
     printf("\r\nInitializing I2C...\n");
@@ -1054,7 +1165,7 @@ I2CTest() {
     scanflush();
     memset(text, 0, sizeof(text));  // fills with zeros
 
-    printf("\r\nChoose option:\n");  // Fixed missing \n
+    printf("\r\nChoose option:\n");
     printf("1 Read Single Byte from EEPROM\n");
     printf("2 Write Single Byte to EEPROM\n");
     printf("3 Read Block of Data from EEPROM\n");
@@ -1065,41 +1176,108 @@ I2CTest() {
     // Option 1: Read Single Byte
     if (testChoice == 1) {
         printf("\r\nRead Single Byte\n");
-        printf("Enter address: 0x");
+        printf("Enter address (hex): 0x");
         address = Get8HexDigits(0);
         
         dataByte = EEPROMRandomRead(EEPROM0, address);
-        printf("Read from address 0x%X: 0x%02X\n", address, dataByte);
+        printf("\r\nRead from address 0x%X: 0x%02X\n", address, dataByte);
     }
     
     // Option 2: Write Single Byte
-    if (testChoice == 2) {
+    else if (testChoice == 2) {
         printf("\r\nWrite Single Byte\n"); 
-        printf("Enter address: 0x");
+        printf("\r\nEnter address (hex): 0x");
         address = Get8HexDigits(0);
         
-        printf("Enter byte value: 0x");
-        dataByte = Get8HexDigits(0);
+        printf("\nEnter which data pattern you want to write into memory:\n");
+        printf(" 0: 0x00\n 1: 0xB2\n 2: 0xC3\n 3: 0xD4\n 4: Custom value\n");
+        intBuffer = _getch() - 48;
         
-        EEPROMByteWrite(dataByte, EEPROM0, address);
-        printf("Wrote 0x%02X to address 0x%X\n", dataByte, address);
+        if (intBuffer == 4) {
+            printf("Select pattern");
+            dataPattern = Get2HexDigits(0);
+        } else {
+            switch (intBuffer) {
+                case 0:
+                    dataPattern = 0x00; break;
+                case 1:
+                    dataPattern = 0xB2; break;
+                case 2:
+                    dataPattern = 0xC3; break;
+                case 3:
+                    dataPattern = 0xD4; break;
+                default:
+                    dataPattern = 0x00; break;
+            }
+        }
+        dataPattern &= 0xFF;
         
-        wait5ms();
+        EEPROMByteWrite(dataPattern, EEPROM0, address);
+
+        printf("Wrote 0x%02X to address 0x%X\n", dataPattern, address);
+        
         readData = EEPROMRandomRead(EEPROM0, address);
         printf("Read back: 0x%02X\n", readData);
     }
     
     // Option 3: Read Block of Data
-    if (testChoice == 3) {
+    else if (testChoice == 3) {
+        printf("\r\nRead Block of Data\n");
+        printf("Enter start address (hex): 0x");
+        startAddress = Get8HexDigits(0);
+        
+        printf("\r\nEnter number of bytes to read (hex): 0x");
+        numBytes = Get8HexDigits(0);
+        
+        printf("\r\nReading 0x%X (%d) bytes starting from address 0x%X...\n", numBytes, numBytes, startAddress);
+        EEPROMSequentialRead(startAddress, numBytes);
     }
-    
 
     // Option 4: Write Block of Data
-    if (testChoice == 4) {
+    else if (testChoice == 4) {
+        printf("\r\nWrite Block of Data\n");
+        printf("Enter start address (hex): 0x");
+        startAddress = Get8HexDigits(0);
+
+        printf("\r\nEnter number of bytes to write (hex): 0x");
+        numBytes = Get8HexDigits(0);
+        
+        printf("\r\nEnter which data pattern you want to write into memory:\n");
+        printf(" 0: 0x00\n 1: 0xB2\n 2: 0xC3\n 3: 0xD4\n 4: Incrementing pattern\n");
+        intBuffer = _getch() - 48;
+        
+        if (intBuffer == 4) {
+            printf("Selected incrementing pattern (address & 0xFF)\n");
+            dataPattern = 0xFF;  // Special marker for incrementing pattern
+        } else {
+            switch (intBuffer) {
+                case 0:
+                    dataPattern = 0x00; break;
+                case 1:
+                    dataPattern = 0xB2; break;
+                case 2:
+                    dataPattern = 0xC3; break;
+                case 3:
+                    dataPattern = 0xD4; break;
+                default:
+                    dataPattern = 0x00; break;
+            }
+            printf("Selected pattern: 0x%02X\n", dataPattern);
+        }
+        
+        printf("\r\nPreparing to write 0x%X (%d) bytes of data starting at address 0x%X...\n", numBytes, numBytes, startAddress);
+        arr[0] = dataPattern; // Initialize the first byte of the array
+        EEPROMFlashPageWrite(arr, startAddress, numBytes, 1);
     }
-} 
 
-
+    if (testChoice == 5) {
+        printf("\r\Printing Entire EEPROM\n");
+        EEPROMSequentialRead(0x0000, 32768);  // First 32KB
+        EEPROMSequentialRead(0x8000, 32768);  // Second 32KB
+        EEPROMSequentialRead(0x10000, 32768); // Third 32KB
+        EEPROMSequentialRead(0x18000, 32768); // Fourth 32KB
+    }
+  }
 // I2CTest() {
 //   unsigned int arraySize = 512;
 //   unsigned int IICData[512];
@@ -1153,26 +1331,91 @@ I2CTest() {
 // If you want to generate a start or stop condition, set the STA or STO bits in command register when you write to it,
 // Clear the ACK bit if you want to generate an ACK when reading data back from the slave
 
+// DAC Functions
+// DAC/ADC Address: 1001001 + R/W
+// Control Byte: Set bit6 on to activate unity gain buffer. lower nibble selects the input channel (For DAC ignored once you enter DAC mode)
+// Calculate sine wave values between 0 and 255 
 
 
-// EEPROM Functions
+// Pseudo code process
+// Init I2C 
+// Control byte sent after the slave address. COnfigure this properly
+// Remaining bits can select input channel mode
+// Generate sine wave
 
-// Write a byte to the EEPROM
-// Start write by writing a slave address and sett bit 0 of the data to be transmitted to 0, to indicate that you are writing an address to the slave
-// Generate start condition, and set the bit select and chip select bits, and set bits [7:4] to 1010
-// Write 2 bytes which correspond to the the 2 byte internal 64k address inside the chip, and then write the data to be stored at that address
 
-// Read a byte from the EEPROM
-// Write a slave address along with a start condition
-// Write 2 bytes which correspond to the 2 internal address bytes of the EEPROM
-// Send repeated start condition and set RD bit and ACK bit in command register
-// Set stop bit, and don't forget to set IACK bit to clear any pending interrupt flag
-// When data is recieved from slave, you can find it in the I2C Rx register
-// Poll I2C controller to determine when the data has been read from the slave which can be done by checking the IF flag in status register
-// when IF flag == 1, the data has been received.
-// Clear the IF flag with each byte read 
-// If slave does not recieve ACK from I2C controller, it will not send any more data
+void ADCRead() {
+  unsigned int readData;
+  
+  IIC_Init();
+  checkTIP();
 
+  IIC_TXRX = ((PCF8591 << 1) | 0x1); // Send EEPROM address with read bit
+  IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+  
+
+  // Read data from ADC continously 
+  while(1) {  // Loop continuously
+    for (i = 0; i < NUM_SAMPLES; i++) {
+        // Load the triangle wave sample into the I2C transmit register
+        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        while (!IIC_CRSR & 0x1); // Wait for IF flag to be set
+        IIC_CRSR = 0; // Clear IF flag
+        readData = IIC_TXRX; // Read data from EEPROM
+        printf("\r\n ADC Read: %d\n", readData); // Debug: Indicate the address being read and the data read
+        
+
+        wait5ms(); Wait3ms();
+    }
+  }
+}
+
+void DACWave() {
+  int triangle_table[NUM_SAMPLES];
+  int i;
+
+  // Generate triangle wave samples
+  // Ascending part: from 0 to 255
+  for(i = 0; i < HALF_SAMPLES; i++) {
+      triangle_table[i] = i;  // 0 to 255
+  }
+
+  // Descending part: from 255 back to 0
+  for(i = HALF_SAMPLES; i < NUM_SAMPLES; i++) {
+      triangle_table[i] = 255 - (i - HALF_SAMPLES);
+  }
+  
+  IIC_Init();
+  checkTIP();
+
+  // START condition with slave address
+  IIC_TXRX = ((PCF8591 << 1) & 0xFE); // Send EEPROM address with write bit
+  IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  // DAC Control Byte: Send 01XX0XXX
+  IIC_TXRX = 0x40; // Send EEPROM address with write bit
+  IIC_CRSR = WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  // Go up and down from 0 to 255 to create effects
+  while(1) {  // Loop continuously
+    for (i = 0; i < NUM_SAMPLES; i++) {
+        // Load the triangle wave sample into the I2C transmit register
+        IIC_TXRX = triangle_table[i];
+        IIC_CRSR = WRITE | IACK;  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        checkAck();  // Check for acknowledgment from the DAC
+
+        Wait1ms();
+    }
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // IMPORTANT
@@ -1807,6 +2050,10 @@ void menu(void)
 
         else if( c == (char)('M'))           // memory examine and modify
              MemoryChange() ;
+        else if( c == (char)('I'))           //I2Ctest()
+            I2CTest(); 
+        else if( c == (char)('W'))           // DAC test
+            DACWave();
         else if( c == (char)('P'))            // Program Flash Chip
              ProgramFlashChip() ;
 
@@ -2234,8 +2481,6 @@ void main(void)
     printf("\r\n%s", BugMessage) ;
     printf("\r\n%s", CopyrightMessage) ;
     printf("\n Student Names:\n Zachariah Joseph: 45500055 \n Umair Mazhar: 20333308\n");
-
-    I2CTest();
     menu();
 }
 

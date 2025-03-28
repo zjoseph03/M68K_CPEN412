@@ -136,6 +136,15 @@
 #define TIP   0x2
 #define INTF  0x01
 
+// DAC Information
+#define PCF8591 0x49
+
+// LED Visual constants
+#define NUM_SAMPLES 512  // Total samples: 256 up, 256 down
+#define HALF_SAMPLES (NUM_SAMPLES / 2)
+#define SAMPLE_DELAY_MS 10  // Adjust delay for your desired frequency
+
+
 // these two macros enable or disable the flash memory chip enable off SSN_O[7..0]
 // in this case we assume there is only 1 device connected to SSN_O[0] so we can
 // write hex FE to the SPI_CS to enable it (the enable on the flash chip is active low)
