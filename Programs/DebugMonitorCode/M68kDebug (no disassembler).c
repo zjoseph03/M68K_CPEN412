@@ -1036,45 +1036,109 @@ int EEPROMSequentialRead(unsigned int startGlobalAddr, int readLen) {
   }
 }
 
+
 I2CTest() {
-  unsigned int arraySize = 512;
-  unsigned int IICData[512];
-  unsigned int i;
-  unsigned int writeData = 0xAB;
-  unsigned int readData;
-  unsigned int totalBytes = 0x20000;
+    unsigned int i, j;
+    unsigned int readData;
+    char c, text[150];
+    unsigned char dataByte;
+    unsigned int address, size, intBuffer;
+    unsigned int testChoice = 0;  
 
-  for (i = 0; i < arraySize; i++) {
-    IICData[i] = (i % 50) + 1;
-    IICData[i] = 0xAA;
-  } 
 
-  printf("\r\n I2C Test\n");
-  IIC_Init();  
+    printf("\r\n I2C Test\n");
+    printf("\r\nInitializing I2C...\n");
+    
+    IIC_Init();
+    
+    scanflush();
+    memset(text, 0, sizeof(text));  // fills with zeros
+
+    printf("\r\nChoose option:\n");  // Fixed missing \n
+    printf("1 Read Single Byte from EEPROM\n");
+    printf("2 Write Single Byte to EEPROM\n");
+    printf("3 Read Block of Data from EEPROM\n");
+    printf("4 Write Block of Data to EEPROM\n");
+    
+    testChoice = _getch() - 48;    
+    
+    // Option 1: Read Single Byte
+    if (testChoice == 1) {
+        printf("\r\nRead Single Byte\n");
+        printf("Enter address: 0x");
+        address = Get8HexDigits(0);
+        
+        dataByte = EEPROMRandomRead(EEPROM0, address);
+        printf("Read from address 0x%X: 0x%02X\n", address, dataByte);
+    }
+    
+    // Option 2: Write Single Byte
+    if (testChoice == 2) {
+        printf("\r\nWrite Single Byte\n"); 
+        printf("Enter address: 0x");
+        address = Get8HexDigits(0);
+        
+        printf("Enter byte value: 0x");
+        dataByte = Get8HexDigits(0);
+        
+        EEPROMByteWrite(dataByte, EEPROM0, address);
+        printf("Wrote 0x%02X to address 0x%X\n", dataByte, address);
+        
+        wait5ms();
+        readData = EEPROMRandomRead(EEPROM0, address);
+        printf("Read back: 0x%02X\n", readData);
+    }
+    
+    // Option 3: Read Block of Data
+    if (testChoice == 3) {
+    }
+    
+
+    // Option 4: Write Block of Data
+    if (testChoice == 4) {
+    }
+} 
+
+
+// I2CTest() {
+//   unsigned int arraySize = 512;
+//   unsigned int IICData[512];
+//   unsigned int i;
+//   unsigned int writeData = 0xAB;
+//   unsigned int readData;
+//   unsigned int totalBytes = 0x20000;
+
+//   for (i = 0; i < arraySize; i++) {
+//     IICData[i] = (i % 50) + 1;
+//     IICData[i] = 0xAA;
+//   } 
+
+//   printf("\r\n I2C Test\n");
+//   IIC_Init();  
   
-  printf("Page Write\n");
-  EEPROMFlashPageWrite(IICData, 0x0, totalBytes); // Write data to EEPROM
+//   printf("Page Write\n");
+//   EEPROMFlashPageWrite(IICData, 0x0, totalBytes); // Write data to EEPROM
 
-  printf("Sequential Read\n");
-  EEPROMSequentialRead(0x0000, 32768);  // First 32KB
-  EEPROMSequentialRead(0x8000, 32768);  // Second 32KB
-  EEPROMSequentialRead(0x10000, 32768); // Third 32KB
-  EEPROMSequentialRead(0x18000, 32768); // Fourth 32KB
+//   printf("Sequential Read\n");
+//   EEPROMSequentialRead(0x0000, 32768);  // First 32KB
+//   EEPROMSequentialRead(0x8000, 32768);  // Second 32KB
+//   EEPROMSequentialRead(0x10000, 32768); // Third 32KB
+//   EEPROMSequentialRead(0x18000, 32768); // Fourth 32KB
   
-  // printf("\r\n Starting EEPROM Write: Writing 0x%.2x to address 0x00\n", writeData); // Debug: Indicate the start of EEPROM write
-  // for (i = 0x0; i < 0x5; i++) {
-  //   printf("\r\n Writing %d to address %d\n", i * 5, i);
-  //   EEPROMByteWrite(i * 5, EEPROM1, i); // Write data to EEPROM
-  // }
-  // printf("\r\nFinished write, Starting EEPROM Read\n");
-  // for (i = 0; i < 5; i++) {
-  //   readData = EEPROMRandomRead(EEPROM1, i); // Read data from EEPROM
-  //   printf("\r\n Address: %d: %d\n", i, readData); // Debug: Indicate the address being read and the data read
-  // }
+//   printf("\r\n Starting EEPROM Write: Writing 0x%.2x to address 0x00\n", writeData); // Debug: Indicate the start of EEPROM write
+//   for (i = 0x0; i < 0x5; i++) {
+//     printf("\r\n Writing %d to address %d\n", i * 5, i);
+//     EEPROMByteWrite(i * 5, EEPROM1, i); // Write data to EEPROM
+//   }
+//   printf("\r\nFinished write, Starting EEPROM Read\n");
+//   for (i = 0; i < 5; i++) {
+//     readData = EEPROMRandomRead(EEPROM1, i); // Read data from EEPROM
+//     printf("\r\n Address: %d: %d\n", i, readData); // Debug: Indicate the address being read and the data read
+//   }
 
-  // readData = EEPROMRandomRead(EEPROM0, 0x0);
-  IICCoreDisable();
-}
+//   // readData = EEPROMRandomRead(EEPROM0, 0x0);
+//   IICCoreDisable();
+// }
 
 // Initialize and enable I2C controller
 // No interrupts and set clock frequency to 100Khz
@@ -2171,7 +2235,6 @@ void main(void)
     printf("\r\n%s", CopyrightMessage) ;
     printf("\n Student Names:\n Zachariah Joseph: 45500055 \n Umair Mazhar: 20333308\n");
 
-    printf("Initializing i2c test...\n");
     I2CTest();
     menu();
 }
