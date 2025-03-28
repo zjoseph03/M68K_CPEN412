@@ -716,7 +716,7 @@ void IICStartCondition(int rwBit) {
 // EEPROM Address: 101000{B0} 
 // EEPROM Specific Functions
 
-void EEPROMByteWrite(int data, short int deviceAddr, short int memoryAddr) {
+void EEPROMByteWrite(unsigned int data, unsigned int deviceAddr, unsigned int memoryAddr) {
   // Check if there is a transmission in progress
   // IICCoreEnable();
   checkTIP();
@@ -753,7 +753,7 @@ void EEPROMByteWrite(int data, short int deviceAddr, short int memoryAddr) {
   // printf("Status Register 4: %x\n", IIC_CRSR);
 
   // Transmit byte to be written
-  IIC_TXRX = data;
+  IIC_TXRX = 0xAA; //data;
   IIC_CRSR = STOP | WRITE | IACK;
   checkTIP();
   checkAck();
@@ -767,15 +767,23 @@ void EEPROMByteWrite(int data, short int deviceAddr, short int memoryAddr) {
   //printf("\r\nI2C Byte Write Complete\n");
 }
 
-void EEPROMFlashPageWrite(int* data, int startingGlobalAddress, int numBytes) {
-  int currentAddress = startingGlobalAddress; 
-  int endAddress = startingGlobalAddress + numBytes;
-  int blockAddress;
-  int deviceAddress;
-  int pageFlag;
-  int currIndex = 0;
+void EEPROMFlashPageWrite(int* data, unsigned int startingGlobalAddress, unsigned int numBytes) {
+  
+    unsigned int currentAddress = startingGlobalAddress; 
+    unsigned int endAddress = startingGlobalAddress + numBytes;
+    unsigned int blockAddress;
+    unsigned int deviceAddress;
+    unsigned int pageFlag;
+    unsigned int currIndex = 0;
 
-  if (currentAddress < 0x10000) {
+    startingGlobalAddress = startingGlobalAddress & 0xFFFF; // Mask to 16 bits
+    currentAddress = startingGlobalAddress; 
+    endAddress = startingGlobalAddress + numBytes;
+    printf("EEPROM Flash Page Write: Start Address: 0x%x, numbytes: %d\n", startingGlobalAddress, numBytes);
+    
+
+
+    if (currentAddress < 0x10000) {
       blockAddress = startingGlobalAddress; // Lower 64KB block
       deviceAddress = EEPROM0;
     } else {
@@ -786,6 +794,14 @@ void EEPROMFlashPageWrite(int* data, int startingGlobalAddress, int numBytes) {
   checkTIP();
 
   while (currentAddress < endAddress) {
+    // printf("Entered New Page, Current Address: %d, End Address: %d\n", currentAddress, endAddress);
+    
+    if (currentAddress == 0x10000) {
+      blockAddress = 0; // Reset to beginning of Block 1
+    } 
+    else {
+      blockAddress = (currentAddress < 0x10000) ? currentAddress : (currentAddress - 0x10000);
+    }    
     pageFlag = 1;
     
     // START condition
@@ -809,42 +825,35 @@ void EEPROMFlashPageWrite(int* data, int startingGlobalAddress, int numBytes) {
     checkAck();
   
     while (pageFlag) {        
-      IIC_TXRX = data[currIndex];
+      IIC_TXRX = 0xAD; //data[currIndex];
 
-      if (blockAddress % 128 == 127) {
-        IIC_CRSR = STOP | WRITE | IACK;
-        pageFlag = 0;
-        checkTIP();
-        checkAck();
-        wait5ms();
-        
-      } else if (currentAddress == endAddress - 1) {
-        pageFlag = 0;
-        IIC_CRSR = STOP | WRITE | IACK;
-        checkTIP();
-        checkAck();
-        wait5ms();
-      }
-      else {
-        IIC_CRSR =  WRITE | IACK;
-        checkTIP();
-        checkAck();
-      }
       
       if (currentAddress == 0xFFFF) {
-        deviceAddress = EEPROM1;
-        blockAddress = 0;
-      } else {
-        currentAddress++;
+        deviceAddress = EEPROM1;  // Switch to next device for next byte
       }
 
+      if (blockAddress % 128 == 127 || currentAddress == endAddress - 1 || currentAddress == 0xFFFF) {
+        IIC_CRSR = STOP | WRITE | IACK;
+        pageFlag = 0;
+        checkTIP();
+        checkAck();
+        wait5ms();
+      } else {
+        IIC_CRSR = WRITE | IACK;
+        checkTIP();
+        checkAck();
+      }
+
+      // ("Current Address: %d, End Address: %d, Block Address: %d\n", currentAddress, endAddress, blockAddress);
       currIndex++;
+      currentAddress++;
+      blockAddress++;  // Increment blockAddress WITH currentAddress
     }
   }
 }
 
-int EEPROMRandomRead(int deviceAddr, int readAddr) {
-    int readData;
+int EEPROMRandomRead(unsigned int deviceAddr, unsigned readAddr) {
+    unsigned int readData;
     // Wait for bus to be idle
     // IICCoreEnable(); 
     checkTIP(); 
@@ -889,11 +898,16 @@ int EEPROMRandomRead(int deviceAddr, int readAddr) {
     return readData;    
 }
 
-void EEPROMReadBlock0(int startAddr, int* readLen) {
-  int currAddr = startAddr;
-  int endAddr = startAddr + *readLen;
-  int readData;
-  printf("Start Addr: %d\n Curr Addr: %d, Read Len: %d\n", startAddr, currAddr, *readLen);
+void EEPROMReadBlock0(unsigned int startAddr, int* readLen) {
+  unsigned int currAddr;
+  unsigned int endAddr;
+  unsigned int readData;
+  int exitFlag = 0;
+
+  startAddr = startAddr & 0xFFFF; // Mask to 16 bits
+  currAddr = startAddr;
+  endAddr = startAddr + *readLen;
+  //printf("Start Addr: %d\n Curr Addr: %d, Read Len: %d\n", startAddr, currAddr, *readLen);
   
   checkTIP();
 
@@ -923,6 +937,7 @@ void EEPROMReadBlock0(int startAddr, int* readLen) {
     
     if (currAddr == 0xFFFF || currAddr == endAddr - 1) {
       IIC_CRSR = STOP | READ | IACK | NACK; // Stop condition with read bit
+      exitFlag = 1;
     } else {
       IIC_CRSR = (READ | IACK) & (~NACK); // Read command
     }
@@ -933,18 +948,27 @@ void EEPROMReadBlock0(int startAddr, int* readLen) {
     
 
     // Read data from EEPROM
-    while (!IIC_CRSR & 0x1); // Wait for IF flag to be set
+    while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
     IIC_CRSR = 0; // Clear IF flag
     readData = IIC_TXRX; // Read data from EEPROM
-    printf("\r\n Block 0 Address: %d: %d\n", currAddr, readData); // Debug: Indicate the address being read and the data read
+    
+    if ((currAddr % 1000) == 0) {
+      printf("\r\n Block 0 Address: 0x%04X: %d\n", currAddr, readData);
+    }
+
+    if (exitFlag) {
+      printf("\r\n Exiting EEPROM Read Block 0\n");
+      break;
+    }
   }
 }
 
 // STILL NEED TO TEST BLOCK 1 MORE AND CROSSING THE BLOCK BOUNDARY
 void EEPROMReadBlock1(int startAddr, int* readLen) {
-  int currAddr = startAddr;
-  int endAddr = startAddr + *readLen;
-  int readData;
+  unsigned int currAddr = startAddr & 0xFFFF; // Mask to 16 bits
+  unsigned int endAddr = currAddr + *readLen;
+  unsigned int readData;
+  int exitFlag = 0;
   
   checkTIP();
 
@@ -970,10 +994,11 @@ void EEPROMReadBlock1(int startAddr, int* readLen) {
   checkAck();
 
   // Evaluate data here
-  for (currAddr = startAddr; currAddr < endAddr; currAddr++) {
+  for (currAddr = startAddr & 0xFFFF; currAddr < endAddr; currAddr++) {
     
     if (currAddr == 0xFFFF) {
       IIC_CRSR = STOP | READ | IACK | NACK; // Stop condition with read bit
+      exitFlag = 1;
     } else {
       IIC_CRSR = (READ | IACK) & (~NACK); // Read command
     }
@@ -986,12 +1011,20 @@ void EEPROMReadBlock1(int startAddr, int* readLen) {
     while (!IIC_CRSR & 0x1); // Wait for IF flag to be set
     IIC_CRSR = 0; // Clear IF flag
     readData = IIC_TXRX; // Read data from EEPROM
-    printf("\r\n Block 1 Address: %d: %d\n", currAddr, readData); // Debug: Indicate the address being read and the data read
-    // printf("Read Len: %d\n", *readLen); // Debug: Indicate the address being read and the data read
+    
+    if ((currAddr % 1000) == 0) {
+      printf("\r\n Block 1 Address: 0x%04X: %d\n", currAddr, readData);
+    }
+
+    if (exitFlag) {
+      printf("\r\n Exiting EEPROM Read Block 1\n");
+      break;
+    }
   }
 }
 
-int EEPROMSequentialRead(int startGlobalAddr, int readLen) {
+int EEPROMSequentialRead(unsigned int startGlobalAddr, int readLen) {
+  // REMOVE THIS: startGlobalAddr = startGlobalAddr & 0xFFFF;
   
   if (startGlobalAddr <= 0xFFFF) {
     EEPROMReadBlock0(startGlobalAddr, &readLen);
@@ -1004,19 +1037,29 @@ int EEPROMSequentialRead(int startGlobalAddr, int readLen) {
 }
 
 I2CTest() {
-  int IICData[5] = {0xA, 0xB, 0xC, 0xD, 0xE};
-  int writeData = 0xAB;
-  int readData;
-  int i;
+  unsigned int arraySize = 512;
+  unsigned int IICData[512];
+  unsigned int i;
+  unsigned int writeData = 0xAB;
+  unsigned int readData;
+  unsigned int totalBytes = 0x20000;
+
+  for (i = 0; i < arraySize; i++) {
+    IICData[i] = (i % 50) + 1;
+    IICData[i] = 0xAA;
+  } 
 
   printf("\r\n I2C Test\n");
   IIC_Init();  
   
   printf("Page Write\n");
-  EEPROMFlashPageWrite(IICData, 0x000F, 5); // Write data to EEPROM
+  EEPROMFlashPageWrite(IICData, 0x0, totalBytes); // Write data to EEPROM
 
   printf("Sequential Read\n");
-  EEPROMSequentialRead(0x000F, 5);
+  EEPROMSequentialRead(0x0000, 32768);  // First 32KB
+  EEPROMSequentialRead(0x8000, 32768);  // Second 32KB
+  EEPROMSequentialRead(0x10000, 32768); // Third 32KB
+  EEPROMSequentialRead(0x18000, 32768); // Fourth 32KB
   
   // printf("\r\n Starting EEPROM Write: Writing 0x%.2x to address 0x00\n", writeData); // Debug: Indicate the start of EEPROM write
   // for (i = 0x0; i < 0x5; i++) {
