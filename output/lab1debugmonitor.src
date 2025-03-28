@@ -2148,37 +2148,170 @@ _EEPROMByteWrite:
 ; // IICCoreDisable();
 ; //printf("\r\nI2C Byte Write Complete\n");
 ; }
-; // void EEPROMFlashPageWrite(int* data, int startingAddress, int numBytes, int length) {
-; //     int currentAddress = startingAddress;
-; //     int bytesWritten = 0;
-; //     int bytesLeftToWrite = numBytes;
-; //   checkTIP();
-; //   if (bytesWritten < length) {
-; //     if (currentAddress) >= 0x100000;
-; //   } 
-; //   // start condition
-; //   IIC_TXRX = ((deviceAddr << 1) & 0xFE);
-; //   IIC_CRSR = START | WRITE | IACK;
-; //   checkTIP();
-; //   checkAck();
-; //   // Send the high-order byte of the address
-; //   IIC_TXRX = (memoryAddr >> 8) & 0xFF;
-; //   IIC_CRSR = WRITE | IACK;
-; //   checkTIP();
-; //   checkAck();
-; //   // Send the lower-order byte of the address
-; //   IIC_TXRX = (memoryAddr & 0xFF);
-; //   IIC_CRSR = WRITE | IACK;
-; //   checkTIP();
-; //   checkAck();
-; //   // Transmit byte to be written
-; //   IIC_TXRX = data;
-; //   // Stop condition
-; //   IIC_CRSR = STOP | WRITE | IACK;
-; //   checkTIP();
-; //   checkAck();
-; //   wait5ms();
-; // }
+; void EEPROMFlashPageWrite(int* data, int startingGlobalAddress, int numBytes) {
+_EEPROMFlashPageWrite:
+       link      A6,#0
+       movem.l   D2/D3/D4/D5/D6/D7/A2/A3/A4,-(A7)
+       lea       _checkTIP.L,A2
+       lea       _checkAck.L,A3
+       move.l    12(A6),D6
+; int currentAddress = startingGlobalAddress; 
+       move.l    D6,D3
+; int endAddress = startingGlobalAddress + numBytes;
+       move.l    D6,D0
+       add.l     16(A6),D0
+       move.l    D0,A4
+; int blockAddress;
+; int deviceAddress;
+; int pageFlag;
+; int currIndex = 0;
+       moveq     #0,D7
+; if (currentAddress < 0x10000) {
+       cmp.l     #65536,D3
+       bge.s     EEPROMFlashPageWrite_1
+; blockAddress = startingGlobalAddress; // Lower 64KB block
+       move.l    D6,D2
+; deviceAddress = EEPROM0;
+       moveq     #80,D5
+       bra.s     EEPROMFlashPageWrite_2
+EEPROMFlashPageWrite_1:
+; } else {
+; blockAddress = startingGlobalAddress - 0x10000; // Upper 64KB block
+       move.l    D6,D0
+       sub.l     #65536,D0
+       move.l    D0,D2
+; deviceAddress = EEPROM1;
+       moveq     #81,D5
+EEPROMFlashPageWrite_2:
+; }
+; checkTIP();
+       jsr       (A2)
+; while (currentAddress < endAddress) {
+EEPROMFlashPageWrite_3:
+       cmp.l     A4,D3
+       bge       EEPROMFlashPageWrite_5
+; pageFlag = 1;
+       moveq     #1,D4
+; // START condition
+; IIC_TXRX = (deviceAddress << 1) & 0xFE;    // Upper 64KB block
+       move.l    D5,D0
+       asl.l     #1,D0
+       and.l     #254,D0
+       move.b    D0,4227078
+; IIC_CRSR = START | WRITE | IACK;
+       move.b    #145,4227080
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A3)
+; // Send the two address bytes
+; // Send the high-order byte of the address
+; IIC_TXRX = (blockAddress >> 8) & 0xFF;
+       move.l    D2,D0
+       asr.l     #8,D0
+       and.l     #255,D0
+       move.b    D0,4227078
+; IIC_CRSR = WRITE | IACK;
+       move.b    #17,4227080
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A3)
+; // printf("Sent Upper Memory Byte: %02x\n", memoryAddr >> 8);
+; // Send the lower-order byte of the address
+; IIC_TXRX = (blockAddress & 0xFF);
+       move.l    D2,D0
+       and.l     #255,D0
+       move.b    D0,4227078
+; IIC_CRSR = WRITE | IACK;
+       move.b    #17,4227080
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A3)
+; while (pageFlag) {        
+EEPROMFlashPageWrite_6:
+       tst.l     D4
+       beq       EEPROMFlashPageWrite_8
+; IIC_TXRX = data[currIndex];
+       move.l    8(A6),A0
+       move.l    D7,D0
+       lsl.l     #2,D0
+       move.l    0(A0,D0.L),D0
+       move.b    D0,4227078
+; if (blockAddress % 128 == 127) {
+       move.l    D2,-(A7)
+       pea       128
+       jsr       LDIV
+       move.l    4(A7),D0
+       addq.w    #8,A7
+       cmp.l     #127,D0
+       bne.s     EEPROMFlashPageWrite_9
+; IIC_CRSR = STOP | WRITE | IACK;
+       move.b    #81,4227080
+; pageFlag = 0;
+       clr.l     D4
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A3)
+; wait5ms();
+       jsr       _wait5ms
+       bra.s     EEPROMFlashPageWrite_12
+EEPROMFlashPageWrite_9:
+; } else if (currentAddress == endAddress - 1) {
+       move.l    A4,D0
+       subq.l    #1,D0
+       cmp.l     D0,D3
+       bne.s     EEPROMFlashPageWrite_11
+; pageFlag = 0;
+       clr.l     D4
+; IIC_CRSR = STOP | WRITE | IACK;
+       move.b    #81,4227080
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A3)
+; wait5ms();
+       jsr       _wait5ms
+       bra.s     EEPROMFlashPageWrite_12
+EEPROMFlashPageWrite_11:
+; }
+; else {
+; IIC_CRSR =  WRITE | IACK;
+       move.b    #17,4227080
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A3)
+EEPROMFlashPageWrite_12:
+; }
+; if (currentAddress == 0xFFFF) {
+       cmp.l     #65535,D3
+       bne.s     EEPROMFlashPageWrite_13
+; deviceAddress = EEPROM1;
+       moveq     #81,D5
+; blockAddress = 0;
+       clr.l     D2
+       bra.s     EEPROMFlashPageWrite_14
+EEPROMFlashPageWrite_13:
+; } else {
+; currentAddress++;
+       addq.l    #1,D3
+EEPROMFlashPageWrite_14:
+; }
+; currIndex++;
+       addq.l    #1,D7
+       bra       EEPROMFlashPageWrite_6
+EEPROMFlashPageWrite_8:
+       bra       EEPROMFlashPageWrite_3
+EEPROMFlashPageWrite_5:
+       movem.l   (A7)+,D2/D3/D4/D5/D6/D7/A2/A3/A4
+       unlk      A6
+       rts
+; }
+; }
+; }
 ; int EEPROMRandomRead(int deviceAddr, int readAddr) {
 _EEPROMRandomRead:
        link      A6,#-4
@@ -2230,8 +2363,11 @@ _EEPROMRandomRead:
 ; checkAck();
        jsr       (A3)
 ; // send START condition again followed by slave address with R/W set to 1
-; IIC_TXRX = 0xA1; //((deviceAddr << 1) | 0x01);
-       move.b    #161,4227078
+; IIC_TXRX = ((deviceAddr << 1) | 0x01);
+       move.l    8(A6),D0
+       asl.l     #1,D0
+       or.l      #1,D0
+       move.b    D0,4227078
 ; IIC_CRSR = START | WRITE | IACK;
        move.b    #145,4227080
 ; checkTIP();
@@ -2265,20 +2401,28 @@ EEPROMRandomRead_3:
 ; }
 ; void EEPROMReadBlock0(int startAddr, int* readLen) {
 _EEPROMReadBlock0:
-       link      A6,#-8
-       movem.l   D2/D3/A2/A3,-(A7)
+       link      A6,#-4
+       movem.l   D2/D3/D4/D5/A2/A3,-(A7)
        lea       _checkTIP.L,A2
        lea       _checkAck.L,A3
        move.l    8(A6),D3
+       move.l    12(A6),D4
 ; int currAddr = startAddr;
        move.l    D3,D2
 ; int endAddr = startAddr + *readLen;
        move.l    D3,D0
-       move.l    12(A6),A0
+       move.l    D4,A0
        add.l     (A0),D0
-       move.l    D0,-8(A6)
+       move.l    D0,D5
 ; int readData;
-; // printf("Start Addr: %d\n Read Len: %d\n", startAddr, *readLen);
+; printf("Start Addr: %d\n Curr Addr: %d, Read Len: %d\n", startAddr, currAddr, *readLen);
+       move.l    D4,A0
+       move.l    (A0),-(A7)
+       move.l    D2,-(A7)
+       move.l    D3,-(A7)
+       pea       @m68kde~1_29.L
+       jsr       _printf
+       add.w     #16,A7
 ; checkTIP();
        jsr       (A2)
 ; IIC_TXRX = ((EEPROM0 << 1) & 0xFE); // Send EEPROM address with write bit
@@ -2320,16 +2464,19 @@ _EEPROMReadBlock0:
 ; checkAck();
        jsr       (A3)
 ; // Evaluate data here
-; for (currAddr = startAddr; currAddr < startAddr + endAddr; currAddr++) {
+; for (currAddr = startAddr; currAddr < endAddr; currAddr++) {
        move.l    D3,D2
 EEPROMReadBlock0_1:
-       move.l    D3,D0
-       add.l     -8(A6),D0
-       cmp.l     D0,D2
+       cmp.l     D5,D2
        bge       EEPROMReadBlock0_3
-; if (currAddr == 0xFFFF) {
+; if (currAddr == 0xFFFF || currAddr == endAddr - 1) {
        cmp.l     #65535,D2
+       beq.s     EEPROMReadBlock0_6
+       move.l    D5,D0
+       subq.l    #1,D0
+       cmp.l     D0,D2
        bne.s     EEPROMReadBlock0_4
+EEPROMReadBlock0_6:
 ; IIC_CRSR = STOP | READ | IACK | NACK; // Stop condition with read bit
        move.b    #105,4227080
        bra.s     EEPROMReadBlock0_5
@@ -2340,7 +2487,7 @@ EEPROMReadBlock0_4:
 EEPROMReadBlock0_5:
 ; }
 ; (*readLen)--;
-       move.l    12(A6),A0
+       move.l    D4,A0
        subq.l    #1,(A0)
 ; checkTIP();
        jsr       (A2)
@@ -2348,52 +2495,51 @@ EEPROMReadBlock0_5:
        jsr       (A3)
 ; // Read data from EEPROM
 ; while (!IIC_CRSR & 0x1); // Wait for IF flag to be set
-EEPROMReadBlock0_6:
+EEPROMReadBlock0_7:
        tst.b     4227080
-       bne.s     EEPROMReadBlock0_9
+       bne.s     EEPROMReadBlock0_10
        moveq     #1,D0
-       bra.s     EEPROMReadBlock0_10
-EEPROMReadBlock0_9:
-       clr.l     D0
+       bra.s     EEPROMReadBlock0_11
 EEPROMReadBlock0_10:
+       clr.l     D0
+EEPROMReadBlock0_11:
        and.b     #1,D0
-       beq.s     EEPROMReadBlock0_8
-       bra       EEPROMReadBlock0_6
-EEPROMReadBlock0_8:
+       beq.s     EEPROMReadBlock0_9
+       bra       EEPROMReadBlock0_7
+EEPROMReadBlock0_9:
 ; IIC_CRSR = 0; // Clear IF flag
        clr.b     4227080
 ; readData = IIC_TXRX; // Read data from EEPROM
        move.b    4227078,D0
        and.l     #255,D0
        move.l    D0,-4(A6)
-; printf("\r\n Address: %d: %d\n", currAddr, readData); // Debug: Indicate the address being read and the data read
+; printf("\r\n Block 0 Address: %d: %d\n", currAddr, readData); // Debug: Indicate the address being read and the data read
        move.l    -4(A6),-(A7)
        move.l    D2,-(A7)
-       pea       @m68kde~1_29.L
+       pea       @m68kde~1_30.L
        jsr       _printf
        add.w     #12,A7
        addq.l    #1,D2
        bra       EEPROMReadBlock0_1
 EEPROMReadBlock0_3:
-       movem.l   (A7)+,D2/D3/A2/A3
+       movem.l   (A7)+,D2/D3/D4/D5/A2/A3
        unlk      A6
        rts
 ; }
 ; }
-; // Edge cases for block 1: size runs out or we reach end of block 1
+; // STILL NEED TO TEST BLOCK 1 MORE AND CROSSING THE BLOCK BOUNDARY
 ; void EEPROMReadBlock1(int startAddr, int* readLen) {
 _EEPROMReadBlock1:
        link      A6,#-8
-       movem.l   D2/D3/D4/A2/A3,-(A7)
+       movem.l   D2/D3/A2/A3,-(A7)
        lea       _checkTIP.L,A2
        lea       _checkAck.L,A3
        move.l    8(A6),D3
-       move.l    12(A6),D4
 ; int currAddr = startAddr;
        move.l    D3,D2
 ; int endAddr = startAddr + *readLen;
        move.l    D3,D0
-       move.l    D4,A0
+       move.l    12(A6),A0
        add.l     (A0),D0
        move.l    D0,-8(A6)
 ; int readData;
@@ -2438,12 +2584,10 @@ _EEPROMReadBlock1:
 ; checkAck();
        jsr       (A3)
 ; // Evaluate data here
-; for (currAddr = startAddr; currAddr < startAddr + endAddr; currAddr++) {
+; for (currAddr = startAddr; currAddr < endAddr; currAddr++) {
        move.l    D3,D2
 EEPROMReadBlock1_1:
-       move.l    D3,D0
-       add.l     -8(A6),D0
-       cmp.l     D0,D2
+       cmp.l     -8(A6),D2
        bge       EEPROMReadBlock1_3
 ; if (currAddr == 0xFFFF) {
        cmp.l     #65535,D2
@@ -2458,7 +2602,7 @@ EEPROMReadBlock1_4:
 EEPROMReadBlock1_5:
 ; }
 ; (*readLen)--;
-       move.l    D4,A0
+       move.l    12(A6),A0
        subq.l    #1,(A0)
 ; checkTIP();
        jsr       (A2)
@@ -2484,36 +2628,31 @@ EEPROMReadBlock1_8:
        move.b    4227078,D0
        and.l     #255,D0
        move.l    D0,-4(A6)
-; printf("\r\n Address: %d: %d\n", currAddr, readData); // Debug: Indicate the address being read and the data read
+; printf("\r\n Block 1 Address: %d: %d\n", currAddr, readData); // Debug: Indicate the address being read and the data read
        move.l    -4(A6),-(A7)
        move.l    D2,-(A7)
-       pea       @m68kde~1_29.L
+       pea       @m68kde~1_31.L
        jsr       _printf
        add.w     #12,A7
-; printf("Read Len: %d\n", *readLen); // Debug: Indicate the address being read and the data read
-       move.l    D4,A0
-       move.l    (A0),-(A7)
-       pea       @m68kde~1_30.L
-       jsr       _printf
-       addq.w    #8,A7
        addq.l    #1,D2
        bra       EEPROMReadBlock1_1
 EEPROMReadBlock1_3:
-       movem.l   (A7)+,D2/D3/D4/A2/A3
+       movem.l   (A7)+,D2/D3/A2/A3
        unlk      A6
        rts
+; // printf("Read Len: %d\n", *readLen); // Debug: Indicate the address being read and the data read
 ; }
 ; }
-; int EEPROMSequentialRead(int startAddr, int readLen) {
+; int EEPROMSequentialRead(int startGlobalAddr, int readLen) {
 _EEPROMSequentialRead:
        link      A6,#0
        movem.l   D2/A2,-(A7)
-       move.l    8(A6),D2
        lea       12(A6),A2
-; if (startAddr <= 0xFFFF) {
+       move.l    8(A6),D2
+; if (startGlobalAddr <= 0xFFFF) {
        cmp.l     #65535,D2
        bhi.s     EEPROMSequentialRead_1
-; EEPROMReadBlock0(startAddr, &readLen);
+; EEPROMReadBlock0(startGlobalAddr, &readLen);
        move.l    A2,-(A7)
        move.l    D2,-(A7)
        jsr       _EEPROMReadBlock0
@@ -2522,9 +2661,9 @@ _EEPROMSequentialRead:
        move.l    (A2),D0
        cmp.l     #0,D0
        ble.s     EEPROMSequentialRead_3
-; EEPROMReadBlock1(startAddr, &readLen);
+; EEPROMReadBlock1(0, &readLen);
        move.l    A2,-(A7)
-       move.l    D2,-(A7)
+       clr.l     -(A7)
        jsr       _EEPROMReadBlock1
        addq.w    #8,A7
 EEPROMSequentialRead_3:
@@ -2532,9 +2671,11 @@ EEPROMSequentialRead_3:
 EEPROMSequentialRead_1:
 ; }
 ; } else {
-; EEPROMReadBlock1(startAddr, &readLen);
+; EEPROMReadBlock1(startGlobalAddr - 0x10000, &readLen);
        move.l    A2,-(A7)
-       move.l    D2,-(A7)
+       move.l    D2,D1
+       sub.l     #65536,D1
+       move.l    D1,-(A7)
        jsr       _EEPROMReadBlock1
        addq.w    #8,A7
 EEPROMSequentialRead_2:
@@ -2545,75 +2686,58 @@ EEPROMSequentialRead_2:
 ; }
 ; I2CTest() {
 _I2CTest:
-       link      A6,#-28
-       movem.l   D2/A2,-(A7)
+       link      A6,#-32
+       move.l    A2,-(A7)
        lea       _printf.L,A2
-; int IICData[5] = {0x01, 0x02, 0x03, 0x04, 0x05};
-       lea       -28(A6),A0
+; int IICData[5] = {0xA, 0xB, 0xC, 0xD, 0xE};
+       lea       -32(A6),A0
        lea       I2CTest_IICData.L,A1
        moveq     #4,D0
        move.l    (A1)+,(A0)+
        dbra      D0,*-2
 ; int writeData = 0xAB;
-       move.l    #171,-8(A6)
+       move.l    #171,-12(A6)
 ; int readData;
 ; int i;
-; printf("\r\n I2C Test");
-       pea       @m68kde~1_31.L
+; printf("\r\n I2C Test\n");
+       pea       @m68kde~1_32.L
        jsr       (A2)
        addq.w    #4,A7
 ; IIC_Init();  
        jsr       _IIC_Init
-; printf("\r\n Starting EEPROM Write: Writing 0x%.2x to address 0x00\n", writeData); // Debug: Indicate the start of EEPROM write
-       move.l    -8(A6),-(A7)
-       pea       @m68kde~1_32.L
-       jsr       (A2)
-       addq.w    #8,A7
-; for (i = 0; i < 50; i++) {
-       clr.l     D2
-I2CTest_1:
-       cmp.l     #50,D2
-       bge       I2CTest_3
-; printf("\r\n Writing %d to address %d\n", i, i);
-       move.l    D2,-(A7)
-       move.l    D2,-(A7)
+; printf("Page Write\n");
        pea       @m68kde~1_33.L
        jsr       (A2)
+       addq.w    #4,A7
+; EEPROMFlashPageWrite(IICData, 0x000F, 5); // Write data to EEPROM
+       pea       5
+       pea       15
+       pea       -32(A6)
+       jsr       _EEPROMFlashPageWrite
        add.w     #12,A7
-; EEPROMByteWrite(i * 2, EEPROM0, i); // Write data to EEPROM
-       ext.l     D2
-       move.l    D2,-(A7)
-       pea       80
-       move.l    D2,-(A7)
-       pea       2
-       jsr       LMUL
-       move.l    (A7),D1
-       addq.w    #8,A7
-       move.l    D1,-(A7)
-       jsr       _EEPROMByteWrite
-       add.w     #12,A7
-       addq.l    #1,D2
-       bra       I2CTest_1
-I2CTest_3:
-; }
 ; printf("Sequential Read\n");
        pea       @m68kde~1_34.L
        jsr       (A2)
        addq.w    #4,A7
-; EEPROMSequentialRead(0, 50);
-       pea       50
-       clr.l     -(A7)
+; EEPROMSequentialRead(0x000F, 5);
+       pea       5
+       pea       15
        jsr       _EEPROMSequentialRead
        addq.w    #8,A7
+; // printf("\r\n Starting EEPROM Write: Writing 0x%.2x to address 0x00\n", writeData); // Debug: Indicate the start of EEPROM write
+; // for (i = 0x0; i < 0x5; i++) {
+; //   printf("\r\n Writing %d to address %d\n", i * 5, i);
+; //   EEPROMByteWrite(i * 5, EEPROM1, i); // Write data to EEPROM
+; // }
 ; // printf("\r\nFinished write, Starting EEPROM Read\n");
-; // for (i = 0; i < 50; i++) {
-; //   readData = EEPROMRandomRead(EEPROM0, i); // Read data from EEPROM
+; // for (i = 0; i < 5; i++) {
+; //   readData = EEPROMRandomRead(EEPROM1, i); // Read data from EEPROM
 ; //   printf("\r\n Address: %d: %d\n", i, readData); // Debug: Indicate the address being read and the data read
 ; // }
 ; // readData = EEPROMRandomRead(EEPROM0, 0x0);
 ; IICCoreDisable();
        jsr       _IICCoreDisable
-       movem.l   (A7)+,D2/A2
+       move.l    (A7)+,A2
        unlk      A6
        rts
 ; }
@@ -5932,79 +6056,6 @@ dodiv_4:
 dodiv_5:
        movem.l (A7)+,D2/D3/D4
        rts
-ULMUL:
-       link    A6,#0
-       movem.l D0/D1,-(A7)
-       move.l  8(A6),D1
-       move.l  12(A6),D0
-       bra.s   lmul_3
-LMUL:
-       link    A6,#0
-       movem.l D0/D1,-(A7)
-       move.l  8(A6),D1
-       move.l  12(A6),D0
-       tst.l   D0
-       bpl.s   lmul_1
-       neg.l   D0
-       tst.l   D1
-       bpl.s   lmul_2
-       neg.l   D1
-       bra.s   lmul_3
-lmul_1:
-       tst.l   D1
-       bpl.s   lmul_3
-       neg.l   D1
-lmul_2:
-       bsr.s   domul
-       neg.l   D1
-       negx.l  D0
-       bra.s   lmul_4
-lmul_3:
-       bsr.s   domul
-lmul_4:
-       move.l  D1,8(A6)
-       movem.l (A7)+,D0/D1
-       unlk    A6
-       rts
-domul:
-       cmpi.l  #$FFFF,D1
-       bhi.s   domul_1
-       cmpi.l  #$FFFF,D0
-       bhi.s   domul_2
-       mulu    D0,D1
-       rts
-domul_1:
-       cmpi.l  #$FFFF,D0
-       bhi.s   domul_4
-       bra.s   domul_3
-domul_2
-       exg     D0,D1
-domul_3:
-       move.l  D2,-(A7)
-       move.l  D1,D2
-       swap    D2
-       mulu    D0,D1
-       mulu    D0,D2
-       swap    D2
-       clr.w   D2
-       add.l   D2,D1
-       move.l  (A7)+,D2
-       rts
-domul_4:
-       movem.l D2/D3,-(A7)
-       move.l  D1,D2
-       move.l  D1,D3
-       mulu    D0,D1
-       swap    D2
-       mulu    D0,D2
-       swap    D0
-       mulu    D0,D3
-       add.l   D3,D2
-       swap    D2
-       clr.w   D2
-       add.l   D2,D1
-       movem.l (A7)+,D2/D3
-       rts
 _putch:
        link      A6,#0
        movem.l   D2,-(A7)
@@ -7681,6 +7732,79 @@ vsprintf_126:
        movem.l   (A7)+,D2/D3/D4/D5/D6/D7/A2/A3/A4/A5
        unlk      A6
        rts
+ULMUL:
+       link    A6,#0
+       movem.l D0/D1,-(A7)
+       move.l  8(A6),D1
+       move.l  12(A6),D0
+       bra.s   lmul_3
+LMUL:
+       link    A6,#0
+       movem.l D0/D1,-(A7)
+       move.l  8(A6),D1
+       move.l  12(A6),D0
+       tst.l   D0
+       bpl.s   lmul_1
+       neg.l   D0
+       tst.l   D1
+       bpl.s   lmul_2
+       neg.l   D1
+       bra.s   lmul_3
+lmul_1:
+       tst.l   D1
+       bpl.s   lmul_3
+       neg.l   D1
+lmul_2:
+       bsr.s   domul
+       neg.l   D1
+       negx.l  D0
+       bra.s   lmul_4
+lmul_3:
+       bsr.s   domul
+lmul_4:
+       move.l  D1,8(A6)
+       movem.l (A7)+,D0/D1
+       unlk    A6
+       rts
+domul:
+       cmpi.l  #$FFFF,D1
+       bhi.s   domul_1
+       cmpi.l  #$FFFF,D0
+       bhi.s   domul_2
+       mulu    D0,D1
+       rts
+domul_1:
+       cmpi.l  #$FFFF,D0
+       bhi.s   domul_4
+       bra.s   domul_3
+domul_2
+       exg     D0,D1
+domul_3:
+       move.l  D2,-(A7)
+       move.l  D1,D2
+       swap    D2
+       mulu    D0,D1
+       mulu    D0,D2
+       swap    D2
+       clr.w   D2
+       add.l   D2,D1
+       move.l  (A7)+,D2
+       rts
+domul_4:
+       movem.l D2/D3,-(A7)
+       move.l  D1,D2
+       move.l  D1,D3
+       mulu    D0,D1
+       swap    D2
+       mulu    D0,D2
+       swap    D0
+       mulu    D0,D3
+       add.l   D3,D2
+       swap    D2
+       clr.w   D2
+       add.l   D2,D1
+       movem.l (A7)+,D2/D3
+       rts
 _gets:
        link      A6,#0
        movem.l   D2/D3/D4/A2,-(A7)
@@ -7967,23 +8091,22 @@ strlen_1:
 @m68kde~1_28:
        dc.b      10,0
 @m68kde~1_29:
-       dc.b      13,10,32,65,100,100,114,101,115,115,58,32,37
-       dc.b      100,58,32,37,100,10,0
+       dc.b      83,116,97,114,116,32,65,100,100,114,58,32,37
+       dc.b      100,10,32,67,117,114,114,32,65,100,100,114,58
+       dc.b      32,37,100,44,32,82,101,97,100,32,76,101,110
+       dc.b      58,32,37,100,10,0
 @m68kde~1_30:
-       dc.b      82,101,97,100,32,76,101,110,58,32,37,100,10
+       dc.b      13,10,32,66,108,111,99,107,32,48,32,65,100,100
+       dc.b      114,101,115,115,58,32,37,100,58,32,37,100,10
        dc.b      0
 @m68kde~1_31:
-       dc.b      13,10,32,73,50,67,32,84,101,115,116,0
+       dc.b      13,10,32,66,108,111,99,107,32,49,32,65,100,100
+       dc.b      114,101,115,115,58,32,37,100,58,32,37,100,10
+       dc.b      0
 @m68kde~1_32:
-       dc.b      13,10,32,83,116,97,114,116,105,110,103,32,69
-       dc.b      69,80,82,79,77,32,87,114,105,116,101,58,32,87
-       dc.b      114,105,116,105,110,103,32,48,120,37,46,50,120
-       dc.b      32,116,111,32,97,100,100,114,101,115,115,32
-       dc.b      48,120,48,48,10,0
+       dc.b      13,10,32,73,50,67,32,84,101,115,116,10,0
 @m68kde~1_33:
-       dc.b      13,10,32,87,114,105,116,105,110,103,32,37,100
-       dc.b      32,116,111,32,97,100,100,114,101,115,115,32
-       dc.b      37,100,10,0
+       dc.b      80,97,103,101,32,87,114,105,116,101,10,0
 @m68kde~1_34:
        dc.b      83,101,113,117,101,110,116,105,97,108,32,82
        dc.b      101,97,100,10,0
@@ -8510,6 +8633,8 @@ strlen_1:
        dc.b      73,110,105,116,105,97,108,105,122,105,110,103
        dc.b      32,105,50,99,32,116,101,115,116,46,46,46,10
        dc.b      0
+I2CTest_IICData:
+       dc.l      10,11,12,13,14
        section   data
                 align
 DataStart       equ       *
@@ -8519,8 +8644,6 @@ DataStart       equ       *
 * to ram as part of the CStart routine in this file
 *********************************************************************************************************
 
-I2CTest_IICData:
-       dc.l      1,2,3,4,5
 @vsscanf_bufx:
        dc.l      @vsscanf_buf
 @vsscanf_1:

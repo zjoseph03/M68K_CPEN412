@@ -202,3 +202,12 @@ function EEPromBlockWrite(int startingAddress, size, data)
   }
 
 ```
+
+
+
+# Things TO Test For Part A
+- Wrap Around Reads and Writes
+- Can We Right/Read An Entire Page
+- Can We right and read multiple pages
+- Can we right and read the 128K
+
