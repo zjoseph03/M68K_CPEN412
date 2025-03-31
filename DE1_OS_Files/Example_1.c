@@ -17,10 +17,10 @@ OS_STK Task2Stk[STACKSIZE];
 OS_STK Task3Stk[STACKSIZE];
 OS_STK Task4Stk[STACKSIZE];
 /* Prototypes for our tasks/threads*/
-void Task1(void *); /* (void *) means the child task expects no data from parent*/
-void Task2(void *);
-void Task3(void *);
-void Task4(void *);
+void LEDTask(void *); /* (void *) means the child task expects no data from parent*/
+void HexCTask(void *);
+void HexBTask(void *);
+void HexATask(void *);
 /*
 ** Our main application which has to
 ** 1) Initialise any peripherals on the board, e.g. RS232 for hyperterminal + LCD
@@ -41,27 +41,28 @@ void main(void)
 ** Now create the 4 child tasks and pass them no data.
 ** the smaller the numerical priority value, the higher the task priority
 */
- OSTaskCreate(Task1, OS_NULL, &Task1Stk[STACKSIZE], 12);
- OSTaskCreate(Task2, OS_NULL, &Task2Stk[STACKSIZE], 11); // highest priority task
- OSTaskCreate(Task3, OS_NULL, &Task3Stk[STACKSIZE], 13);
- OSTaskCreate(Task4, OS_NULL, &Task4Stk[STACKSIZE], 14); // lowest priority task
+ OSTaskCreate(LEDTask, OS_NULL, &Task1Stk[STACKSIZE], 12);
+ OSTaskCreate(HexCTask, OS_NULL, &Task2Stk[STACKSIZE], 11); // highest priority task
+ OSTaskCreate(HexBTask, OS_NULL, &Task3Stk[STACKSIZE], 13);
+ OSTaskCreate(HexATask, OS_NULL, &Task4Stk[STACKSIZE], 14); // lowest priority task
  OSStart(); // call to start the OS scheduler, (never returns from this function)
 }
 /*
 ** IMPORTANT : Timer 1 interrupts must be started by the highest priority task
 ** that runs first which is Task2
 */
-void Task1(void *pdata)
+void LEDTask(void *pdata)
 {
   int delay ;
   unsigned char count = 0 ;
 
   while(1)    {
-      PortA = ((count << 4) + (count & 0x0f)) ;
-      for(delay = 0; delay < 2000000; delay ++)
-      ;
-      OSTimeDly(30);
-      count ++;
+    PortA = count;
+    printf("\r\nLED Task Count = %d", count);
+          
+      OSTimeDly(40);
+      count++;
+
   }
 }
 
@@ -69,7 +70,7 @@ void Task1(void *pdata)
 ** Task 2 below was created with the highest priority so it must start timer1
 ** so that it produces interrupts for the 100hz context switches
 */
-void Task2(void *pdata)
+void HexCTask(void *pdata)
 {
  int delay ;
  unsigned char count = 0 ;
@@ -78,37 +79,30 @@ void Task2(void *pdata)
 
 
  while(1)    {
-     HEX_C = ((count << 4) + (count & 0x0f)) ;
-     for(delay = 0; delay < 2000000; delay ++)
-     ;
-     OSTimeDly(10);
-     count ++;
- }
+    HEX_C = count;
+    OSTimeDly(10);
+    count++;}
 }
 
-void Task3(void *pdata)
+void HexBTask(void *pdata)
 {
   int delay ;
   unsigned char count = 0 ;
 
   while(1)    {
-      HEX_B = ((count << 4) + (count & 0x0f)) ;
-      for(delay = 0; delay < 2000000; delay ++)
-      ;
-      OSTimeDly(40);
-      count ++;
+    HEX_B = count;
+    OSTimeDly(40);
+    count++;
   }
 }
-void Task4(void *pdata)
+void HexATask(void *pdata)
 {
   unsigned int delay ;
   unsigned char count = 0 ;
 
   while(1)    {
-      HEX_A = ((count << 4) + (count & 0x0f)) ;
-      for(delay = 0; delay < 2000000; delay ++)
-      ;
-      OSTimeDly(50);
-      count ++;
+    HEX_A = count;
+    OSTimeDly(50);
+    count++;
   }
 }
