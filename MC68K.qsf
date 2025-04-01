@@ -643,6 +643,20 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_COUNTER_PIPELINE=
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
+set_global_assignment -name VERILOG_FILE CANBusDecoder.v
+set_global_assignment -name VERILOG_FILE CANController/can_top.v
+set_global_assignment -name VERILOG_FILE CANController/can_registers.v
+set_global_assignment -name VERILOG_FILE CANController/can_register_syn.v
+set_global_assignment -name VERILOG_FILE CANController/can_register_asyn_syn.v
+set_global_assignment -name VERILOG_FILE CANController/can_register_asyn.v
+set_global_assignment -name VERILOG_FILE CANController/can_register.v
+set_global_assignment -name VERILOG_FILE CANController/can_ibo.v
+set_global_assignment -name VERILOG_FILE CANController/can_fifo.v
+set_global_assignment -name VERILOG_FILE CANController/can_defines.v
+set_global_assignment -name VERILOG_FILE CANController/can_crc.v
+set_global_assignment -name VERILOG_FILE CANController/can_btl.v
+set_global_assignment -name VERILOG_FILE CANController/can_bsp.v
+set_global_assignment -name VERILOG_FILE CANController/can_acf.v
 set_global_assignment -name VHDL_FILE I2CSPISelect.vhd
 set_global_assignment -name VHDL_FILE i2c_master_top.vhd
 set_global_assignment -name VHDL_FILE i2c_master_byte_ctrl.vhd
@@ -724,5 +738,6 @@ set_global_assignment -name BDF_FILE CacheData_Associative.bdf
 set_global_assignment -name QIP_FILE PLRU_Bits.qip
 set_global_assignment -name BDF_FILE PseudoLRU_Bits.bdf
 set_global_assignment -name BDF_FILE AssociativeCachedDramController.bdf
+set_global_assignment -name BDF_FILE CanInterface.bdf
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name SLD_FILE db/dramcontroller_auto_stripped.stp

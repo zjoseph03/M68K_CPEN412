@@ -38,6 +38,9 @@ module AddressDecoder_Verilog (
 		if(Address[31:16] == 16'b0000_0000_0100_0000)  		// address hex 0040 0000 - 0040 FFFF Partial decoding
 			IOSelect_H = 1 ;											// DO NOT CHANGE - debugger expects IO at this address
 		
+		if(Address[31:16] >= 32'h0050_0000 && Address[31:0] <= 32'h0050_FFFF)
+			CanBusSelect_H = 1;
+		
 		//
 		// add other decoder signals here as we work through assignments and labs
 		//
