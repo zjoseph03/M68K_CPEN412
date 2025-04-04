@@ -180,6 +180,14 @@
 					"strict" : false
 				},
 				{
+					"name" : "Can0_TX",
+					"strict" : false
+				},
+				{
+					"name" : "Can1_TX",
+					"strict" : false
+				},
+				{
 					"name" : "Dtack_L",
 					"strict" : false
 				},
@@ -197,6 +205,10 @@
 				},
 				{
 					"name" : "IOSelect_H",
+					"strict" : false
+				},
+				{
+					"name" : "CanBusSelect_H",
 					"strict" : false
 				},
 				{
@@ -897,6 +909,14 @@
 				},
 				{
 					"name" : "miso_i",
+					"strict" : false
+				},
+				{
+					"name" : "Can0_RX",
+					"strict" : false
+				},
+				{
+					"name" : "Can1_RX",
 					"strict" : false
 				},
 				{
