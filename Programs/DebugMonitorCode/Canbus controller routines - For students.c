@@ -281,6 +281,30 @@ void Init_CanBus_Controller0(void)
 {
   // TODO - put your Canbus initialisation code for CanController 0 here
   // See section 4.2.1 in the application note for details (PELICAN MODE)
+  
+  // This should just be the configuration of the registers of the SJA1000 controller
+  // It is assumed that after power-on, the CAN controller gets a reset pulse at pin 17
+  
+  // Before setting up registers, we should check the reset/request mode flag before writing anything
+  
+  // Init Process:
+  
+  // Configure clock divider for PeliCAN, clk_out disabled
+  // internal comperator should be bypassed (I THINK)
+  // TX1 Output Config should be set to 0 since we're sending TX message from controller to transeiver 
+
+  // Configure acceptance code and mask registers
+  
+  // COnfigure bus timing registers
+  
+  // Configure output control register
+
+  // Enter operating mode
+
+  // Poll to check if we exited reset mode AKA in normal mode
+  
+  // Enable can interrupts if used (not sure tbh)
+
 }
 
 // initialisation for Can controller 1
