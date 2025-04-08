@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     for filename in os.listdir(os.getcwd()):
         if filename.endswith(".hex"):
-            filename = r"C:\M68kV6.0 - 800by480\output\ucosii.hex"
+            filename = r"C:\M68kV6.0 - 800by480\output\canbus.hex"
             convertHexToMif(filename)
 
 
