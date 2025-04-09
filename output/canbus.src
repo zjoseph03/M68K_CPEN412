@@ -17487,7 +17487,7 @@ _Timer1_Init:
 ; RamVectorAddress[level] = (long int *)(function_ptr);                       // install the address of our function into the exception table
 ; }
 ; */
-; C:\M68KV6.0 - 800BY480\PROGRAMS\DEBUGMONITORCODE\CANBUS_CONTROLLER.C - Compiled by CC68K  Version 5.00 (c) 1991-2005  Peter J. Fondse
+; C:\M68KV6.0 - 800BY480\PROGRAMS\DEBUGMONITORCODE\CAN.C - Compiled by CC68K  Version 5.00 (c) 1991-2005  Peter J. Fondse
 ; /*********************************************************************************************
 ; ** These addresses and definitions were taken from Appendix 7 of the Can Controller
 ; ** application note and adapted for the 68k assignment
@@ -17741,8 +17741,6 @@ _Timer1_Init:
 ; void Init_CanBus_Controller0(void)
 ; {
 _Init_CanBus_Controller0:
-       move.l    A2,-(A7)
-       lea       _printf.L,A2
 ; // TODO - put your Canbus initialisation code for CanController 0 here
 ; // See section 4.2.1 in the application note for details (PELICAN MODE)
 ; // This should just be the configuration of the registers of the SJA1000 controller
@@ -17761,32 +17759,12 @@ _Init_CanBus_Controller0:
 ; // Enable can interrupts if used (not sure tbh)
 ; // INTERRUPT do later
 ; /* disable interrupts, if used (not necessary after power-on) */
+; Can0_ModeControlReg |= RM_RR_Bit;
+       or.b      #1,5242880
 ; Can0_InterruptReg = DISABLE; /* enable external interrupt from SJA1000 */
        clr.b     5242886
 ; Can0_InterruptEnReg = DISABLE; /* enable all interrupts */
        clr.b     5242888
-; printf("Can0_InterruptReg: %x\n", Can0_InterruptReg);
-       move.b    5242886,D1
-       and.l     #255,D1
-       move.l    D1,-(A7)
-       pea       @canbus~1_1.L
-       jsr       (A2)
-       addq.w    #8,A7
-; printf("Can0_InterruptEnReg: %x\n", Can0_InterruptEnReg);
-       move.b    5242888,D1
-       and.l     #255,D1
-       move.l    D1,-(A7)
-       pea       @canbus~1_2.L
-       jsr       (A2)
-       addq.w    #8,A7
-; printf("Starting Can0 Init\n");
-       pea       @canbus~1_3.L
-       jsr       (A2)
-       addq.w    #4,A7
-; printf("Resetting Can0\n");
-       pea       @canbus~1_4.L
-       jsr       (A2)
-       addq.w    #4,A7
 ; while((Can0_ModeControlReg & RM_RR_Bit ) == ClrByte)
 Init_CanBus_Controller0_1:
        move.b    5242880,D0
@@ -17844,7 +17822,6 @@ Init_CanBus_Controller0_4:
        move.b    #1,5242886
 ; Can0_InterruptEnReg = ENABLE; /* enable all interrupts */
        move.b    #1,5242888
-       move.l    (A7)+,A2
        rts
 ; }
 ; void Init_CanBus_Controller1(void)
@@ -17856,23 +17833,23 @@ _Init_CanBus_Controller1:
 ; /* disable interrupts, if used (not necessary after power-on) */
 ; //EA = DISABLE; /* disable all interrupts */
 ; //SJAIntEn = DISABLE; /* disable external interrupt from SJA1000 */
-; Can1_InterruptReg = DISABLE; /* enable external interrupt from SJA1000 */
-       clr.b     5243398
-; Can1_InterruptEnReg = DISABLE; /* enable all interrupts */
-       clr.b     5243400
 ; while((Can1_ModeControlReg & RM_RR_Bit ) == ClrByte)
 Init_CanBus_Controller1_1:
        move.b    5243392,D0
        and.b     #1,D0
        bne.s     Init_CanBus_Controller1_3
+; Can1_InterruptReg = DISABLE; /* enable external interrupt from SJA1000 */
+       clr.b     5243398
+       bra       Init_CanBus_Controller1_1
+Init_CanBus_Controller1_3:
+; Can1_InterruptEnReg = DISABLE; /* enable all interrupts */
+       clr.b     5243400
 ; {
 ; /* other bits than the reset mode/request bit are unchanged */
 ; Can1_ModeControlReg = Can1_ModeControlReg | RM_RR_Bit ;
        move.b    5243392,D0
        or.b      #1,D0
        move.b    D0,5243392
-       bra       Init_CanBus_Controller1_1
-Init_CanBus_Controller1_3:
 ; }
 ; Can1_ClockDivideReg = CANMode_Bit | CBP_Bit | DivBy2;
        move.b    #192,5243454
@@ -17886,14 +17863,14 @@ Init_CanBus_Controller1_3:
        clr.b     5243428
 ; Can1_AcceptCode3Reg = ClrByte;
        clr.b     5243430
-; Can1_AcceptMask0Reg = ClrByte; // clear acceptance mask registers
-       clr.b     5243432
-; Can1_AcceptMask1Reg = ClrByte;
-       clr.b     5243434
-; Can1_AcceptMask2Reg = ClrByte;
-       clr.b     5243436
-; Can1_AcceptMask3Reg = ClrByte;
-       clr.b     5243438
+; Can1_AcceptMask0Reg = DontCare; // clear acceptance mask registers
+       move.b    #255,5243432
+; Can1_AcceptMask1Reg = DontCare;
+       move.b    #255,5243434
+; Can1_AcceptMask2Reg = DontCare;
+       move.b    #255,5243436
+; Can1_AcceptMask3Reg = DontCare;
+       move.b    #255,5243438
 ; //25
 ; Can1_BusTiming0Reg = 0x04;
        move.b    #4,5243404
@@ -17911,11 +17888,15 @@ Init_CanBus_Controller1_4:
        move.b    5243392,D0
        and.b     #1,D0
        bne       Init_CanBus_Controller1_4
-       rts
 ; } while ((Can1_ModeControlReg & RM_RR_Bit) != ClrByte); // wait until reset mode bit is cleared
-; // INTERRUPT do later
+; // INTERRUPT do laters
 ; //SJAIntEn = ENABLE; /* enable external interrupt from SJA1000 */
 ; //EA = ENABLE; /* enable all interrupts
+; Can1_InterruptReg = ENABLE; /* enable external interrupt from SJA1000 */
+       move.b    #1,5243398
+; Can1_InterruptEnReg = ENABLE; /* enable all interrupts */
+       move.b    #1,5243400
+       rts
 ; }
 ; /*
 ; Has to transmit into transfer buffer and set Transmit Request flag in cmd register
@@ -18025,14 +18006,14 @@ CanBus0_Receive_3:
        move.b    -3(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @canbus~1_5.L
+       pea       @can_1.L
        jsr       _printf
        add.w     #12,A7
 ; printf("\r\nFrame Info: %02X", rxFrameInfo);}
        move.b    -1(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @canbus~1_6.L
+       pea       @can_2.L
        jsr       _printf
        addq.w    #8,A7
        unlk      A6
@@ -18067,7 +18048,7 @@ CanBus1_Receive_3:
        move.b    -2(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @canbus~1_5.L
+       pea       @can_1.L
        jsr       _printf
        add.w     #12,A7
        unlk      A6
@@ -18096,7 +18077,7 @@ _CanBusTest:
 ; Init_CanBus_Controller1();
        jsr       _Init_CanBus_Controller1
 ; printf("\r\n\r\n---- CANBUS Test ----\r\n") ;
-       pea       @canbus~1_7.L
+       pea       @can_3.L
        jsr       (A2)
        addq.w    #4,A7
 ; // simple application to alternately transmit and receive messages from each of two nodes
@@ -18109,7 +18090,7 @@ CanBusTest_1:
 ; CanBus1_Receive() ;        // receive a message via Controller 1 (and display it)
        jsr       _CanBus1_Receive
 ; printf("\r\n") ;
-       pea       @canbus~1_8.L
+       pea       @can_4.L
        jsr       (A2)
        addq.w    #4,A7
 ; delay();                    // write a routine to delay say 1/2 second so we don't flood the network with messages to0 quickly
@@ -18119,7 +18100,7 @@ CanBusTest_1:
 ; CanBus0_Receive() ;         // receive a message via Controller 0 (and display it)
        jsr       _CanBus0_Receive
 ; printf("\r\n") ;
-       pea       @canbus~1_8.L
+       pea       @can_4.L
        jsr       (A2)
        addq.w    #4,A7
        bra       CanBusTest_1
@@ -18128,19 +18109,15 @@ CanBusTest_1:
 ; void main(void)
 ; {
 _main:
-; Init_RS232();
-       jsr       _Init_RS232
-; Init_LCD();
-       jsr       _Init_LCD
 ; printf("\r\n---- Lab 6B CANBUS Test ----\r\n") ;
-       pea       @canbus~1_9.L
+       pea       @can_5.L
        jsr       _printf
        addq.w    #4,A7
 ; CanBusTest();
        jsr       _CanBusTest
-; return 0;
-       clr       D0
-       rts
+; while(1);
+main_1:
+       bra       main_1
 ; }
 ULMUL:
        link    A6,#0
@@ -19208,31 +19185,19 @@ _OSUnMapTbl:
        dc.b      1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0
        dc.b      2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0
        dc.b      1,0,2,0,1,0,3,0,1,0,2,0,1,0
-@canbus~1_1:
-       dc.b      67,97,110,48,95,73,110,116,101,114,114,117,112
-       dc.b      116,82,101,103,58,32,37,120,10,0
-@canbus~1_2:
-       dc.b      67,97,110,48,95,73,110,116,101,114,114,117,112
-       dc.b      116,69,110,82,101,103,58,32,37,120,10,0
-@canbus~1_3:
-       dc.b      83,116,97,114,116,105,110,103,32,67,97,110,48
-       dc.b      32,73,110,105,116,10,0
-@canbus~1_4:
-       dc.b      82,101,115,101,116,116,105,110,103,32,67,97
-       dc.b      110,48,10,0
-@canbus~1_5:
+@can_1:
        dc.b      13,10,82,101,99,101,105,118,101,100,32,45,32
        dc.b      73,68,58,32,37,48,50,88,44,32,68,97,116,97,58
        dc.b      32,37,48,50,88,0
-@canbus~1_6:
+@can_2:
        dc.b      13,10,70,114,97,109,101,32,73,110,102,111,58
        dc.b      32,37,48,50,88,0
-@canbus~1_7:
+@can_3:
        dc.b      13,10,13,10,45,45,45,45,32,67,65,78,66,85,83
        dc.b      32,84,101,115,116,32,45,45,45,45,13,10,0
-@canbus~1_8:
+@can_4:
        dc.b      13,10,0
-@canbus~1_9:
+@can_5:
        dc.b      13,10,45,45,45,45,32,76,97,98,32,54,66,32,67
        dc.b      65,78,66,85,83,32,84,101,115,116,32,45,45,45
        dc.b      45,13,10,0
