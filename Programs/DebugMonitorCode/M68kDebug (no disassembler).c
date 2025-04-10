@@ -1344,7 +1344,11 @@ int I2CTest() {
 // Generate sine wave
 
 void ADCRead() {
+  unsigned int thermistor;
+  unsigned int potentiometer;
+  unsigned int photoresistor;
   unsigned int readData;
+
   printf("Performing ADC Read\n");
   
   IIC_Init();
@@ -1356,7 +1360,7 @@ void ADCRead() {
   checkAck();
 
   // Send Control byte for ADC function: 0x0000_0100 (Auto Increment Mode)
-  IIC_TXRX = 0x1; // Send EEPROM address with write bit
+  IIC_TXRX = 0x4; // Send EEPROM address with write bit
   IIC_CRSR = WRITE | IACK; // Start condition with write bit
   checkTIP();
   checkAck();
@@ -1374,9 +1378,31 @@ void ADCRead() {
         checkTIP();  // Wait until the transmission is complete
         while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
         IIC_CRSR = 0; // Clear IF flag
-        readData = IIC_TXRX; // Read data from EEPROM
-        printf("\r\n ADC Read: %d\n", readData); // Debug: Indicate the address being read and the data read
+        photoresistor = IIC_TXRX; // Read data from EEPROM
+        printf("\r\n Light: %d\n", photoresistor); // Debug: Indicate the address being read and the data read
         
+        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+        IIC_CRSR = 0; // Clear IF flag
+        readData = IIC_TXRX; // Read data from EEPROM
+        printf("\r\n External: %d\n", readData); // Debug: Indicate the address being read and the data read
+        
+        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+        IIC_CRSR = 0; // Clear IF flag
+        potentiometer = IIC_TXRX; // Read data from EEPROM
+        printf("\r\n Potentiometer: %d\n", potentiometer); // Debug: Indicate the address being read and the data read
+        
+        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+        IIC_CRSR = 0; // Clear IF flag
+        thermistor = IIC_TXRX; // Read data from EEPROM
+        printf("\r\n Thermistor: %d\n", thermistor); // Debug: Indicate the address being read and the data read
+        
+        printf("\n\n\n\n\n");
 
         wait5ms(); Wait3ms();
     }
@@ -2064,6 +2090,8 @@ void menu(void)
             I2CTest(); 
         else if( c == (char)('W'))           // DAC test
             DACWave();
+        else if (c == (char)('A'))
+            ADCRead();
         else if( c == (char)('P'))            // Program Flash Chip
              ProgramFlashChip() ;
 
