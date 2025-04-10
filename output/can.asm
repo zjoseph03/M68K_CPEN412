@@ -231,6 +231,344 @@
 ; #define ClrIntEnSJA ClrByte
 ; /* definitions for the acceptance code and mask register */
 ; #define DontCare 0xFF
+; // IIC Registers
+; #define IIC_PRER_LO (*(volatile unsigned char *)(0x00408000))
+; #define IIC_PRER_HI (*(volatile unsigned char *)(0x00408002))
+; #define IIC_CTR     (*(volatile unsigned char *)(0x00408004))
+; #define IIC_TXRX    (*(volatile unsigned char *)(0x00408006))
+; #define IIC_CRSR    (*(volatile unsigned char *)(0x00408008))
+; // I2C Command/Status Register Macro Mask
+; #define START 0x80
+; #define STOP  0x40
+; #define READ  0x20
+; #define WRITE 0x10
+; #define ACK   0x8
+; #define IACK  0x1
+; #define NACK  0x8
+; #define RXACK 0x80
+; #define TIP   0x2
+; #define INTF  0x01
+; // DAC Information
+; #define PCF8591 0x49
+; #define NUM_SAMPLES 512  // Total samples: 256 up, 256 down
+; #define HALF_SAMPLES (NUM_SAMPLES / 2)
+; #define SAMPLE_DELAY_MS 10  // Adjust delay for your desired frequency
+; #define ADC_CHANNEL_LIGHT        3  // Photoresistor
+; #define ADC_CHANNEL_EXTERNAL     1  // External input
+; #define ADC_CHANNEL_POTENTIOMETER 2  // Potentiometer
+; #define ADC_CHANNEL_THERMISTOR   0  // Thermistor
+; void IICCoreEnable() {
+       section   code
+       xdef      _IICCoreEnable
+_IICCoreEnable:
+; IIC_CTR |= 0x80;     // Enable I2C core in control register (1000_0000)
+       or.b      #128,4227076
+       rts
+; }
+; void IICCoreDisable() {
+       xdef      _IICCoreDisable
+_IICCoreDisable:
+; IIC_CTR &= 0x7F;    // Disable I2C core in control register (0011_1111)
+       and.b     #127,4227076
+       rts
+; }
+; // I2C Driver Functions
+; void IIC_Init(void) {
+       xdef      _IIC_Init
+_IIC_Init:
+; IIC_PRER_LO = 0x59;  // Scale the I2C clock from 45 Mhz to 100 Khz
+       move.b    #89,4227072
+; IIC_PRER_HI = 0x00;  // Scale the I2C clock from 45 Mhz to 100 Khz
+       clr.b     4227074
+; IIC_CTR &= 0xBF;     // Disable interrupt in control register (1011_1111)
+       and.b     #191,4227076
+; IICCoreEnable();
+       jsr       _IICCoreEnable
+       rts
+; }
+; void wait5ms(void) {
+       xdef      _wait5ms
+_wait5ms:
+       move.l    D2,-(A7)
+; int i;
+; for (i = 0; i < 10000; i++); // Wait for 5 ms
+       clr.l     D2
+wait5ms_1:
+       cmp.l     #10000,D2
+       bge.s     wait5ms_3
+       addq.l    #1,D2
+       bra       wait5ms_1
+wait5ms_3:
+       move.l    (A7)+,D2
+       rts
+; }
+; void checkTIP() {
+       xdef      _checkTIP
+_checkTIP:
+; while (IIC_CRSR & TIP);
+checkTIP_1:
+       move.b    4227080,D0
+       and.b     #2,D0
+       beq.s     checkTIP_3
+       bra       checkTIP_1
+checkTIP_3:
+       rts
+; }
+; void checkAck() {
+       xdef      _checkAck
+_checkAck:
+; while ((IIC_CRSR & RXACK) == 1);
+checkAck_1:
+       move.b    4227080,D0
+       and.w     #255,D0
+       and.w     #128,D0
+       cmp.w     #1,D0
+       bne.s     checkAck_3
+       bra       checkAck_1
+checkAck_3:
+       rts
+; }
+; void IICStopCondition() {
+       xdef      _IICStopCondition
+_IICStopCondition:
+; IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
+       or.b      #97,4227080
+; checkTIP();
+       jsr       _checkTIP
+       rts
+; }
+; void IICStartCondition(int rwBit) {
+       xdef      _IICStartCondition
+_IICStartCondition:
+       link      A6,#0
+; if (rwBit == 0) {
+       move.l    8(A6),D0
+       bne.s     IICStartCondition_1
+; IIC_CRSR |= START | WRITE | IACK; // START + WRITE + IACK
+       or.b      #145,4227080
+       bra.s     IICStartCondition_2
+IICStartCondition_1:
+; } else {
+; IIC_CRSR |= START | READ | IACK; // Start condition with read bit set
+       or.b      #161,4227080
+IICStartCondition_2:
+; }
+; checkTIP();
+       jsr       _checkTIP
+; checkAck();
+       jsr       _checkAck
+       unlk      A6
+       rts
+; }
+; // i2c
+; void ADCRead(int channel) {
+       xdef      _ADCRead
+_ADCRead:
+       link      A6,#-28
+       movem.l   D2/A2/A3/A4,-(A7)
+       lea       _checkTIP.L,A2
+       lea       _printf.L,A3
+       move.l    8(A6),D2
+       lea       _checkAck.L,A4
+; int i ;
+; long int  j ;
+; int k;
+; unsigned int thermistor;
+; unsigned int potentiometer;
+; unsigned int photoresistor;
+; unsigned int readData;
+; printf("Performing ADC Read\n");
+       pea       @can_1.L
+       jsr       (A3)
+       addq.w    #4,A7
+; IIC_Init();
+       jsr       _IIC_Init
+; checkTIP();
+       jsr       (A2)
+; IIC_TXRX = ((PCF8591 << 1) & 0xFE); // Send EEPROM address with read bit
+       move.b    #146,4227078
+; IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+       move.b    #145,4227080
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A4)
+; // Send Control byte for ADC function: 0x0000_0100 (Auto Increment Mode)
+; IIC_TXRX = 0x4; // Send EEPROM address with write bit
+       move.b    #4,4227078
+; IIC_CRSR = WRITE | IACK; // Start condition with write bit
+       move.b    #17,4227080
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A4)
+; IIC_TXRX = ((PCF8591 << 1) | 0x1); // Send EEPROM address with read bit
+       move.b    #147,4227078
+; IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+       move.b    #145,4227080
+; checkTIP();
+       jsr       (A2)
+; checkAck();
+       jsr       (A4)
+; // Read data from ADC continously 
+; while(1) {  // Loop continuously
+ADCRead_1:
+; // Load the triangle wave sample into the I2C transmit register
+; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+       move.b    #33,4227080
+; checkTIP();  // Wait until the transmission is complete
+       jsr       (A2)
+; while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+ADCRead_4:
+       move.b    4227080,D0
+       and.b     #1,D0
+       bne.s     ADCRead_6
+       bra       ADCRead_4
+ADCRead_6:
+; IIC_CRSR = 0; // Clear IF flag
+       clr.b     4227080
+; thermistor = IIC_TXRX; // Read data from EEPROM
+       move.b    4227078,D0
+       and.l     #255,D0
+       move.l    D0,-16(A6)
+; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+       move.b    #33,4227080
+; checkTIP();  // Wait until the transmission is complete
+       jsr       (A2)
+; while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+ADCRead_7:
+       move.b    4227080,D0
+       and.b     #1,D0
+       bne.s     ADCRead_9
+       bra       ADCRead_7
+ADCRead_9:
+; IIC_CRSR = 0; // Clear IF flag
+       clr.b     4227080
+; readData = IIC_TXRX; // Read data from EEPROM
+       move.b    4227078,D0
+       and.l     #255,D0
+       move.l    D0,-4(A6)
+; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+       move.b    #33,4227080
+; checkTIP();  // Wait until the transmission is complete
+       jsr       (A2)
+; while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+ADCRead_10:
+       move.b    4227080,D0
+       and.b     #1,D0
+       bne.s     ADCRead_12
+       bra       ADCRead_10
+ADCRead_12:
+; IIC_CRSR = 0; // Clear IF flag
+       clr.b     4227080
+; potentiometer = IIC_TXRX; // Read data from EEPROM
+       move.b    4227078,D0
+       and.l     #255,D0
+       move.l    D0,-12(A6)
+; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+       move.b    #33,4227080
+; checkTIP();  // Wait until the transmission is complete
+       jsr       (A2)
+; while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+ADCRead_13:
+       move.b    4227080,D0
+       and.b     #1,D0
+       bne.s     ADCRead_15
+       bra       ADCRead_13
+ADCRead_15:
+; IIC_CRSR = 0; // Clear IF flag
+       clr.b     4227080
+; photoresistor = IIC_TXRX; // Read data from EEPROM
+       move.b    4227078,D0
+       and.l     #255,D0
+       move.l    D0,-8(A6)
+; if (channel == ADC_CHANNEL_THERMISTOR) {
+       tst.l     D2
+       bne.s     ADCRead_16
+; printf("\r\n Thermistor: %d\n", thermistor); // Debug: Indicate the address being read and the data read
+       move.l    -16(A6),-(A7)
+       pea       @can_2.L
+       jsr       (A3)
+       addq.w    #8,A7
+       bra       ADCRead_22
+ADCRead_16:
+; } else if (channel == ADC_CHANNEL_POTENTIOMETER) {
+       cmp.l     #2,D2
+       bne.s     ADCRead_18
+; printf("\r\n Potentiometer: %d\n", potentiometer); // Debug: Indicate the address being read and the data read
+       move.l    -12(A6),-(A7)
+       pea       @can_3.L
+       jsr       (A3)
+       addq.w    #8,A7
+       bra.s     ADCRead_22
+ADCRead_18:
+; } else if (channel == ADC_CHANNEL_LIGHT) {
+       cmp.l     #3,D2
+       bne.s     ADCRead_20
+; printf("\r\n Light: %d\n", photoresistor); // Debug: Indicate the address being read and the data read
+       move.l    -8(A6),-(A7)
+       pea       @can_4.L
+       jsr       (A3)
+       addq.w    #8,A7
+       bra.s     ADCRead_22
+ADCRead_20:
+; } else if (channel == ADC_CHANNEL_EXTERNAL) {
+       cmp.l     #1,D2
+       bne.s     ADCRead_22
+; printf("\r\n External: %d\n", readData); // Debug: Indicate the address being read and the data read
+       move.l    -4(A6),-(A7)
+       pea       @can_5.L
+       jsr       (A3)
+       addq.w    #8,A7
+ADCRead_22:
+; }
+; printf("\n\n\n\n\n");
+       pea       @can_6.L
+       jsr       (A3)
+       addq.w    #4,A7
+; wait5ms(); wait5ms();
+       jsr       _wait5ms
+       jsr       _wait5ms
+       bra       ADCRead_1
+; }
+; }
+; // void ADCRead(int channel) {
+; //   int i ;
+; //   long int  j ;
+; //   int k;
+; //   unsigned int thermistor;
+; //   unsigned int potentiometer;
+; //   unsigned int photoresistor;
+; //   unsigned int readData;
+; //   unsigned int adcValue;
+; //   const char* channelNames[] = {"Light", "External", "Potentiometer", "Thermistor"};
+; //   // printf("Performing ADC Read on %s channel\n", channelNames[channel]);
+; //   IIC_Init();
+; //   checkTIP();
+; //   IIC_TXRX = ((PCF8591 << 1) & 0xFE); // Send EEPROM address with read bit
+; //   IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+; //   checkTIP();
+; //   checkAck();
+; //   IIC_TXRX = 0x3;
+; //   IIC_CRSR = WRITE | IACK; // Start condition with write bit
+; //   checkTIP();
+; //   checkAck();
+; //   IIC_TXRX = ((PCF8591 << 1) | 0x1); // Send EEPROM address with read bit
+; //   IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+; //   checkTIP();
+; //   checkAck();
+; //   // Read data from ADC continously 
+; //   while(1) {  // Loop continuously
+; //         IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+; //         checkTIP();  // Wait until the transmission is complete
+; //         while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+; //         IIC_CRSR = 0; // Clear IF flag
+; //         adcValue = IIC_TXRX; // Read data from EEPROM
+; //         printf("\r\n %s: %d\n", channelNames[channel], adcValue);
+; //         printf("\n\n\n\n\n");
+; //         wait5ms(); wait5ms();
+; //   }
+; // }
 ; /*  bus timing values for
 ; **  bit-rate : 100 kBit/s
 ; **  oscillator frequency : 25 MHz, 1 sample per bit, 0 tolerance %
@@ -251,7 +589,6 @@
 ; // initialisation for Can controller 0
 ; void Init_CanBus_Controller0(void)
 ; {
-       section   code
        xdef      _Init_CanBus_Controller0
 _Init_CanBus_Controller0:
 ; // TODO - put your Canbus initialisation code for CanController 0 here
@@ -523,18 +860,19 @@ CanBus0_Receive_3:
        move.b    -3(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @can_1.L
+       pea       @can_7.L
        jsr       _printf
        add.w     #12,A7
-; printf("\r\nFrame Info: %02X", rxFrameInfo);}
+; printf("\r\nFrame Info: %02X", rxFrameInfo);
        move.b    -1(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @can_2.L
+       pea       @can_8.L
        jsr       _printf
        addq.w    #8,A7
        unlk      A6
        rts
+; }
 ; // Receive for reading a received message via Can controller 1
 ; void CanBus1_Receive(void)
 ; {
@@ -566,7 +904,7 @@ CanBus1_Receive_3:
        move.b    -2(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @can_1.L
+       pea       @can_7.L
        jsr       _printf
        add.w     #12,A7
        unlk      A6
@@ -576,14 +914,11 @@ CanBus1_Receive_3:
 ; {
        xdef      _delay
 _delay:
+       rts
 ; // TODO - put your delay code here
 ; // This is a simple delay routine for 1/2 second
 ; // You can use a loop or a timer to create the delay
-; OSTimeDly(50);
-       pea       50
-       jsr       _OSTimeDly
-       addq.w    #4,A7
-       rts
+; // OSTimeDly(50);
 ; }
 ; void CanBusTest(void)
 ; {
@@ -597,7 +932,7 @@ _CanBusTest:
 ; Init_CanBus_Controller1();
        jsr       _Init_CanBus_Controller1
 ; printf("\r\n\r\n---- CANBUS Test ----\r\n") ;
-       pea       @can_3.L
+       pea       @can_9.L
        jsr       (A2)
        addq.w    #4,A7
 ; // simple application to alternately transmit and receive messages from each of two nodes
@@ -610,7 +945,7 @@ CanBusTest_1:
 ; CanBus1_Receive() ;        // receive a message via Controller 1 (and display it)
        jsr       _CanBus1_Receive
 ; printf("\r\n") ;
-       pea       @can_4.L
+       pea       @can_10.L
        jsr       (A2)
        addq.w    #4,A7
 ; delay();                    // write a routine to delay say 1/2 second so we don't flood the network with messages to0 quickly
@@ -620,7 +955,7 @@ CanBusTest_1:
 ; CanBus0_Receive() ;         // receive a message via Controller 0 (and display it)
        jsr       _CanBus0_Receive
 ; printf("\r\n") ;
-       pea       @can_4.L
+       pea       @can_10.L
        jsr       (A2)
        addq.w    #4,A7
        bra       CanBusTest_1
@@ -631,31 +966,49 @@ CanBusTest_1:
        xdef      _main
 _main:
 ; printf("\r\n---- Lab 6B CANBUS Test ----\r\n") ;
-       pea       @can_5.L
+       pea       @can_11.L
        jsr       _printf
        addq.w    #4,A7
-; CanBusTest();
-       jsr       _CanBusTest
-; while(1);
-main_1:
-       bra       main_1
+; // CanBusTest();
+; ADCRead(ADC_CHANNEL_POTENTIOMETER);
+       pea       2
+       jsr       _ADCRead
+       addq.w    #4,A7
+       rts
+; // while(1);
 ; }
        section   const
 @can_1:
+       dc.b      80,101,114,102,111,114,109,105,110,103,32,65
+       dc.b      68,67,32,82,101,97,100,10,0
+@can_2:
+       dc.b      13,10,32,84,104,101,114,109,105,115,116,111
+       dc.b      114,58,32,37,100,10,0
+@can_3:
+       dc.b      13,10,32,80,111,116,101,110,116,105,111,109
+       dc.b      101,116,101,114,58,32,37,100,10,0
+@can_4:
+       dc.b      13,10,32,76,105,103,104,116,58,32,37,100,10
+       dc.b      0
+@can_5:
+       dc.b      13,10,32,69,120,116,101,114,110,97,108,58,32
+       dc.b      37,100,10,0
+@can_6:
+       dc.b      10,10,10,10,10,0
+@can_7:
        dc.b      13,10,82,101,99,101,105,118,101,100,32,45,32
        dc.b      73,68,58,32,37,48,50,88,44,32,68,97,116,97,58
        dc.b      32,37,48,50,88,0
-@can_2:
+@can_8:
        dc.b      13,10,70,114,97,109,101,32,73,110,102,111,58
        dc.b      32,37,48,50,88,0
-@can_3:
+@can_9:
        dc.b      13,10,13,10,45,45,45,45,32,67,65,78,66,85,83
        dc.b      32,84,101,115,116,32,45,45,45,45,13,10,0
-@can_4:
+@can_10:
        dc.b      13,10,0
-@can_5:
+@can_11:
        dc.b      13,10,45,45,45,45,32,76,97,98,32,54,66,32,67
        dc.b      65,78,66,85,83,32,84,101,115,116,32,45,45,45
        dc.b      45,13,10,0
-       xref      _OSTimeDly
        xref      _printf

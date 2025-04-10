@@ -263,6 +263,212 @@
 /* definitions for the acceptance code and mask register */
 #define DontCare 0xFF
 
+// IIC Registers
+#define IIC_PRER_LO (*(volatile unsigned char *)(0x00408000))
+#define IIC_PRER_HI (*(volatile unsigned char *)(0x00408002))
+#define IIC_CTR     (*(volatile unsigned char *)(0x00408004))
+#define IIC_TXRX    (*(volatile unsigned char *)(0x00408006))
+#define IIC_CRSR    (*(volatile unsigned char *)(0x00408008))
+
+// I2C Command/Status Register Macro Mask
+#define START 0x80
+#define STOP  0x40
+#define READ  0x20
+#define WRITE 0x10
+#define ACK   0x8
+#define IACK  0x1
+
+#define NACK  0x8
+#define RXACK 0x80
+#define TIP   0x2
+#define INTF  0x01
+
+// DAC Information
+#define PCF8591 0x49
+
+#define NUM_SAMPLES 512  // Total samples: 256 up, 256 down
+#define HALF_SAMPLES (NUM_SAMPLES / 2)
+#define SAMPLE_DELAY_MS 10  // Adjust delay for your desired frequency
+
+#define ADC_CHANNEL_LIGHT        3  // Photoresistor
+#define ADC_CHANNEL_EXTERNAL     1  // External input
+#define ADC_CHANNEL_POTENTIOMETER 2  // Potentiometer
+#define ADC_CHANNEL_THERMISTOR   0  // Thermistor
+
+
+void IICCoreEnable() {
+  IIC_CTR |= 0x80;     // Enable I2C core in control register (1000_0000)
+}
+
+void IICCoreDisable() {
+  IIC_CTR &= 0x7F;    // Disable I2C core in control register (0011_1111)
+}
+// I2C Driver Functions
+void IIC_Init(void) {
+  IIC_PRER_LO = 0x59;  // Scale the I2C clock from 45 Mhz to 100 Khz
+  IIC_PRER_HI = 0x00;  // Scale the I2C clock from 45 Mhz to 100 Khz
+  IIC_CTR &= 0xBF;     // Disable interrupt in control register (1011_1111)
+  IICCoreEnable();
+}
+
+
+void wait5ms(void) {
+  int i;
+  for (i = 0; i < 10000; i++); // Wait for 5 ms
+}
+
+void checkTIP() {
+  while (IIC_CRSR & TIP);
+}
+
+void checkAck() {
+  while ((IIC_CRSR & RXACK) == 1);
+}
+
+void IICStopCondition() {
+  IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
+  checkTIP();
+}
+
+void IICStartCondition(int rwBit) {
+  if (rwBit == 0) {
+    IIC_CRSR |= START | WRITE | IACK; // START + WRITE + IACK
+  } else {
+    IIC_CRSR |= START | READ | IACK; // Start condition with read bit set
+  }
+  checkTIP();
+  checkAck();
+}
+
+
+
+
+// i2c
+
+void ADCRead(int channel) {
+
+  int i ;
+  long int  j ;
+  int k;
+
+  unsigned int thermistor;
+  unsigned int potentiometer;
+  unsigned int photoresistor;
+  unsigned int readData;
+
+  printf("Performing ADC Read\n");
+  
+  IIC_Init();
+  checkTIP();
+
+  IIC_TXRX = ((PCF8591 << 1) & 0xFE); // Send EEPROM address with read bit
+  IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  // Send Control byte for ADC function: 0x0000_0100 (Auto Increment Mode)
+  IIC_TXRX = 0x4; // Send EEPROM address with write bit
+  IIC_CRSR = WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  IIC_TXRX = ((PCF8591 << 1) | 0x1); // Send EEPROM address with read bit
+  IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  // Read data from ADC continously 
+  while(1) {  // Loop continuously
+        // Load the triangle wave sample into the I2C transmit register
+        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+        IIC_CRSR = 0; // Clear IF flag
+        thermistor = IIC_TXRX; // Read data from EEPROM
+        
+        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+        IIC_CRSR = 0; // Clear IF flag
+        readData = IIC_TXRX; // Read data from EEPROM
+        
+        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+        IIC_CRSR = 0; // Clear IF flag
+        potentiometer = IIC_TXRX; // Read data from EEPROM
+        
+        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+        checkTIP();  // Wait until the transmission is complete
+        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+        IIC_CRSR = 0; // Clear IF flag
+        photoresistor = IIC_TXRX; // Read data from EEPROM
+        
+        if (channel == ADC_CHANNEL_THERMISTOR) {
+          printf("\r\n Thermistor: %d\n", thermistor); // Debug: Indicate the address being read and the data read
+        } else if (channel == ADC_CHANNEL_POTENTIOMETER) {
+          printf("\r\n Potentiometer: %d\n", potentiometer); // Debug: Indicate the address being read and the data read
+        } else if (channel == ADC_CHANNEL_LIGHT) {
+          printf("\r\n Light: %d\n", photoresistor); // Debug: Indicate the address being read and the data read
+        } else if (channel == ADC_CHANNEL_EXTERNAL) {
+          printf("\r\n External: %d\n", readData); // Debug: Indicate the address being read and the data read
+        }
+        printf("\n\n\n\n\n");
+
+        wait5ms(); wait5ms();
+  }
+}
+
+// void ADCRead(int channel) {
+
+//   int i ;
+//   long int  j ;
+//   int k;
+
+//   unsigned int thermistor;
+//   unsigned int potentiometer;
+//   unsigned int photoresistor;
+//   unsigned int readData;
+//   unsigned int adcValue;
+
+//   const char* channelNames[] = {"Light", "External", "Potentiometer", "Thermistor"};
+
+
+//   // printf("Performing ADC Read on %s channel\n", channelNames[channel]);
+  
+//   IIC_Init();
+//   checkTIP();
+
+//   IIC_TXRX = ((PCF8591 << 1) & 0xFE); // Send EEPROM address with read bit
+//   IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+//   checkTIP();
+//   checkAck();
+
+//   IIC_TXRX = 0x3;
+//   IIC_CRSR = WRITE | IACK; // Start condition with write bit
+//   checkTIP();
+//   checkAck();
+
+//   IIC_TXRX = ((PCF8591 << 1) | 0x1); // Send EEPROM address with read bit
+//   IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+//   checkTIP();
+//   checkAck();
+
+//   // Read data from ADC continously 
+//   while(1) {  // Loop continuously
+//         IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+//         checkTIP();  // Wait until the transmission is complete
+//         while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+//         IIC_CRSR = 0; // Clear IF flag
+//         adcValue = IIC_TXRX; // Read data from EEPROM
+//         printf("\r\n %s: %d\n", channelNames[channel], adcValue);
+                
+//         printf("\n\n\n\n\n");
+
+//         wait5ms(); wait5ms();
+//   }
+// }
+
 
 /*  bus timing values for
 **  bit-rate : 100 kBit/s
@@ -274,7 +480,6 @@
 **  T1 	T2 	BTQ 	SP% 	SJW 	BIT RATE 	ERR% 	BTR0 	BTR1
 **  17	8	25	    68	     1	      100	    0	      04	7f
 */
-
 
 /*
 
@@ -305,6 +510,8 @@ void Init_CanBus_Controller0(void)
   // TX1 Output Config should be set to 0 since we're sending TX message from controller to transeiver 
 
   // Configure acceptance code and mask registers
+
+  
   
   // COnfigure bus timing registers
   
@@ -497,7 +704,8 @@ void CanBus0_Receive(void)
 
   Can0_CommandReg = RRB_Bit; 
   printf("\r\nReceived - ID: %02X, Data: %02X", recieveID, recievedData);
-  printf("\r\nFrame Info: %02X", rxFrameInfo);}
+  printf("\r\nFrame Info: %02X", rxFrameInfo);
+}
 
 // Receive for reading a received message via Can controller 1
 void CanBus1_Receive(void)
@@ -523,7 +731,7 @@ void delay(void)
   // TODO - put your delay code here
   // This is a simple delay routine for 1/2 second
   // You can use a loop or a timer to create the delay
-  OSTimeDly(50);
+  // OSTimeDly(50);
 }
 
 void CanBusTest(void)
@@ -557,7 +765,8 @@ void CanBusTest(void)
 void main(void)
 {
   printf("\r\n---- Lab 6B CANBUS Test ----\r\n") ;
-  CanBusTest();
-  while(1);
+  // CanBusTest();
 
+  ADCRead(ADC_CHANNEL_POTENTIOMETER);
+  // while(1);
 }
