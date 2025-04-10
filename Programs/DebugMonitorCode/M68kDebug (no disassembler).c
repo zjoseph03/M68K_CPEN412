@@ -1343,18 +1343,28 @@ int I2CTest() {
 // Remaining bits can select input channel mode
 // Generate sine wave
 
-
 void ADCRead() {
   unsigned int readData;
+  printf("Performing ADC Read\n");
   
   IIC_Init();
   checkTIP();
+
+  IIC_TXRX = ((PCF8591 << 1) & 0xFE); // Send EEPROM address with read bit
+  IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  // Send Control byte for ADC function: 0x0000_0100 (Auto Increment Mode)
+  IIC_TXRX = 0x1; // Send EEPROM address with write bit
+  IIC_CRSR = WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
 
   IIC_TXRX = ((PCF8591 << 1) | 0x1); // Send EEPROM address with read bit
   IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
   checkTIP();
   checkAck();
-  
 
   // Read data from ADC continously 
   while(1) {  // Loop continuously
@@ -1362,7 +1372,7 @@ void ADCRead() {
         // Load the triangle wave sample into the I2C transmit register
         IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
         checkTIP();  // Wait until the transmission is complete
-        while (!IIC_CRSR & 0x1); // Wait for IF flag to be set
+        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
         IIC_CRSR = 0; // Clear IF flag
         readData = IIC_TXRX; // Read data from EEPROM
         printf("\r\n ADC Read: %d\n", readData); // Debug: Indicate the address being read and the data read
