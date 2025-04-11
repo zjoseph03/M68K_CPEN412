@@ -12,6 +12,23 @@
 ** where (i) represents an registers number
 */
 
+#include <stdio.h>
+#include <Bios.h>
+#include <ucos_ii.h>
+
+#define STACKSIZE 256
+
+OS_STK Task1Stk[STACKSIZE];
+OS_STK Task2Stk[STACKSIZE];
+OS_STK Task3Stk[STACKSIZE];
+OS_STK Task4Stk[STACKSIZE];
+
+void ADCThread(void *);
+
+unsigned char Timer1Count;
+unsigned char thermistorVal, potentiometerVal, lightSensorVal;
+
+
 #define CAN0_CONTROLLER(i) (*(volatile unsigned char *)(0x00500000 + (i << 1)))
 #define CAN1_CONTROLLER(i) (*(volatile unsigned char *)(0x00500200 + (i << 1)))
 
@@ -295,7 +312,6 @@
 #define ADC_CHANNEL_POTENTIOMETER 2  // Potentiometer
 #define ADC_CHANNEL_THERMISTOR   0  // Thermistor
 
-
 void IICCoreEnable() {
   IIC_CTR |= 0x80;     // Enable I2C core in control register (1000_0000)
 }
@@ -325,10 +341,10 @@ void checkAck() {
   while ((IIC_CRSR & RXACK) == 1);
 }
 
-void IICStopCondition() {
-  IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
-  checkTIP();
-}
+// void IICStopCondition() {
+//   IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
+//   checkTIP();
+// }
 
 void IICStartCondition(int rwBit) {
   if (rwBit == 0) {
@@ -345,18 +361,15 @@ void IICStartCondition(int rwBit) {
 
 // i2c
 
-void ADCRead(int channel) {
+void ADCRead(void) {
 
   int i ;
   long int  j ;
   int k;
 
-  unsigned int thermistor;
-  unsigned int potentiometer;
-  unsigned int photoresistor;
   unsigned int readData;
 
-  printf("Performing ADC Read\n");
+  // printf("Performing ADC Read\n");
   
   IIC_Init();
   checkTIP();
@@ -378,45 +391,39 @@ void ADCRead(int channel) {
   checkAck();
 
   // Read data from ADC continously 
-  while(1) {  // Loop continuously
-        // Load the triangle wave sample into the I2C transmit register
-        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
-        checkTIP();  // Wait until the transmission is complete
-        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
-        IIC_CRSR = 0; // Clear IF flag
-        thermistor = IIC_TXRX; // Read data from EEPROM
-        
-        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
-        checkTIP();  // Wait until the transmission is complete
-        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
-        IIC_CRSR = 0; // Clear IF flag
-        readData = IIC_TXRX; // Read data from EEPROM
-        
-        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
-        checkTIP();  // Wait until the transmission is complete
-        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
-        IIC_CRSR = 0; // Clear IF flag
-        potentiometer = IIC_TXRX; // Read data from EEPROM
-        
-        IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
-        checkTIP();  // Wait until the transmission is complete
-        while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
-        IIC_CRSR = 0; // Clear IF flag
-        photoresistor = IIC_TXRX; // Read data from EEPROM
-        
-        if (channel == ADC_CHANNEL_THERMISTOR) {
-          printf("\r\n Thermistor: %d\n", thermistor); // Debug: Indicate the address being read and the data read
-        } else if (channel == ADC_CHANNEL_POTENTIOMETER) {
-          printf("\r\n Potentiometer: %d\n", potentiometer); // Debug: Indicate the address being read and the data read
-        } else if (channel == ADC_CHANNEL_LIGHT) {
-          printf("\r\n Light: %d\n", photoresistor); // Debug: Indicate the address being read and the data read
-        } else if (channel == ADC_CHANNEL_EXTERNAL) {
-          printf("\r\n External: %d\n", readData); // Debug: Indicate the address being read and the data read
-        }
-        printf("\n\n\n\n\n");
 
-        wait5ms(); wait5ms();
-  }
+  // Load the triangle wave sample into the I2C transmit register
+  IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+  checkTIP();  // Wait until the transmission is complete
+  while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+  IIC_CRSR = 0; // Clear IF flag
+  thermistorVal = IIC_TXRX; // Read data from EEPROM
+  // printf("ADC Thermistor: %d\n", thermistorVal); // Debug: Indicate the address being read and the data read
+  
+  IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+  checkTIP();  // Wait until the transmission is complete
+  while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+  IIC_CRSR = 0; // Clear IF flag
+  readData = IIC_TXRX; // Read data from EEPROM
+  
+  IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+  checkTIP();  // Wait until the transmission is complete
+  while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+  IIC_CRSR = 0; // Clear IF flag
+  potentiometerVal = IIC_TXRX; // Read data from EEPROM
+  // printf("ADC Potentiometer: %d\n", potentiometerVal); // Debug: Indicate the address being read and the data read
+
+  IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+  checkTIP();  // Wait until the transmission is complete
+  while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+  IIC_CRSR = 0; // Clear IF flag
+  lightSensorVal = IIC_TXRX; // Read data from EEPROM
+  // printf("ADC Light Sensor: %d\n", lightSensorVal); // Debug: Indicate the address being read and the data read
+
+  IIC_CRSR = STOP | READ | IACK | NACK; // STOP + READ + IACK + NACK
+  checkTIP();
+
+  wait5ms(); wait5ms();
 }
 
 // void ADCRead(int channel) {
@@ -486,7 +493,6 @@ void ADCRead(int channel) {
 Can Transceiver - controls logic level signals from can controller to physical ones
 Can Controller - controls the logic level signals from the microcontroller to the transceive
 
-Enters sleep mode:
 - no bus activity
 - no interrupt pending
 
@@ -762,11 +768,61 @@ void CanBusTest(void)
   }
 }
 
-void main(void)
+/*********************************************************************************
+** Timer ISR
+**********************************************************************************/
+void Timer_ISR(void)
 {
-  printf("\r\n---- Lab 6B CANBUS Test ----\r\n") ;
-  // CanBusTest();
+  // Timer 1: Every 10ms
+  if(Timer1Status == 1) {       // Did Timer 1 produce the Interrupt?
+   	    Timer1Control = 3;      	// if so clear interrupt and restart timer
+        Timer1Count++ ;           // increment an LED count on PortA with each tick of Timer 1 
+        // printf("Timer 1 Count: %d\n", Timer1Count);
+        
+        if (Timer1Count % 10 == 0) {
+          // 8 slider switches
+        }
 
-  ADCRead(ADC_CHANNEL_POTENTIOMETER);
-  // while(1);
+        if (Timer1Count % 20 == 0) {
+          // ADC potentiometer
+          printf("Timer Potentiometer: %d\n\n", potentiometerVal); // Debug: Indicate the address being read and the data read
+        }
+
+        if (Timer1Count % 50 == 0) {
+          // ADC Light sensor
+          printf("Timer Light Sensor: %d\n\n", lightSensorVal); // Debug: Indicate the address being read and the data read
+        }
+
+        if (Timer1Count % 200 == 0) {
+          // ADC Thermistor
+          Timer1Count = 0;
+          printf("Timer Thermistor: %d\n\n", thermistorVal); // Debug: Indicate the address being read and the data read
+        }
+    } 
+}
+
+void main(void)
+{  
+  Timer1Count = 0;
+  printf("Starting...\n");
+  OSInit();
+  InstallExceptionHandler(Timer_ISR, 30);
+  Timer1_Init();
+
+  printf("Initialized Exception Handlers\n");
+
+  printf("\r\n---- Lab 6B CANBUS Test ----\r\n");
+
+  OSTaskCreate(ADCThread, OS_NULL, &Task1Stk[STACKSIZE], 11); // highest priority task
+  // OSTaskCreate(Task2, OS_NULL, &Task2Stk[STACKSIZE], 12); // highest priority task
+  // OSTaskCreate(Task3, OS_NULL, &Task3Stk[STACKSIZE], 13);
+  // OSTaskCreate(Task4, OS_NULL, &Task4Stk[STACKSIZE], 14); // lowest priority task
+  OSStart();
+
+}
+
+void ADCThread(void *pdata) {
+ while(1) {
+    ADCRead();
+  }
 }

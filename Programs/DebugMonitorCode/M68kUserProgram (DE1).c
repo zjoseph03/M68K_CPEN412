@@ -125,7 +125,7 @@ void Timer_ISR()
    	if(Timer1Status == 1) {         // Did Timer 1 produce the Interrupt?
    	    Timer1Control = 3;      	// reset the timer to clear the interrupt, enable interrupts and allow counter to run
    	    PortA = Timer1Count++ ;     // increment an LED count on PortA with each tick of Timer 1
-   	}
+      }
 
   	if(Timer2Status == 1) {         // Did Timer 2 produce the Interrupt?
    	    Timer2Control = 3;      	// reset the timer to clear the interrupt, enable interrupts and allow counter to run
