@@ -1,4 +1,6 @@
-
+#include <stdio.h>
+#include <bios.h>
+#include <ucos_ii.h>
 /*********************************************************************************************
 ** These addresses and definitions were taken from Appendix 7 of the Can Controller
 ** application note and adapted for the 68k assignment
@@ -263,6 +265,106 @@
 /* definitions for the acceptance code and mask register */
 #define DontCare 0xFF
 
+#define SENSOR_ID_THERMISTOR    0x01
+#define SENSOR_ID_POTENTIOMETER 0x02
+#define SENSOR_ID_LIGHT         0x03
+#define SENSOR_ID_SWITCHES      0x04 
+
+
+// IIC Registers
+#define IIC_PRER_LO (*(volatile unsigned char *)(0x00408000))
+#define IIC_PRER_HI (*(volatile unsigned char *)(0x00408002))
+#define IIC_CTR     (*(volatile unsigned char *)(0x00408004))
+#define IIC_TXRX    (*(volatile unsigned char *)(0x00408006))
+#define IIC_CRSR    (*(volatile unsigned char *)(0x00408008))
+
+// I2C Command/Status Register Macro Mask
+#define START 0x80
+#define STOP  0x40
+#define READ  0x20
+#define WRITE 0x10
+#define ACK   0x8
+#define IACK  0x1
+
+#define NACK  0x8
+#define RXACK 0x80
+#define TIP   0x2
+#define INTF  0x01
+
+// DAC Information
+#define PCF8591 0x49
+
+#define NUM_SAMPLES 512  // Total samples: 256 up, 256 down
+#define HALF_SAMPLES (NUM_SAMPLES / 2)
+#define SAMPLE_DELAY_MS 10  // Adjust delay for your desired frequency
+
+#define ADC_CHANNEL_LIGHT        3  // Photoresistor
+#define ADC_CHANNEL_EXTERNAL     1  // External input
+#define ADC_CHANNEL_POTENTIOMETER 2  // Potentiometer
+#define ADC_CHANNEL_THERMISTOR   0  // Thermistor
+
+#define STACKSIZE 256
+
+OS_STK Task1Stk[STACKSIZE];
+OS_STK Task2Stk[STACKSIZE];
+OS_STK Task3Stk[STACKSIZE];
+OS_STK Task4Stk[STACKSIZE];
+
+void ADCThread(void *);
+unsigned char Timer1Count;
+
+// CAN Channel IDs
+
+unsigned char Timer1Count;
+unsigned char thermistorVal, potentiometerVal, lightSensorVal;
+
+
+
+
+void IICCoreEnable() {
+  IIC_CTR |= 0x80;     // Enable I2C core in control register (1000_0000)
+}
+
+void IICCoreDisable() {
+  IIC_CTR &= 0x7F;    // Disable I2C core in control register (0011_1111)
+}
+// I2C Driver Functions
+void IIC_Init(void) {
+  IIC_PRER_LO = 0x59;  // Scale the I2C clock from 45 Mhz to 100 Khz
+  IIC_PRER_HI = 0x00;  // Scale the I2C clock from 45 Mhz to 100 Khz
+  IIC_CTR &= 0xBF;     // Disable interrupt in control register (1011_1111)
+  IICCoreEnable();
+}
+
+
+void wait5ms(void) {
+  int i;
+  for (i = 0; i < 10000; i++); // Wait for 5 ms
+}
+
+void checkTIP() {
+  while (IIC_CRSR & TIP);
+}
+
+void checkAck() {
+  while ((IIC_CRSR & RXACK) == 1);
+}
+
+// void IICStopCondition() {
+//   IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
+//   checkTIP();
+// }
+
+void IICStartCondition(int rwBit) {
+  if (rwBit == 0) {
+    IIC_CRSR |= START | WRITE | IACK; // START + WRITE + IACK
+  } else {
+    IIC_CRSR |= START | READ | IACK; // Start condition with read bit set
+  }
+  checkTIP();
+  checkAck();
+}
+
 
 /*  bus timing values for
 **  bit-rate : 100 kBit/s
@@ -286,6 +388,12 @@ Enters sleep mode:
 - no interrupt pending
 
 */
+
+unsigned char GetSwitches(void)
+{
+    return (unsigned char)(PortA & 0xFF);  // Get just the lower 8 bits
+}
+
 
 // initialisation for Can controller 0
 void Init_CanBus_Controller0(void)
@@ -434,7 +542,7 @@ is transmit buffer released?
 
 */
 // Transmit for sending a message via Can controller 0
-void CanBus0_Transmit(void)
+void CanBus0_Transmit(unsigned char sensorId, unsigned char sensorValue)
 {
   // TODO - put your Canbus transmit code for CanController 0 here
   // See section 4.2.2 in the application note for details (PELICAN MODE)
@@ -451,13 +559,15 @@ void CanBus0_Transmit(void)
   Can0_TxFrameInfo = 0x08; /* SFF (data), DLC=8 */
   Can0_TxBuffer1 = 0xA5; /* ID1 = A5, (1010 0101) */
   Can0_TxBuffer2 = 0x20; /* ID2 = 20, (0010 0000) */
-  Can0_TxBuffer3 = 0x51; /* data1 = 51 */
+  Can0_TxBuffer3 = sensorValue; /* DATA */
+  Can0_TxBuffer4 = sensorId; /* RecieveID */
+
   /* Start the transmission */
   Can0_CommandReg = TR_Bit ; /* Set Transmission Request bit */
 }
 
 // Transmit for sending a message via Can controller 1
-void CanBus1_Transmit(void)
+void CanBus1_Transmit(unsigned char sensorId, unsigned char sensorValue)
 {
   // TODO - put your Canbus transmit code for CanController 1 here
   // See section 4.2.2 in the application note for details (PELICAN MODE)
@@ -473,49 +583,76 @@ void CanBus1_Transmit(void)
   Can1_TxFrameInfo = 0x08; /* SFF (data), DLC=8 */
   Can1_TxBuffer1 = 0xA5; /* ID1 = A5, (1010 0101) */
   Can1_TxBuffer2 = 0x20; /* ID2 = 20, (0010 0000) */
-  Can1_TxBuffer3 = 0x51; /* data1 = 51 */  
-  /* Start the transmission */
+  Can0_TxBuffer3 = sensorValue; /* DATA */
+  Can0_TxBuffer4 = sensorId; /* RecieveID */
   Can1_CommandReg = TR_Bit; /* Set Transmission Request bit */
 }
-
 
 // Receive for reading a received message via Can controller 0
 void CanBus0_Receive(void)
 {
-  // TODO - put your Canbus receive code for CanController 0 here
-  // See section 4.2.4 in the application note for details (PELICAN MODE)
-  unsigned char recieveID;
-  unsigned char recievedData;
-  unsigned char rxFrameInfo;
+    unsigned char sensorId;
+    unsigned char sensorValue;
+    int i;
+    
+    while (!(Can0_StatusReg & RBS_Bit)) {
+    }
 
-  while (!(Can0_StatusReg & RBS_Bit)) {
-  }
+    sensorId = Can0_RxBuffer4;
+    sensorValue = Can0_RxBuffer3;
 
-  rxFrameInfo = Can0_RxFrameInfo;
-  recieveID = Can0_RxBuffer1;
-  recievedData = Can0_RxBuffer3;
+    switch(sensorId) {
+        case SENSOR_ID_THERMISTOR:
+            printf("\rC0: T=%3d", sensorValue);
+            break;
+        case SENSOR_ID_POTENTIOMETER:
+            printf(" P=%3d", sensorValue);
+            break;
+        case SENSOR_ID_LIGHT:
+            printf(" L=%3d", sensorValue);
+            break;
+        case SENSOR_ID_SWITCHES:
+            printf(" SW=");
+            for(i = 7; i >= 0; i--) {
+                printf("%d", (sensorValue >> i) & 0x01);
+            }
+            break;
+    }
+    
+    Can0_CommandReg = RRB_Bit;
+}
 
-  Can0_CommandReg = RRB_Bit; 
-  printf("\r\nReceived - ID: %02X, Data: %02X", recieveID, recievedData);
-  printf("\r\nFrame Info: %02X", rxFrameInfo);}
-
-// Receive for reading a received message via Can controller 1
 void CanBus1_Receive(void)
 {
-  // TODO - put your Canbus receive code for CanController 1 here
-  // See section 4.2.4 in the application note for details (PELICAN MODE)
-  unsigned char recieveID;
-  unsigned char recievedData;
+    unsigned char sensorId;
+    unsigned char sensorValue;
+    int i;
+    
+    while (!(Can1_StatusReg & RBS_Bit)) {
+    }
 
-  while (!(Can1_StatusReg & RBS_Bit)) {
-  }
+    sensorId = Can1_RxBuffer4;
+    sensorValue = Can1_RxBuffer3;
 
-  recieveID = Can1_RxBuffer1;
-  recievedData = Can1_RxBuffer3;
-
-  Can1_CommandReg = RRB_Bit;
-  printf("\r\nReceived - ID: %02X, Data: %02X", recieveID, recievedData);
-
+    switch(sensorId) {
+        case SENSOR_ID_THERMISTOR:
+            printf("\rC1: T=%3d", sensorValue);
+            break;
+        case SENSOR_ID_POTENTIOMETER:
+            printf(" P=%3d", sensorValue);
+            break;
+        case SENSOR_ID_LIGHT:
+            printf(" L=%3d", sensorValue);
+            break;
+        case SENSOR_ID_SWITCHES:
+            printf(" SW=");
+            for(i = 7; i >= 0; i--) {
+                printf("%d", (sensorValue >> i) & 0x01);
+            }
+            break;
+    }
+    
+    Can1_CommandReg = RRB_Bit;
 }
 
 void delay(void)
@@ -528,36 +665,137 @@ void delay(void)
 
 void CanBusTest(void)
 {
-  // initialise the two Can controllers
+    Init_CanBus_Controller0();
+    Init_CanBus_Controller1();
 
-  Init_CanBus_Controller0();
-  Init_CanBus_Controller1();
+    printf("\r\n\r\n---- CANBUS Test with Real Sensor Values ----\r\n");
+    printf("\rC0: T=Thermistor P=Potentiometer L=Light SW=Switches\r\n");
 
-  printf("\r\n\r\n---- CANBUS Test ----\r\n") ;
+    while(1) {
 
-  // simple application to alternately transmit and receive messages from each of two nodes
 
-  while(1)    {
-    delay();                    // write a routine to delay say 1/2 second so we don't flood the network with messages to0 quickly
+        OSTimeDly(100);
+    }
+}
 
-    CanBus0_Transmit() ;       // transmit a message via Controller 0
-    CanBus1_Receive() ;        // receive a message via Controller 1 (and display it)
+void ADCRead(void) {
 
-    printf("\r\n") ;
+  int i ;
+  long int  j ;
+  int k;
 
-    delay();                    // write a routine to delay say 1/2 second so we don't flood the network with messages to0 quickly
+  unsigned int readData;
 
-    CanBus1_Transmit() ;        // transmit a message via Controller 1
-    CanBus0_Receive() ;         // receive a message via Controller 0 (and display it)
-    printf("\r\n") ;
+  // printf("Performing ADC Read\n");
+  
+  IIC_Init();
+  checkTIP();
 
-  }
+  IIC_TXRX = ((PCF8591 << 1) & 0xFE); // Send EEPROM address with read bit
+  IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  // Send Control byte for ADC function: 0x0000_0100 (Auto Increment Mode)
+  IIC_TXRX = 0x4; // Send EEPROM address with write bit
+  IIC_CRSR = WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  IIC_TXRX = ((PCF8591 << 1) | 0x1); // Send EEPROM address with read bit
+  IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
+  checkTIP();
+  checkAck();
+
+  // Read data from ADC continously 
+
+  // Load the triangle wave sample into the I2C transmit register
+  IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+  checkTIP();  // Wait until the transmission is complete
+  while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+  IIC_CRSR = 0; // Clear IF flag
+  thermistorVal = IIC_TXRX; // Read data from EEPROM
+  // printf("ADC Thermistor: %d\n", thermistorVal); // Debug: Indicate the address being read and the data read
+  
+  IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+  checkTIP();  // Wait until the transmission is complete
+  while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+  IIC_CRSR = 0; // Clear IF flag
+  readData = IIC_TXRX; // Read data from EEPROM
+  
+  IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+  checkTIP();  // Wait until the transmission is complete
+  while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+  IIC_CRSR = 0; // Clear IF flag
+  potentiometerVal = IIC_TXRX; // Read data from EEPROM
+  // printf("ADC Potentiometer: %d\n", potentiometerVal); // Debug: Indicate the address being read and the data read
+
+  IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+  checkTIP();  // Wait until the transmission is complete
+  while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+  IIC_CRSR = 0; // Clear IF flag
+  lightSensorVal = IIC_TXRX; // Read data from EEPROM
+  // printf("ADC Light Sensor: %d\n", lightSensorVal); // Debug: Indicate the address being read and the data read
+
+  IIC_CRSR = STOP | READ | IACK | NACK; // STOP + READ + IACK + NACK
+  checkTIP();
+
+  wait5ms(); wait5ms();
+}
+
+void Timer_ISR(void)
+{
+    if(Timer1Status == 1) {       
+        Timer1Control = 3;      
+        Timer1Count++;           
+        
+        if (Timer1Count % 10 == 0) {
+            unsigned char switches = GetSwitches();
+            CanBus0_Transmit(SENSOR_ID_SWITCHES, switches);
+            CanBus1_Receive();
+            
+            ADCRead(); 
+            CanBus0_Transmit(SENSOR_ID_THERMISTOR, thermistorVal);
+            CanBus1_Receive();
+            CanBus0_Transmit(SENSOR_ID_POTENTIOMETER, potentiometerVal);
+            CanBus1_Receive();
+            CanBus0_Transmit(SENSOR_ID_LIGHT, lightSensorVal);
+            CanBus1_Receive();
+        }
+
+        if (Timer1Count >= 100) {
+            Timer1Count = 0;
+        }
+    }
 }
 
 void main(void)
-{
-  printf("\r\n---- Lab 6B CANBUS Test ----\r\n") ;
-  CanBusTest();
-  while(1);
+{  
+    Timer1Count = 0;
+    thermistorVal = 0;
+    potentiometerVal = 0;
+    lightSensorVal = 0;
 
+    printf("Starting...\n");
+    Init_CanBus_Controller0();
+    Init_CanBus_Controller1();
+    printf("CAN Controllers Initialized\n");
+    OSInit();
+    printf("RTOS Initialized\n");
+
+    InstallExceptionHandler(Timer_ISR, 30);
+    Timer1_Init();
+    printf("Timer Initialized\n");
+
+    printf("\r\n---- Lab 6B CANBUS Test ----\r\n");
+    printf("C0/C1: T=Thermistor P=Potentiometer L=Light SW=Switches\r\n");
+
+    OSStart();
+}
+
+void ADCThread(void *pdata) {
+    while(1) {
+        ADCRead();
+        OSTimeDly(10); // Small delay between readings
+    }
 }
