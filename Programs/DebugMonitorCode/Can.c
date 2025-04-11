@@ -748,12 +748,10 @@ void Timer_ISR(void)
     if(Timer1Status == 1) {       
         Timer1Control = 3;      
         Timer1Count++;           
-        
         if (Timer1Count % 10 == 0) {
             unsigned char switches = GetSwitches();
             CanBus0_Transmit(SENSOR_ID_SWITCHES, switches);
             CanBus1_Receive();
-            
             ADCRead(); 
             CanBus0_Transmit(SENSOR_ID_THERMISTOR, thermistorVal);
             CanBus1_Receive();
@@ -763,6 +761,8 @@ void Timer_ISR(void)
             CanBus1_Receive();
         }
 
+
+        
         if (Timer1Count >= 100) {
             Timer1Count = 0;
         }
@@ -796,6 +796,6 @@ void main(void)
 void ADCThread(void *pdata) {
     while(1) {
         ADCRead();
-        OSTimeDly(10); // Small delay between readings
+        OSTimeDly(10);
     }
 }
