@@ -299,20 +299,12 @@ _Oline1:
 ; // /*********************************************************************************
 ; // ** Timer ISR
 ; // **********************************************************************************/
-; void Timer_ISR(void)
-; {
-       xdef      _Timer_ISR
-_Timer_ISR:
-; if(Timer1Status == 1) {       // Did Timer 1 produce the Interrupt?
-       move.b    4194354,D0
-       cmp.b     #1,D0
-       bne.s     Timer_ISR_1
-; Timer1Control = 3;      	// if so clear interrupt and restart timer
-       move.b    #3,4194354
-Timer_ISR_1:
-       rts
-; }
-; }
+; // void Timer_ISR(void)
+; // {
+; //    	if(Timer1Status == 1) {       // Did Timer 1 produce the Interrupt?
+; //    	    Timer1Control = 3;      	// if so clear interrupt and restart timer
+; //     }
+; // }
 ; /**********************************************************************************
 ; ** Timer Initialisation Routine
 ; **********************************************************************************/

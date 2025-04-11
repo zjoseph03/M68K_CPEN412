@@ -819,6 +819,7 @@ void main(void)
 
     InstallExceptionHandler(Timer_ISR, 30);
     Timer1_Init();
+    
     printf("Timer Initialized\n");
 
     printf("\r\n---- Lab 6B CANBUS Test ----\r\n");
@@ -830,6 +831,6 @@ void main(void)
 void ADCThread(void *pdata) {
     while(1) {
         ADCRead();
-        OSTimeDly(10);
+        // OSTimeDly(10);
     }
 }
