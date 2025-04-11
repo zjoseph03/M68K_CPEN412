@@ -203,11 +203,10 @@ void Timer1_Init(void)
 **	see main below for other examples
 ***********************************************************************************************************************************/
 
-/*
-void InstallExceptionHandler( void (*function_ptr)(), int level)
-{
-    volatile long int *RamVectorAddress = (volatile long int *)(StartOfExceptionVectorTable) ;   // pointer to the Ram based interrupt vector table created in Cstart in debug monitor
 
-    RamVectorAddress[level] = (long int *)(function_ptr);                       // install the address of our function into the exception table
-}
-*/
+// void InstallExceptionHandler( void (*function_ptr)(), int level)
+// {
+//     volatile long int *RamVectorAddress = (volatile long int *)(StartOfExceptionVectorTable) ;   // pointer to the Ram based interrupt vector table created in Cstart in debug monitor
+
+//     RamVectorAddress[level] = (long int *)(function_ptr);                       // install the address of our function into the exception table
+// }

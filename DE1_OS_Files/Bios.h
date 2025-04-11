@@ -96,4 +96,4 @@ void Timer_ISR(void);
 #define HEX_B        *(volatile unsigned char *)(0x00400012)
 #define HEX_C        *(volatile unsigned char *)(0x00400014)
 
-#define StartOfExceptionVectorTable 0x08000000  // this has to be the same value declared in os_boot.asm bss section (org $08000000)
+#define StartOfExceptionVectorTable 0x0B000000  // this has to be the same value declared in os_boot.asm bss section (org $08000000)

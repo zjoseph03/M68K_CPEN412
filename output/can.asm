@@ -10,6 +10,17 @@
 ; ** Registers are defined in terms of the following Macro for each Can controller,
 ; ** where (i) represents an registers number
 ; */
+; #include <stdio.h>
+; #include <Bios.h>
+; #include <ucos_ii.h>
+; #define STACKSIZE 256
+; OS_STK Task1Stk[STACKSIZE];
+; OS_STK Task2Stk[STACKSIZE];
+; OS_STK Task3Stk[STACKSIZE];
+; OS_STK Task4Stk[STACKSIZE];
+; void ADCThread(void *);
+; unsigned char Timer1Count;
+; unsigned char thermistorVal, potentiometerVal, lightSensorVal;
 ; #define CAN0_CONTROLLER(i) (*(volatile unsigned char *)(0x00500000 + (i << 1)))
 ; #define CAN1_CONTROLLER(i) (*(volatile unsigned char *)(0x00500200 + (i << 1)))
 ; /* Can 0 register definitions */
@@ -328,15 +339,10 @@ checkAck_1:
 checkAck_3:
        rts
 ; }
-; void IICStopCondition() {
-       xdef      _IICStopCondition
-_IICStopCondition:
-; IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
-       or.b      #97,4227080
-; checkTIP();
-       jsr       _checkTIP
-       rts
-; }
+; // void IICStopCondition() {
+; //   IIC_CRSR |= STOP | READ | IACK; // STOP + READ + IACK
+; //   checkTIP();
+; // }
 ; void IICStartCondition(int rwBit) {
        xdef      _IICStartCondition
 _IICStartCondition:
@@ -361,26 +367,18 @@ IICStartCondition_2:
        rts
 ; }
 ; // i2c
-; void ADCRead(int channel) {
+; void ADCRead(void) {
        xdef      _ADCRead
 _ADCRead:
-       link      A6,#-28
-       movem.l   D2/A2/A3/A4,-(A7)
+       link      A6,#-16
+       movem.l   A2/A3,-(A7)
        lea       _checkTIP.L,A2
-       lea       _printf.L,A3
-       move.l    8(A6),D2
-       lea       _checkAck.L,A4
+       lea       _checkAck.L,A3
 ; int i ;
 ; long int  j ;
 ; int k;
-; unsigned int thermistor;
-; unsigned int potentiometer;
-; unsigned int photoresistor;
 ; unsigned int readData;
-; printf("Performing ADC Read\n");
-       pea       @can_1.L
-       jsr       (A3)
-       addq.w    #4,A7
+; // printf("Performing ADC Read\n");
 ; IIC_Init();
        jsr       _IIC_Init
 ; checkTIP();
@@ -392,7 +390,7 @@ _ADCRead:
 ; checkTIP();
        jsr       (A2)
 ; checkAck();
-       jsr       (A4)
+       jsr       (A3)
 ; // Send Control byte for ADC function: 0x0000_0100 (Auto Increment Mode)
 ; IIC_TXRX = 0x4; // Send EEPROM address with write bit
        move.b    #4,4227078
@@ -401,7 +399,7 @@ _ADCRead:
 ; checkTIP();
        jsr       (A2)
 ; checkAck();
-       jsr       (A4)
+       jsr       (A3)
 ; IIC_TXRX = ((PCF8591 << 1) | 0x1); // Send EEPROM address with read bit
        move.b    #147,4227078
 ; IIC_CRSR = START | WRITE | IACK; // Start condition with write bit
@@ -409,11 +407,25 @@ _ADCRead:
 ; checkTIP();
        jsr       (A2)
 ; checkAck();
-       jsr       (A4)
+       jsr       (A3)
 ; // Read data from ADC continously 
-; while(1) {  // Loop continuously
-ADCRead_1:
 ; // Load the triangle wave sample into the I2C transmit register
+; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
+       move.b    #33,4227080
+; checkTIP();  // Wait until the transmission is complete
+       jsr       (A2)
+; while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
+ADCRead_1:
+       move.b    4227080,D0
+       and.b     #1,D0
+       bne.s     ADCRead_3
+       bra       ADCRead_1
+ADCRead_3:
+; IIC_CRSR = 0; // Clear IF flag
+       clr.b     4227080
+; thermistorVal = IIC_TXRX; // Read data from EEPROM
+       move.b    4227078,_thermistorVal.L
+; // printf("ADC Thermistor: %d\n", thermistorVal); // Debug: Indicate the address being read and the data read
 ; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
        move.b    #33,4227080
 ; checkTIP();  // Wait until the transmission is complete
@@ -427,10 +439,10 @@ ADCRead_4:
 ADCRead_6:
 ; IIC_CRSR = 0; // Clear IF flag
        clr.b     4227080
-; thermistor = IIC_TXRX; // Read data from EEPROM
+; readData = IIC_TXRX; // Read data from EEPROM
        move.b    4227078,D0
        and.l     #255,D0
-       move.l    D0,-16(A6)
+       move.l    D0,-4(A6)
 ; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
        move.b    #33,4227080
 ; checkTIP();  // Wait until the transmission is complete
@@ -444,10 +456,9 @@ ADCRead_7:
 ADCRead_9:
 ; IIC_CRSR = 0; // Clear IF flag
        clr.b     4227080
-; readData = IIC_TXRX; // Read data from EEPROM
-       move.b    4227078,D0
-       and.l     #255,D0
-       move.l    D0,-4(A6)
+; potentiometerVal = IIC_TXRX; // Read data from EEPROM
+       move.b    4227078,_potentiometerVal.L
+; // printf("ADC Potentiometer: %d\n", potentiometerVal); // Debug: Indicate the address being read and the data read
 ; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
        move.b    #33,4227080
 ; checkTIP();  // Wait until the transmission is complete
@@ -461,76 +472,19 @@ ADCRead_10:
 ADCRead_12:
 ; IIC_CRSR = 0; // Clear IF flag
        clr.b     4227080
-; potentiometer = IIC_TXRX; // Read data from EEPROM
-       move.b    4227078,D0
-       and.l     #255,D0
-       move.l    D0,-12(A6)
-; IIC_CRSR = (READ | IACK) & (~NACK);  // Initiate I2C write for the data byte
-       move.b    #33,4227080
-; checkTIP();  // Wait until the transmission is complete
+; lightSensorVal = IIC_TXRX; // Read data from EEPROM
+       move.b    4227078,_lightSensorVal.L
+; // printf("ADC Light Sensor: %d\n", lightSensorVal); // Debug: Indicate the address being read and the data read
+; IIC_CRSR = STOP | READ | IACK | NACK; // STOP + READ + IACK + NACK
+       move.b    #105,4227080
+; checkTIP();
        jsr       (A2)
-; while (!(IIC_CRSR & 0x1)); // Wait for IF flag to be set
-ADCRead_13:
-       move.b    4227080,D0
-       and.b     #1,D0
-       bne.s     ADCRead_15
-       bra       ADCRead_13
-ADCRead_15:
-; IIC_CRSR = 0; // Clear IF flag
-       clr.b     4227080
-; photoresistor = IIC_TXRX; // Read data from EEPROM
-       move.b    4227078,D0
-       and.l     #255,D0
-       move.l    D0,-8(A6)
-; if (channel == ADC_CHANNEL_THERMISTOR) {
-       tst.l     D2
-       bne.s     ADCRead_16
-; printf("\r\n Thermistor: %d\n", thermistor); // Debug: Indicate the address being read and the data read
-       move.l    -16(A6),-(A7)
-       pea       @can_2.L
-       jsr       (A3)
-       addq.w    #8,A7
-       bra       ADCRead_22
-ADCRead_16:
-; } else if (channel == ADC_CHANNEL_POTENTIOMETER) {
-       cmp.l     #2,D2
-       bne.s     ADCRead_18
-; printf("\r\n Potentiometer: %d\n", potentiometer); // Debug: Indicate the address being read and the data read
-       move.l    -12(A6),-(A7)
-       pea       @can_3.L
-       jsr       (A3)
-       addq.w    #8,A7
-       bra.s     ADCRead_22
-ADCRead_18:
-; } else if (channel == ADC_CHANNEL_LIGHT) {
-       cmp.l     #3,D2
-       bne.s     ADCRead_20
-; printf("\r\n Light: %d\n", photoresistor); // Debug: Indicate the address being read and the data read
-       move.l    -8(A6),-(A7)
-       pea       @can_4.L
-       jsr       (A3)
-       addq.w    #8,A7
-       bra.s     ADCRead_22
-ADCRead_20:
-; } else if (channel == ADC_CHANNEL_EXTERNAL) {
-       cmp.l     #1,D2
-       bne.s     ADCRead_22
-; printf("\r\n External: %d\n", readData); // Debug: Indicate the address being read and the data read
-       move.l    -4(A6),-(A7)
-       pea       @can_5.L
-       jsr       (A3)
-       addq.w    #8,A7
-ADCRead_22:
-; }
-; printf("\n\n\n\n\n");
-       pea       @can_6.L
-       jsr       (A3)
-       addq.w    #4,A7
 ; wait5ms(); wait5ms();
        jsr       _wait5ms
        jsr       _wait5ms
-       bra       ADCRead_1
-; }
+       movem.l   (A7)+,A2/A3
+       unlk      A6
+       rts
 ; }
 ; // void ADCRead(int channel) {
 ; //   int i ;
@@ -582,7 +536,6 @@ ADCRead_22:
 ; /*
 ; Can Transceiver - controls logic level signals from can controller to physical ones
 ; Can Controller - controls the logic level signals from the microcontroller to the transceive
-; Enters sleep mode:
 ; - no bus activity
 ; - no interrupt pending
 ; */
@@ -860,14 +813,14 @@ CanBus0_Receive_3:
        move.b    -3(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @can_7.L
+       pea       @can_1.L
        jsr       _printf
        add.w     #12,A7
 ; printf("\r\nFrame Info: %02X", rxFrameInfo);
        move.b    -1(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @can_8.L
+       pea       @can_2.L
        jsr       _printf
        addq.w    #8,A7
        unlk      A6
@@ -904,7 +857,7 @@ CanBus1_Receive_3:
        move.b    -2(A6),D1
        and.l     #255,D1
        move.l    D1,-(A7)
-       pea       @can_7.L
+       pea       @can_1.L
        jsr       _printf
        add.w     #12,A7
        unlk      A6
@@ -932,7 +885,7 @@ _CanBusTest:
 ; Init_CanBus_Controller1();
        jsr       _Init_CanBus_Controller1
 ; printf("\r\n\r\n---- CANBUS Test ----\r\n") ;
-       pea       @can_9.L
+       pea       @can_3.L
        jsr       (A2)
        addq.w    #4,A7
 ; // simple application to alternately transmit and receive messages from each of two nodes
@@ -945,7 +898,7 @@ CanBusTest_1:
 ; CanBus1_Receive() ;        // receive a message via Controller 1 (and display it)
        jsr       _CanBus1_Receive
 ; printf("\r\n") ;
-       pea       @can_10.L
+       pea       @can_4.L
        jsr       (A2)
        addq.w    #4,A7
 ; delay();                    // write a routine to delay say 1/2 second so we don't flood the network with messages to0 quickly
@@ -955,60 +908,283 @@ CanBusTest_1:
 ; CanBus0_Receive() ;         // receive a message via Controller 0 (and display it)
        jsr       _CanBus0_Receive
 ; printf("\r\n") ;
-       pea       @can_10.L
+       pea       @can_4.L
        jsr       (A2)
        addq.w    #4,A7
        bra       CanBusTest_1
 ; }
 ; }
-; void main(void)
+; void SwitchTest(void)
 ; {
+       xdef      _SwitchTest
+_SwitchTest:
+       movem.l   D2/D3/A2,-(A7)
+       lea       _printf.L,A2
+; int i, switches = 0 ;
+       clr.l     D3
+; printf("\r\n") ;
+       pea       @can_4.L
+       jsr       (A2)
+       addq.w    #4,A7
+; switches = (PortB << 8) | (PortA) ;
+       move.b    4194306,D0
+       and.l     #255,D0
+       lsl.l     #8,D0
+       move.b    4194304,D1
+       and.l     #255,D1
+       or.l      D1,D0
+       move.l    D0,D3
+; printf("\rSwitches SW[7-0] = ") ;
+       pea       @can_5.L
+       jsr       (A2)
+       addq.w    #4,A7
+; for( i = (int)(0x00000080); i > 0; i = i >> 1)  {
+       move.l    #128,D2
+SwitchTest_1:
+       cmp.l     #0,D2
+       ble.s     SwitchTest_3
+; if((switches & i) == 0)
+       move.l    D3,D0
+       and.l     D2,D0
+       bne.s     SwitchTest_4
+; printf("0") ;
+       pea       @can_6.L
+       jsr       (A2)
+       addq.w    #4,A7
+       bra.s     SwitchTest_5
+SwitchTest_4:
+; else
+; printf("1") ;
+       pea       @can_7.L
+       jsr       (A2)
+       addq.w    #4,A7
+SwitchTest_5:
+       asr.l     #1,D2
+       bra       SwitchTest_1
+SwitchTest_3:
+; }
+; printf("\n");
+       pea       @can_8.L
+       jsr       (A2)
+       addq.w    #4,A7
+       movem.l   (A7)+,D2/D3/A2
+       rts
+; }
+; /*********************************************************************************
+; ** Timer ISR
+; **********************************************************************************/
+; void Timer_ISR(void)
+; {
+       xdef      _Timer_ISR
+_Timer_ISR:
+       move.l    A2,-(A7)
+       lea       _printf.L,A2
+; // Timer 1: Every 10ms
+; if(Timer1Status == 1) {       // Did Timer 1 produce the Interrupt?
+       move.b    4194354,D0
+       cmp.b     #1,D0
+       bne       Timer_ISR_9
+; Timer1Control = 3;      	// if so clear interrupt and restart timer
+       move.b    #3,4194354
+; Timer1Count++ ;           // increment an LED count on PortA with each tick of Timer 1 
+       addq.b    #1,_Timer1Count.L
+; // printf("Timer 1 Count: %d\n", Timer1Count);
+; if (Timer1Count % 10 == 0) {
+       move.b    _Timer1Count.L,D0
+       and.l     #65535,D0
+       divu.w    #10,D0
+       swap      D0
+       tst.b     D0
+       bne.s     Timer_ISR_3
+; SwitchTest();
+       jsr       _SwitchTest
+Timer_ISR_3:
+; }
+; if (Timer1Count % 20 == 0) {
+       move.b    _Timer1Count.L,D0
+       and.l     #65535,D0
+       divu.w    #20,D0
+       swap      D0
+       tst.b     D0
+       bne.s     Timer_ISR_5
+; // ADC potentiometer
+; printf("Timer Potentiometer: %d\n\n", potentiometerVal); // Debug: Indicate the address being read and the data read
+       move.b    _potentiometerVal.L,D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
+       pea       @can_9.L
+       jsr       (A2)
+       addq.w    #8,A7
+Timer_ISR_5:
+; }
+; if (Timer1Count % 50 == 0) {
+       move.b    _Timer1Count.L,D0
+       and.l     #65535,D0
+       divu.w    #50,D0
+       swap      D0
+       tst.b     D0
+       bne.s     Timer_ISR_7
+; // ADC Light sensor
+; printf("Timer Light Sensor: %d\n\n", lightSensorVal); // Debug: Indicate the address being read and the data read
+       move.b    _lightSensorVal.L,D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
+       pea       @can_10.L
+       jsr       (A2)
+       addq.w    #8,A7
+Timer_ISR_7:
+; }
+; if (Timer1Count % 200 == 0) {
+       move.b    _Timer1Count.L,D0
+       and.w     #255,D0
+       and.l     #65535,D0
+       divs.w    #200,D0
+       swap      D0
+       tst.w     D0
+       bne.s     Timer_ISR_9
+; // ADC Thermistor
+; Timer1Count = 0;
+       clr.b     _Timer1Count.L
+; printf("Timer Thermistor: %d\n\n", thermistorVal); // Debug: Indicate the address being read and the data read
+       move.b    _thermistorVal.L,D1
+       and.l     #255,D1
+       move.l    D1,-(A7)
+       pea       @can_11.L
+       jsr       (A2)
+       addq.w    #8,A7
+Timer_ISR_9:
+       move.l    (A7)+,A2
+       rts
+; }
+; } 
+; }
+; void main(void)
+; {  
        xdef      _main
 _main:
-; printf("\r\n---- Lab 6B CANBUS Test ----\r\n") ;
-       pea       @can_11.L
-       jsr       _printf
+       move.l    A2,-(A7)
+       lea       _printf.L,A2
+; Timer1Count = 0;
+       clr.b     _Timer1Count.L
+; printf("Starting...\n");
+       pea       @can_12.L
+       jsr       (A2)
        addq.w    #4,A7
-; // CanBusTest();
-; ADCRead(ADC_CHANNEL_POTENTIOMETER);
-       pea       2
-       jsr       _ADCRead
+; OSInit();
+       jsr       _OSInit
+; InstallExceptionHandler(Timer_ISR, 30);
+       pea       30
+       pea       _Timer_ISR.L
+       jsr       _InstallExceptionHandler
+       addq.w    #8,A7
+; Timer1_Init();
+       jsr       _Timer1_Init
+; printf("Initialized Exception Handlers\n");
+       pea       @can_13.L
+       jsr       (A2)
        addq.w    #4,A7
+; printf("\r\n---- Lab 6B CANBUS Test ----\r\n");
+       pea       @can_14.L
+       jsr       (A2)
+       addq.w    #4,A7
+; OSTaskCreate(ADCThread, OS_NULL, &Task1Stk[STACKSIZE], 11); // highest priority task
+       pea       11
+       lea       _Task1Stk.L,A0
+       add.w     #512,A0
+       move.l    A0,-(A7)
+       clr.l     -(A7)
+       pea       _ADCThread.L
+       jsr       _OSTaskCreate
+       add.w     #16,A7
+; // OSTaskCreate(Task2, OS_NULL, &Task2Stk[STACKSIZE], 12); // highest priority task
+; // OSTaskCreate(Task3, OS_NULL, &Task3Stk[STACKSIZE], 13);
+; // OSTaskCreate(Task4, OS_NULL, &Task4Stk[STACKSIZE], 14); // lowest priority task
+; OSStart();
+       jsr       _OSStart
+       move.l    (A7)+,A2
        rts
-; // while(1);
+; }
+; void ADCThread(void *pdata) {
+       xdef      _ADCThread
+_ADCThread:
+       link      A6,#0
+; while(1) {
+ADCThread_1:
+; ADCRead();
+       jsr       _ADCRead
+       bra       ADCThread_1
+; }
 ; }
        section   const
 @can_1:
-       dc.b      80,101,114,102,111,114,109,105,110,103,32,65
-       dc.b      68,67,32,82,101,97,100,10,0
-@can_2:
-       dc.b      13,10,32,84,104,101,114,109,105,115,116,111
-       dc.b      114,58,32,37,100,10,0
-@can_3:
-       dc.b      13,10,32,80,111,116,101,110,116,105,111,109
-       dc.b      101,116,101,114,58,32,37,100,10,0
-@can_4:
-       dc.b      13,10,32,76,105,103,104,116,58,32,37,100,10
-       dc.b      0
-@can_5:
-       dc.b      13,10,32,69,120,116,101,114,110,97,108,58,32
-       dc.b      37,100,10,0
-@can_6:
-       dc.b      10,10,10,10,10,0
-@can_7:
        dc.b      13,10,82,101,99,101,105,118,101,100,32,45,32
        dc.b      73,68,58,32,37,48,50,88,44,32,68,97,116,97,58
        dc.b      32,37,48,50,88,0
-@can_8:
+@can_2:
        dc.b      13,10,70,114,97,109,101,32,73,110,102,111,58
        dc.b      32,37,48,50,88,0
-@can_9:
+@can_3:
        dc.b      13,10,13,10,45,45,45,45,32,67,65,78,66,85,83
        dc.b      32,84,101,115,116,32,45,45,45,45,13,10,0
-@can_10:
+@can_4:
        dc.b      13,10,0
+@can_5:
+       dc.b      13,83,119,105,116,99,104,101,115,32,83,87,91
+       dc.b      55,45,48,93,32,61,32,0
+@can_6:
+       dc.b      48,0
+@can_7:
+       dc.b      49,0
+@can_8:
+       dc.b      10,0
+@can_9:
+       dc.b      84,105,109,101,114,32,80,111,116,101,110,116
+       dc.b      105,111,109,101,116,101,114,58,32,37,100,10
+       dc.b      10,0
+@can_10:
+       dc.b      84,105,109,101,114,32,76,105,103,104,116,32
+       dc.b      83,101,110,115,111,114,58,32,37,100,10,10,0
 @can_11:
+       dc.b      84,105,109,101,114,32,84,104,101,114,109,105
+       dc.b      115,116,111,114,58,32,37,100,10,10,0
+@can_12:
+       dc.b      83,116,97,114,116,105,110,103,46,46,46,10,0
+@can_13:
+       dc.b      73,110,105,116,105,97,108,105,122,101,100,32
+       dc.b      69,120,99,101,112,116,105,111,110,32,72,97,110
+       dc.b      100,108,101,114,115,10,0
+@can_14:
        dc.b      13,10,45,45,45,45,32,76,97,98,32,54,66,32,67
        dc.b      65,78,66,85,83,32,84,101,115,116,32,45,45,45
        dc.b      45,13,10,0
+       section   bss
+       xdef      _Task1Stk
+_Task1Stk:
+       ds.b      512
+       xdef      _Task2Stk
+_Task2Stk:
+       ds.b      512
+       xdef      _Task3Stk
+_Task3Stk:
+       ds.b      512
+       xdef      _Task4Stk
+_Task4Stk:
+       ds.b      512
+       xdef      _Timer1Count
+_Timer1Count:
+       ds.b      1
+       xdef      _thermistorVal
+_thermistorVal:
+       ds.b      1
+       xdef      _potentiometerVal
+_potentiometerVal:
+       ds.b      1
+       xdef      _lightSensorVal
+_lightSensorVal:
+       ds.b      1
+       xref      _Timer1_Init
+       xref      _OSInit
+       xref      _OSStart
+       xref      _OSTaskCreate
+       xref      _InstallExceptionHandler
        xref      _printf

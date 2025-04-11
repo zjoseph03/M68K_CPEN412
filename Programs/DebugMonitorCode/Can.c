@@ -768,6 +768,23 @@ void CanBusTest(void)
   }
 }
 
+void SwitchTest(void)
+{
+    int i, switches = 0 ;
+
+	printf("\r\n") ;
+
+  switches = (PortB << 8) | (PortA) ;
+  printf("\rSwitches SW[7-0] = ") ;
+  for( i = (int)(0x00000080); i > 0; i = i >> 1)  {
+      if((switches & i) == 0)
+          printf("0") ;
+      else
+          printf("1") ;
+  }
+  printf("\n");
+}
+
 /*********************************************************************************
 ** Timer ISR
 **********************************************************************************/
@@ -780,7 +797,7 @@ void Timer_ISR(void)
         // printf("Timer 1 Count: %d\n", Timer1Count);
         
         if (Timer1Count % 10 == 0) {
-          // 8 slider switches
+          SwitchTest();
         }
 
         if (Timer1Count % 20 == 0) {

@@ -1,5 +1,5 @@
 Analysis & Synthesis report for MC68K
-Mon Apr 07 20:43:11 2025
+Thu Apr 10 15:13:21 2025
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -288,7 +288,7 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                  ;
 +---------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status     ; Successful - Mon Apr 07 20:43:11 2025       ;
+; Analysis & Synthesis Status     ; Successful - Thu Apr 10 15:13:21 2025       ;
 ; Quartus Prime Version           ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                   ; MC68K                                       ;
 ; Top-level Entity Name           ; MC68K                                       ;
@@ -400,17 +400,22 @@ refer to the applicable agreement for further details.
 +----------------------------+-------------+
 ; Processors                 ; Number      ;
 +----------------------------+-------------+
-; Number detected on machine ; 8           ;
-; Maximum allowed            ; 4           ;
+; Number detected on machine ; 16          ;
+; Maximum allowed            ; 16          ;
 ;                            ;             ;
 ; Average used               ; 1.00        ;
-; Maximum used               ; 4           ;
+; Maximum used               ; 16          ;
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     Processor 1            ; 100.0%      ;
 ;     Processor 2            ;   0.0%      ;
 ;     Processor 3            ;   0.0%      ;
 ;     Processor 4            ;   0.0%      ;
+;     Processor 5            ;   0.0%      ;
+;     Processor 6            ;   0.0%      ;
+;     Processor 7            ;   0.0%      ;
+;     Processor 8            ;   0.0%      ;
+;     Processors 9-16        ;   0.0%      ;
 +----------------------------+-------------+
 
 
@@ -497,22 +502,22 @@ refer to the applicable agreement for further details.
 ; PLRU_Bits.v                                                        ; yes             ; User Wizard-Generated File                   ; C:/M68kV6.0 - 800by480/PLRU_Bits.v                                                        ;             ;
 ; PseudoLRU_Bits.bdf                                                 ; yes             ; User Block Diagram/Schematic File            ; C:/M68kV6.0 - 800by480/PseudoLRU_Bits.bdf                                                 ;             ;
 ; AssociativeCachedDramController.bdf                                ; yes             ; User Block Diagram/Schematic File            ; C:/M68kV6.0 - 800by480/AssociativeCachedDramController.bdf                                ;             ;
-; altera_pll.v                                                       ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altera_pll.v                       ;             ;
+; altera_pll.v                                                       ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/altera_pll.v                            ;             ;
 ; m68kassociativecachecontroller_verilog.v                           ; yes             ; Auto-Found Verilog HDL File                  ; C:/M68kV6.0 - 800by480/m68kassociativecachecontroller_verilog.v                           ;             ;
-; altsyncram.tdf                                                     ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.tdf                     ;             ;
-; stratix_ram_block.inc                                              ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/stratix_ram_block.inc              ;             ;
-; lpm_mux.inc                                                        ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_mux.inc                        ;             ;
-; lpm_decode.inc                                                     ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_decode.inc                     ;             ;
-; aglobal181.inc                                                     ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/aglobal181.inc                     ;             ;
-; a_rdenreg.inc                                                      ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/a_rdenreg.inc                      ;             ;
-; altrom.inc                                                         ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altrom.inc                         ;             ;
-; altram.inc                                                         ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altram.inc                         ;             ;
-; altdpram.inc                                                       ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altdpram.inc                       ;             ;
+; altsyncram.tdf                                                     ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.tdf                          ;             ;
+; stratix_ram_block.inc                                              ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/stratix_ram_block.inc                   ;             ;
+; lpm_mux.inc                                                        ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_mux.inc                             ;             ;
+; lpm_decode.inc                                                     ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_decode.inc                          ;             ;
+; aglobal181.inc                                                     ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/aglobal181.inc                          ;             ;
+; a_rdenreg.inc                                                      ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/a_rdenreg.inc                           ;             ;
+; altrom.inc                                                         ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/altrom.inc                              ;             ;
+; altram.inc                                                         ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/altram.inc                              ;             ;
+; altdpram.inc                                                       ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/altdpram.inc                            ;             ;
 ; db/altsyncram_dbm1.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_dbm1.tdf                                             ;             ;
 ; db/altsyncram_vcm1.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_vcm1.tdf                                             ;             ;
 ; db/altsyncram_aem1.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_aem1.tdf                                             ;             ;
 ; db/altsyncram_jbm1.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_jbm1.tdf                                             ;             ;
-; lpm_bustri.tdf                                                     ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf                     ;             ;
+; lpm_bustri.tdf                                                     ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf                          ;             ;
 ; db/altsyncram_b634.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_b634.tdf                                             ;             ;
 ; ColourPallette_2PortRam.mif                                        ; yes             ; Auto-Found Memory Initialization File        ; C:/M68kV6.0 - 800by480/ColourPallette_2PortRam.mif                                        ;             ;
 ; db/altsyncram_v3k1.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_v3k1.tdf                                             ;             ;
@@ -521,43 +526,43 @@ refer to the applicable agreement for further details.
 ; db/decode_5la.tdf                                                  ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/decode_5la.tdf                                                  ;             ;
 ; db/decode_u0a.tdf                                                  ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/decode_u0a.tdf                                                  ;             ;
 ; db/mux_4hb.tdf                                                     ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/mux_4hb.tdf                                                     ;             ;
-; sld_mod_ram_rom.vhd                                                ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_mod_ram_rom.vhd                ;             ;
-; sld_jtag_endpoint_adapter.vhd                                      ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_jtag_endpoint_adapter.vhd      ;             ;
-; sld_jtag_endpoint_adapter_impl.sv                                  ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_jtag_endpoint_adapter_impl.sv  ;             ;
-; sld_rom_sr.vhd                                                     ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_rom_sr.vhd                     ;             ;
+; sld_mod_ram_rom.vhd                                                ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_mod_ram_rom.vhd                     ;             ;
+; sld_jtag_endpoint_adapter.vhd                                      ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_jtag_endpoint_adapter.vhd           ;             ;
+; sld_jtag_endpoint_adapter_impl.sv                                  ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_jtag_endpoint_adapter_impl.sv       ;             ;
+; sld_rom_sr.vhd                                                     ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_rom_sr.vhd                          ;             ;
 ; db/altsyncram_ba04.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_ba04.tdf                                             ;             ;
 ; db/decode_8la.tdf                                                  ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/decode_8la.tdf                                                  ;             ;
 ; db/decode_11a.tdf                                                  ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/decode_11a.tdf                                                  ;             ;
 ; db/mux_ofb.tdf                                                     ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/mux_ofb.tdf                                                     ;             ;
-; sld_signaltap.vhd                                                  ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_signaltap.vhd                  ;             ;
-; sld_signaltap_impl.vhd                                             ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_signaltap_impl.vhd             ;             ;
-; sld_ela_control.vhd                                                ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_ela_control.vhd                ;             ;
-; lpm_shiftreg.tdf                                                   ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_shiftreg.tdf                   ;             ;
-; lpm_constant.inc                                                   ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_constant.inc                   ;             ;
-; dffeea.inc                                                         ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/dffeea.inc                         ;             ;
-; sld_mbpmg.vhd                                                      ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_mbpmg.vhd                      ;             ;
-; sld_ela_trigger_flow_mgr.vhd                                       ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_ela_trigger_flow_mgr.vhd       ;             ;
-; sld_buffer_manager.vhd                                             ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_buffer_manager.vhd             ;             ;
+; sld_signaltap.vhd                                                  ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_signaltap.vhd                       ;             ;
+; sld_signaltap_impl.vhd                                             ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_signaltap_impl.vhd                  ;             ;
+; sld_ela_control.vhd                                                ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_ela_control.vhd                     ;             ;
+; lpm_shiftreg.tdf                                                   ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_shiftreg.tdf                        ;             ;
+; lpm_constant.inc                                                   ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_constant.inc                        ;             ;
+; dffeea.inc                                                         ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/dffeea.inc                              ;             ;
+; sld_mbpmg.vhd                                                      ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_mbpmg.vhd                           ;             ;
+; sld_ela_trigger_flow_mgr.vhd                                       ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_ela_trigger_flow_mgr.vhd            ;             ;
+; sld_buffer_manager.vhd                                             ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_buffer_manager.vhd                  ;             ;
 ; db/altsyncram_eb84.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_eb84.tdf                                             ;             ;
-; altdpram.tdf                                                       ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altdpram.tdf                       ;             ;
-; memmodes.inc                                                       ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/others/maxplus2/memmodes.inc                     ;             ;
-; a_hdffe.inc                                                        ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/a_hdffe.inc                        ;             ;
-; alt_le_rden_reg.inc                                                ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/alt_le_rden_reg.inc                ;             ;
-; altsyncram.inc                                                     ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.inc                     ;             ;
-; lpm_mux.tdf                                                        ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_mux.tdf                        ;             ;
-; muxlut.inc                                                         ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/muxlut.inc                         ;             ;
-; bypassff.inc                                                       ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/bypassff.inc                       ;             ;
-; altshift.inc                                                       ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altshift.inc                       ;             ;
+; altdpram.tdf                                                       ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/altdpram.tdf                            ;             ;
+; memmodes.inc                                                       ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/others/maxplus2/memmodes.inc                          ;             ;
+; a_hdffe.inc                                                        ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/a_hdffe.inc                             ;             ;
+; alt_le_rden_reg.inc                                                ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/alt_le_rden_reg.inc                     ;             ;
+; altsyncram.inc                                                     ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.inc                          ;             ;
+; lpm_mux.tdf                                                        ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_mux.tdf                             ;             ;
+; muxlut.inc                                                         ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/muxlut.inc                              ;             ;
+; bypassff.inc                                                       ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/bypassff.inc                            ;             ;
+; altshift.inc                                                       ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/altshift.inc                            ;             ;
 ; db/mux_elc.tdf                                                     ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/mux_elc.tdf                                                     ;             ;
-; lpm_decode.tdf                                                     ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_decode.tdf                     ;             ;
-; declut.inc                                                         ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/declut.inc                         ;             ;
-; lpm_compare.inc                                                    ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_compare.inc                    ;             ;
+; lpm_decode.tdf                                                     ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_decode.tdf                          ;             ;
+; declut.inc                                                         ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/declut.inc                              ;             ;
+; lpm_compare.inc                                                    ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_compare.inc                         ;             ;
 ; db/decode_vnf.tdf                                                  ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/decode_vnf.tdf                                                  ;             ;
-; lpm_counter.tdf                                                    ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_counter.tdf                    ;             ;
-; lpm_add_sub.inc                                                    ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_add_sub.inc                    ;             ;
-; cmpconst.inc                                                       ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/cmpconst.inc                       ;             ;
-; lpm_counter.inc                                                    ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_counter.inc                    ;             ;
-; alt_counter_stratix.inc                                            ; yes             ; Megafunction                                 ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/alt_counter_stratix.inc            ;             ;
+; lpm_counter.tdf                                                    ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_counter.tdf                         ;             ;
+; lpm_add_sub.inc                                                    ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_add_sub.inc                         ;             ;
+; cmpconst.inc                                                       ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/cmpconst.inc                            ;             ;
+; lpm_counter.inc                                                    ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_counter.inc                         ;             ;
+; alt_counter_stratix.inc                                            ; yes             ; Megafunction                                 ; d:/intelfpga_lite/quartus/libraries/megafunctions/alt_counter_stratix.inc                 ;             ;
 ; db/cntr_09i.tdf                                                    ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/cntr_09i.tdf                                                    ;             ;
 ; db/cmpr_e9c.tdf                                                    ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/cmpr_e9c.tdf                                                    ;             ;
 ; db/cntr_4vi.tdf                                                    ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/cntr_4vi.tdf                                                    ;             ;
@@ -565,14 +570,14 @@ refer to the applicable agreement for further details.
 ; db/cmpr_c9c.tdf                                                    ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/cmpr_c9c.tdf                                                    ;             ;
 ; db/cntr_kri.tdf                                                    ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/cntr_kri.tdf                                                    ;             ;
 ; db/cmpr_99c.tdf                                                    ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/cmpr_99c.tdf                                                    ;             ;
-; sld_hub.vhd                                                        ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_hub.vhd                        ; altera_sld  ;
+; sld_hub.vhd                                                        ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_hub.vhd                             ; altera_sld  ;
 ; db/ip/sldbe7d4d23/alt_sld_fab.v                                    ; yes             ; Encrypted Auto-Found Verilog HDL File        ; C:/M68kV6.0 - 800by480/db/ip/sldbe7d4d23/alt_sld_fab.v                                    ; alt_sld_fab ;
 ; db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab.v             ; yes             ; Encrypted Auto-Found Verilog HDL File        ; C:/M68kV6.0 - 800by480/db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab.v             ; alt_sld_fab ;
 ; db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab_ident.sv      ; yes             ; Auto-Found SystemVerilog HDL File            ; C:/M68kV6.0 - 800by480/db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab_ident.sv      ; alt_sld_fab ;
 ; db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab_presplit.sv   ; yes             ; Encrypted Auto-Found SystemVerilog HDL File  ; C:/M68kV6.0 - 800by480/db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab_presplit.sv   ; alt_sld_fab ;
 ; db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab_sldfabric.vhd ; yes             ; Encrypted Auto-Found VHDL File               ; C:/M68kV6.0 - 800by480/db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab_sldfabric.vhd ; alt_sld_fab ;
 ; db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab_splitter.sv   ; yes             ; Encrypted Auto-Found SystemVerilog HDL File  ; C:/M68kV6.0 - 800by480/db/ip/sldbe7d4d23/submodules/alt_sld_fab_alt_sld_fab_splitter.sv   ; alt_sld_fab ;
-; sld_jtag_hub.vhd                                                   ; yes             ; Encrypted Megafunction                       ; c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_jtag_hub.vhd                   ;             ;
+; sld_jtag_hub.vhd                                                   ; yes             ; Encrypted Megafunction                       ; d:/intelfpga_lite/quartus/libraries/megafunctions/sld_jtag_hub.vhd                        ;             ;
 ; db/altsyncram_edi1.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_edi1.tdf                                             ;             ;
 ; db/altsyncram_nvj1.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_nvj1.tdf                                             ;             ;
 ; db/altsyncram_hvj1.tdf                                             ; yes             ; Auto-Generated Megafunction                  ; C:/M68kV6.0 - 800by480/db/altsyncram_hvj1.tdf                                             ;             ;
@@ -585,14 +590,14 @@ refer to the applicable agreement for further details.
 +---------------------------------------------+-----------------------------------------------------------------------------------+
 ; Resource                                    ; Usage                                                                             ;
 +---------------------------------------------+-----------------------------------------------------------------------------------+
-; Estimate of Logic utilization (ALMs needed) ; 5440                                                                              ;
+; Estimate of Logic utilization (ALMs needed) ; 5441                                                                              ;
 ;                                             ;                                                                                   ;
 ; Combinational ALUT usage for logic          ; 7946                                                                              ;
 ;     -- 7 input functions                    ; 234                                                                               ;
-;     -- 6 input functions                    ; 2398                                                                              ;
-;     -- 5 input functions                    ; 1681                                                                              ;
-;     -- 4 input functions                    ; 1330                                                                              ;
-;     -- <=3 input functions                  ; 2303                                                                              ;
+;     -- 6 input functions                    ; 2399                                                                              ;
+;     -- 5 input functions                    ; 1680                                                                              ;
+;     -- 4 input functions                    ; 1331                                                                              ;
+;     -- <=3 input functions                  ; 2302                                                                              ;
 ;                                             ;                                                                                   ;
 ; Dedicated logic registers                   ; 4632                                                                              ;
 ;                                             ;                                                                                   ;
@@ -607,7 +612,7 @@ refer to the applicable agreement for further details.
 ;                                             ;                                                                                   ;
 ; Maximum fan-out node                        ; ClockGen:inst7|ClockGen_0002:clockgen_inst|altera_pll:altera_pll_i|outclk_wire[0] ;
 ; Maximum fan-out                             ; 3778                                                                              ;
-; Total fan-out                               ; 61448                                                                             ;
+; Total fan-out                               ; 61451                                                                             ;
 ; Average fan-out                             ; 4.44                                                                              ;
 +---------------------------------------------+-----------------------------------------------------------------------------------+
 
@@ -1633,7 +1638,7 @@ Encoding Type:  One-Hot
 ; OnChipIO:inst8|Timer:Timer4|IRQ_Internal                                                                          ; 3       ;
 ; OnChipIO:inst8|Timer:Timer5|IRQ_Internal                                                                          ; 3       ;
 ; OnChipIO:inst8|Timer:Timer8|IRQ_Internal                                                                          ; 4       ;
-; OnChipIO:inst8|Timer:Timer1|IRQ_Internal                                                                          ; 3       ;
+; OnChipIO:inst8|Timer:Timer1|IRQ_Internal                                                                          ; 5       ;
 ; OnChipIO:inst8|Timer:Timer2|IRQ_Internal                                                                          ; 3       ;
 ; OnChipIO:inst8|Timer:Timer3|IRQ_Internal                                                                          ; 3       ;
 ; M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|rot_cnt[0]                                                    ; 5       ;
@@ -1927,35 +1932,35 @@ Encoding Type:  One-Hot
 ; 35:1               ; 7 bits    ; 161 LEs       ; 77 LEs               ; 84 LEs                 ; Yes        ; |MC68K|AssociativeCachedDramController:inst|CacheEnabledDramController:inst1|SDram_Addr[5]                                                                                                                          ;
 ; 11:1               ; 2 bits    ; 14 LEs        ; 8 LEs                ; 6 LEs                  ; Yes        ; |MC68K|IIC_SPI_Interface:inst32|i2c_master_top:inst|i2c_master_byte_ctrl:byte_ctrl|core_cmd[3]                                                                                                                      ;
 ; 45:1               ; 3 bits    ; 90 LEs        ; 54 LEs               ; 36 LEs                 ; Yes        ; |MC68K|AssociativeCachedDramController:inst|CacheEnabledDramController:inst1|SDram_Addr[0]                                                                                                                          ;
-; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer1|TheTimer[22]                                                                                                                                                                     ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer1|TheTimer[20]                                                                                                                                                                     ;
 ; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer2|TheTimer[23]                                                                                                                                                                     ;
-; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer3|TheTimer[19]                                                                                                                                                                     ;
-; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer4|TheTimer[19]                                                                                                                                                                     ;
-; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer5|TheTimer[18]                                                                                                                                                                     ;
-; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer6|TheTimer[16]                                                                                                                                                                     ;
-; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer7|TheTimer[18]                                                                                                                                                                     ;
-; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer8|TheTimer[22]                                                                                                                                                                     ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer3|TheTimer[18]                                                                                                                                                                     ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer4|TheTimer[18]                                                                                                                                                                     ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer5|TheTimer[21]                                                                                                                                                                     ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer6|TheTimer[19]                                                                                                                                                                     ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer7|TheTimer[20]                                                                                                                                                                     ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer8|TheTimer[17]                                                                                                                                                                     ;
 ; 5:1                ; 8 bits    ; 24 LEs        ; 0 LEs                ; 24 LEs                 ; Yes        ; |MC68K|IIC_SPI_Interface:inst32|i2c_master_top:inst|prer[5]                                                                                                                                                         ;
-; 8:1                ; 3 bits    ; 15 LEs        ; 15 LEs               ; 0 LEs                  ; Yes        ; |MC68K|IIC_SPI_Interface:inst32|i2c_master_top:inst|wb_dat_o[4]                                                                                                                                                     ;
-; 8:1                ; 5 bits    ; 25 LEs        ; 25 LEs               ; 0 LEs                  ; Yes        ; |MC68K|IIC_SPI_Interface:inst32|i2c_master_top:inst|wb_dat_o[1]                                                                                                                                                     ;
-; 4:1                ; 4 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; Yes        ; |MC68K|M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|opcode[14]                                                                                                                                               ;
-; 4:1                ; 3 bits    ; 6 LEs         ; 6 LEs                ; 0 LEs                  ; Yes        ; |MC68K|M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|Flags[9]                                                                                                                                                 ;
-; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer1|TheTimer[1]                                                                                                                                                                      ;
-; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer2|TheTimer[13]                                                                                                                                                                     ;
-; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer3|TheTimer[9]                                                                                                                                                                      ;
+; 8:1                ; 3 bits    ; 15 LEs        ; 15 LEs               ; 0 LEs                  ; Yes        ; |MC68K|IIC_SPI_Interface:inst32|i2c_master_top:inst|wb_dat_o[2]                                                                                                                                                     ;
+; 8:1                ; 5 bits    ; 25 LEs        ; 25 LEs               ; 0 LEs                  ; Yes        ; |MC68K|IIC_SPI_Interface:inst32|i2c_master_top:inst|wb_dat_o[6]                                                                                                                                                     ;
+; 4:1                ; 4 bits    ; 8 LEs         ; 8 LEs                ; 0 LEs                  ; Yes        ; |MC68K|M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|opcode[13]                                                                                                                                               ;
+; 4:1                ; 3 bits    ; 6 LEs         ; 6 LEs                ; 0 LEs                  ; Yes        ; |MC68K|M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|Flags[10]                                                                                                                                                ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer1|TheTimer[6]                                                                                                                                                                      ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer2|TheTimer[1]                                                                                                                                                                      ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer3|TheTimer[1]                                                                                                                                                                      ;
 ; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer4|TheTimer[5]                                                                                                                                                                      ;
-; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer5|TheTimer[13]                                                                                                                                                                     ;
-; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer6|TheTimer[12]                                                                                                                                                                     ;
-; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer7|TheTimer[12]                                                                                                                                                                     ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer5|TheTimer[9]                                                                                                                                                                      ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer6|TheTimer[11]                                                                                                                                                                     ;
+; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer7|TheTimer[9]                                                                                                                                                                      ;
 ; 4:1                ; 16 bits   ; 32 LEs        ; 32 LEs               ; 0 LEs                  ; Yes        ; |MC68K|OnChipIO:inst8|Timer:Timer8|TheTimer[10]                                                                                                                                                                     ;
-; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |MC68K|M68000CPU:inst17|TG68:inst|S_state[0]                                                                                                                                                                        ;
-; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |MC68K|M68000CPU:inst17|TG68:inst|lds_s                                                                                                                                                                             ;
-; 7:1                ; 6 bits    ; 24 LEs        ; 24 LEs               ; 0 LEs                  ; Yes        ; |MC68K|IIC_SPI_Interface:inst32|simple_spi_top:inst1|prdata_o[2]                                                                                                                                                    ;
+; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |MC68K|M68000CPU:inst17|TG68:inst|S_state[1]                                                                                                                                                                        ;
+; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |MC68K|M68000CPU:inst17|TG68:inst|uds_s                                                                                                                                                                             ;
+; 7:1                ; 6 bits    ; 24 LEs        ; 24 LEs               ; 0 LEs                  ; Yes        ; |MC68K|IIC_SPI_Interface:inst32|simple_spi_top:inst1|prdata_o[6]                                                                                                                                                    ;
 ; 79:1               ; 2 bits    ; 104 LEs       ; 72 LEs               ; 32 LEs                 ; Yes        ; |MC68K|CanBus:inst5|can_top:inst|data_out[5]                                                                                                                                                                        ;
-; 79:1               ; 3 bits    ; 156 LEs       ; 120 LEs              ; 36 LEs                 ; Yes        ; |MC68K|CanBus:inst5|can_top:inst|data_out[3]                                                                                                                                                                        ;
-; 79:1               ; 2 bits    ; 104 LEs       ; 72 LEs               ; 32 LEs                 ; Yes        ; |MC68K|CanBus:inst5|can_top:inst1|data_out[5]                                                                                                                                                                       ;
-; 79:1               ; 3 bits    ; 156 LEs       ; 120 LEs              ; 36 LEs                 ; Yes        ; |MC68K|CanBus:inst5|can_top:inst1|data_out[3]                                                                                                                                                                       ;
-; 24:1               ; 16 bits   ; 256 LEs       ; 256 LEs              ; 0 LEs                  ; Yes        ; |MC68K|AssociativeCachedDramController:inst|CacheEnabledDramController:inst1|SDram_DQ[15]~reg0                                                                                                                      ;
+; 79:1               ; 3 bits    ; 156 LEs       ; 120 LEs              ; 36 LEs                 ; Yes        ; |MC68K|CanBus:inst5|can_top:inst|data_out[1]                                                                                                                                                                        ;
+; 79:1               ; 2 bits    ; 104 LEs       ; 72 LEs               ; 32 LEs                 ; Yes        ; |MC68K|CanBus:inst5|can_top:inst1|data_out[6]                                                                                                                                                                       ;
+; 79:1               ; 3 bits    ; 156 LEs       ; 120 LEs              ; 36 LEs                 ; Yes        ; |MC68K|CanBus:inst5|can_top:inst1|data_out[1]                                                                                                                                                                       ;
+; 24:1               ; 16 bits   ; 256 LEs       ; 256 LEs              ; 0 LEs                  ; Yes        ; |MC68K|AssociativeCachedDramController:inst|CacheEnabledDramController:inst1|SDram_DQ[4]~reg0                                                                                                                       ;
 ; 3:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |MC68K|AssociativeCachedDramController:inst|AssociativeDramCache:inst|M68kAssociativeCacheController_Verilog:inst6|TagCache_WE_L[4]                                                                                 ;
 ; 3:1                ; 8 bits    ; 16 LEs        ; 16 LEs               ; 0 LEs                  ; No         ; |MC68K|M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|data_write[11]                                                                                                                                           ;
 ; 4:1                ; 2 bits    ; 4 LEs         ; 4 LEs                ; 0 LEs                  ; No         ; |MC68K|M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|bit_number[3]                                                                                                                                            ;
@@ -7909,11 +7914,11 @@ Note: In order to hide this table in the UI and the text report file, please set
 ;     normal            ; 6345                        ;
 ;         0 data inputs ; 2                           ;
 ;         1 data inputs ; 99                          ;
-;         2 data inputs ; 595                         ;
+;         2 data inputs ; 594                         ;
 ;         3 data inputs ; 830                         ;
-;         4 data inputs ; 1204                        ;
-;         5 data inputs ; 1315                        ;
-;         6 data inputs ; 2300                        ;
+;         4 data inputs ; 1205                        ;
+;         5 data inputs ; 1314                        ;
+;         6 data inputs ; 2301                        ;
 ;     shared            ; 4                           ;
 ;         0 data inputs ; 1                           ;
 ;         3 data inputs ; 3                           ;
@@ -7931,7 +7936,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+--------------+
 ; Partition Name ; Elapsed Time ;
 +----------------+--------------+
-; Top            ; 00:01:48     ;
+; Top            ; 00:01:28     ;
 +----------------+--------------+
 
 
@@ -8062,10 +8067,10 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Mon Apr 07 20:40:10 2025
+    Info: Processing started: Thu Apr 10 15:11:02 2025
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off MC68K -c MC68K
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
-Info (20030): Parallel compilation is enabled and will use 4 of the 4 processors detected
+Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
 Info (12021): Found 1 design units, including 1 entities, in source file canbusdecoder.v
     Info (12023): Found entity 1: CanBusDecoder File: C:/M68kV6.0 - 800by480/CANBusDecoder.v Line: 1
 Info (12021): Found 1 design units, including 1 entities, in source file cancontroller/can_top.v
@@ -8402,7 +8407,7 @@ Info (12133): Instantiated megafunction "AssociativeCachedDramController:inst|As
     Info (12134): Parameter "width_byteena_a" = "1"
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_dbm1.tdf
     Info (12023): Found entity 1: altsyncram_dbm1 File: C:/M68kV6.0 - 800by480/db/altsyncram_dbm1.tdf Line: 27
-Info (12128): Elaborating entity "altsyncram_dbm1" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|ValidBit_Associative:inst3|Valid_Bit_Associative:inst|altsyncram:altsyncram_component|altsyncram_dbm1:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
+Info (12128): Elaborating entity "altsyncram_dbm1" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|ValidBit_Associative:inst3|Valid_Bit_Associative:inst|altsyncram:altsyncram_component|altsyncram_dbm1:auto_generated" File: d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
 Info (12128): Elaborating entity "AddressComparator_Associative" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|AddressComparator_Associative:inst1"
 Info (12128): Elaborating entity "TagMemory_Associative" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|TagMemory_Associative:inst2"
 Info (12128): Elaborating entity "Tag_Data_Associative" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|TagMemory_Associative:inst2|Tag_Data_Associative:inst"
@@ -8425,7 +8430,7 @@ Info (12133): Instantiated megafunction "AssociativeCachedDramController:inst|As
     Info (12134): Parameter "width_byteena_a" = "1"
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_vcm1.tdf
     Info (12023): Found entity 1: altsyncram_vcm1 File: C:/M68kV6.0 - 800by480/db/altsyncram_vcm1.tdf Line: 27
-Info (12128): Elaborating entity "altsyncram_vcm1" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|TagMemory_Associative:inst2|Tag_Data_Associative:inst|altsyncram:altsyncram_component|altsyncram_vcm1:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
+Info (12128): Elaborating entity "altsyncram_vcm1" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|TagMemory_Associative:inst2|Tag_Data_Associative:inst|altsyncram:altsyncram_component|altsyncram_vcm1:auto_generated" File: d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
 Info (12128): Elaborating entity "CacheData_Associative" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|CacheData_Associative:inst"
 Info (12128): Elaborating entity "CachedData_Associative" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|CacheData_Associative:inst|CachedData_Associative:inst1"
 Info (12128): Elaborating entity "altsyncram" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|CacheData_Associative:inst|CachedData_Associative:inst1|altsyncram:altsyncram_component" File: C:/M68kV6.0 - 800by480/CachedData_Associative.v Line: 85
@@ -8447,7 +8452,7 @@ Info (12133): Instantiated megafunction "AssociativeCachedDramController:inst|As
     Info (12134): Parameter "width_byteena_a" = "1"
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_aem1.tdf
     Info (12023): Found entity 1: altsyncram_aem1 File: C:/M68kV6.0 - 800by480/db/altsyncram_aem1.tdf Line: 27
-Info (12128): Elaborating entity "altsyncram_aem1" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|CacheData_Associative:inst|CachedData_Associative:inst1|altsyncram:altsyncram_component|altsyncram_aem1:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
+Info (12128): Elaborating entity "altsyncram_aem1" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|AssociativeCache_Set:inst11|CacheData_Associative:inst|CachedData_Associative:inst1|altsyncram:altsyncram_component|altsyncram_aem1:auto_generated" File: d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
 Info (12128): Elaborating entity "PseudoLRU_Bits" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|PseudoLRU_Bits:inst"
 Info (12128): Elaborating entity "PLRU_Bits" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|PseudoLRU_Bits:inst|PLRU_Bits:inst"
 Info (12128): Elaborating entity "altsyncram" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|PseudoLRU_Bits:inst|PLRU_Bits:inst|altsyncram:altsyncram_component" File: C:/M68kV6.0 - 800by480/PLRU_Bits.v Line: 85
@@ -8469,7 +8474,7 @@ Info (12133): Instantiated megafunction "AssociativeCachedDramController:inst|As
     Info (12134): Parameter "width_byteena_a" = "1"
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_jbm1.tdf
     Info (12023): Found entity 1: altsyncram_jbm1 File: C:/M68kV6.0 - 800by480/db/altsyncram_jbm1.tdf Line: 27
-Info (12128): Elaborating entity "altsyncram_jbm1" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|PseudoLRU_Bits:inst|PLRU_Bits:inst|altsyncram:altsyncram_component|altsyncram_jbm1:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
+Info (12128): Elaborating entity "altsyncram_jbm1" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|PseudoLRU_Bits:inst|PLRU_Bits:inst|altsyncram:altsyncram_component|altsyncram_jbm1:auto_generated" File: d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
 Info (12128): Elaborating entity "lpm_bustri0" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3"
 Info (12128): Elaborating entity "lpm_bustri" for hierarchy "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component" File: C:/M68kV6.0 - 800by480/lpm_bustri0.vhd Line: 71
 Info (12130): Elaborated megafunction instantiation "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component" File: C:/M68kV6.0 - 800by480/lpm_bustri0.vhd Line: 71
@@ -8576,7 +8581,7 @@ Info (12133): Instantiated megafunction "Video_Controller800x480:inst1|ColourPal
     Info (12134): Parameter "lpm_type" = "altsyncram"
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_b634.tdf
     Info (12023): Found entity 1: altsyncram_b634 File: C:/M68kV6.0 - 800by480/db/altsyncram_b634.tdf Line: 27
-Info (12128): Elaborating entity "altsyncram_b634" for hierarchy "Video_Controller800x480:inst1|ColourPallette_2PortRam:inst3|altsyncram:altsyncram_component|altsyncram_b634:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
+Info (12128): Elaborating entity "altsyncram_b634" for hierarchy "Video_Controller800x480:inst1|ColourPallette_2PortRam:inst3|altsyncram:altsyncram_component|altsyncram_b634:auto_generated" File: d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
 Critical Warning (127004): Memory depth (64) in the design file differs from memory depth (256) in the Memory Initialization File "C:/M68kV6.0 - 800by480/ColourPallette_2PortRam.mif" -- truncated remaining initial content value to fit RAM File: C:/M68kV6.0 - 800by480/ColourPallette_2PortRam.vhd Line: 64
 Info (12128): Elaborating entity "GraphicsController_Verilog" for hierarchy "Video_Controller800x480:inst1|GraphicsController_Verilog:inst1"
 Warning (10036): Verilog HDL or VHDL warning at GraphicsController_Verilog.v(43): object "X2" assigned a value but never read File: C:/M68kV6.0 - 800by480/GraphicsController_Verilog.v Line: 43
@@ -8616,13 +8621,13 @@ Info (12133): Instantiated megafunction "OnChipROM16KWords:inst16|OnChipRom16KWo
     Info (12134): Parameter "width_byteena_a" = "1"
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_v3k1.tdf
     Info (12023): Found entity 1: altsyncram_v3k1 File: C:/M68kV6.0 - 800by480/db/altsyncram_v3k1.tdf Line: 27
-Info (12128): Elaborating entity "altsyncram_v3k1" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
+Info (12128): Elaborating entity "altsyncram_v3k1" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated" File: d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_hol2.tdf
     Info (12023): Found entity 1: altsyncram_hol2 File: C:/M68kV6.0 - 800by480/db/altsyncram_hol2.tdf Line: 33
 Info (12128): Elaborating entity "altsyncram_hol2" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|altsyncram_hol2:altsyncram1" File: C:/M68kV6.0 - 800by480/db/altsyncram_v3k1.tdf Line: 34
-Warning (113028): 3516 out of 16384 addresses are uninitialized. The Quartus Prime software will initialize them to "0". There are 2 warnings found, and 2 warnings are reported. File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
+Warning (113028): 3347 out of 16384 addresses are uninitialized. The Quartus Prime software will initialize them to "0". There are 2 warnings found, and 2 warnings are reported. File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
     Warning (113027): Addresses ranging from 96 to 511 are not initialized File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
-    Warning (113027): Addresses ranging from 13284 to 16383 are not initialized File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
+    Warning (113027): Addresses ranging from 13453 to 16383 are not initialized File: C:/M68kV6.0 - 800by480/output/lab1debugmonitor.mif Line: 1
 Info (12021): Found 1 design units, including 1 entities, in source file db/decode_5la.tdf
     Info (12023): Found entity 1: decode_5la File: C:/M68kV6.0 - 800by480/db/decode_5la.tdf Line: 22
 Info (12128): Elaborating entity "decode_5la" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|altsyncram_hol2:altsyncram1|decode_5la:decode4" File: C:/M68kV6.0 - 800by480/db/altsyncram_hol2.tdf Line: 47
@@ -8643,9 +8648,9 @@ Info (12133): Instantiated megafunction "OnChipROM16KWords:inst16|OnChipRom16KWo
     Info (12134): Parameter "SHIFT_COUNT_BITS" = "5"
     Info (12134): Parameter "WIDTH_WORD" = "16"
     Info (12134): Parameter "WIDTHAD" = "14"
-Info (12128): Elaborating entity "sld_jtag_endpoint_adapter" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|sld_mod_ram_rom:mgl_prim2|sld_jtag_endpoint_adapter:jtag_signal_adapter" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_mod_ram_rom.vhd Line: 302
-Info (12128): Elaborating entity "sld_jtag_endpoint_adapter_impl" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|sld_mod_ram_rom:mgl_prim2|sld_jtag_endpoint_adapter:jtag_signal_adapter|sld_jtag_endpoint_adapter_impl:sld_jtag_endpoint_adapter_impl_inst" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_jtag_endpoint_adapter.vhd Line: 232
-Info (12128): Elaborating entity "sld_rom_sr" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|sld_mod_ram_rom:mgl_prim2|sld_rom_sr:\ram_rom_logic_gen:name_gen:info_rom_sr" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/sld_mod_ram_rom.vhd Line: 828
+Info (12128): Elaborating entity "sld_jtag_endpoint_adapter" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|sld_mod_ram_rom:mgl_prim2|sld_jtag_endpoint_adapter:jtag_signal_adapter" File: d:/intelfpga_lite/quartus/libraries/megafunctions/sld_mod_ram_rom.vhd Line: 302
+Info (12128): Elaborating entity "sld_jtag_endpoint_adapter_impl" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|sld_mod_ram_rom:mgl_prim2|sld_jtag_endpoint_adapter:jtag_signal_adapter|sld_jtag_endpoint_adapter_impl:sld_jtag_endpoint_adapter_impl_inst" File: d:/intelfpga_lite/quartus/libraries/megafunctions/sld_jtag_endpoint_adapter.vhd Line: 232
+Info (12128): Elaborating entity "sld_rom_sr" for hierarchy "OnChipROM16KWords:inst16|OnChipRom16KWord:inst11|altsyncram:altsyncram_component|altsyncram_v3k1:auto_generated|sld_mod_ram_rom:mgl_prim2|sld_rom_sr:\ram_rom_logic_gen:name_gen:info_rom_sr" File: d:/intelfpga_lite/quartus/libraries/megafunctions/sld_mod_ram_rom.vhd Line: 828
 Info (12128): Elaborating entity "OnChipRam256kbyte" for hierarchy "OnChipRam256kbyte:inst6"
 Info (12128): Elaborating entity "SramBlock_32KWord" for hierarchy "OnChipRam256kbyte:inst6|SramBlock_32KWord:inst"
 Warning (275011): Block or symbol "NOT" of instance "inst15" overlaps another block or symbol
@@ -8705,7 +8710,7 @@ Info (12133): Instantiated megafunction "OnChipRam256kbyte:inst6|SramBlock_32KWo
     Info (12134): Parameter "lpm_type" = "altsyncram"
 Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_ba04.tdf
     Info (12023): Found entity 1: altsyncram_ba04 File: C:/M68kV6.0 - 800by480/db/altsyncram_ba04.tdf Line: 33
-Info (12128): Elaborating entity "altsyncram_ba04" for hierarchy "OnChipRam256kbyte:inst6|SramBlock_32KWord:inst|Ram32kByte:inst3|altsyncram:altsyncram_component|altsyncram_ba04:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
+Info (12128): Elaborating entity "altsyncram_ba04" for hierarchy "OnChipRam256kbyte:inst6|SramBlock_32KWord:inst|Ram32kByte:inst3|altsyncram:altsyncram_component|altsyncram_ba04:auto_generated" File: d:/intelfpga_lite/quartus/libraries/megafunctions/altsyncram.tdf Line: 791
 Info (12021): Found 1 design units, including 1 entities, in source file db/decode_8la.tdf
     Info (12023): Found entity 1: decode_8la File: C:/M68kV6.0 - 800by480/db/decode_8la.tdf Line: 22
 Info (12128): Elaborating entity "decode_8la" for hierarchy "OnChipRam256kbyte:inst6|SramBlock_32KWord:inst|Ram32kByte:inst3|altsyncram:altsyncram_component|altsyncram_ba04:auto_generated|decode_8la:decode3" File: C:/M68kV6.0 - 800by480/db/altsyncram_ba04.tdf Line: 43
@@ -8759,7 +8764,7 @@ Info (12021): Found 1 design units, including 1 entities, in source file db/cmpr
     Info (12023): Found entity 1: cmpr_99c File: C:/M68kV6.0 - 800by480/db/cmpr_99c.tdf Line: 22
 Info (12033): Analysis and Synthesis generated Signal Tap or debug node instance "auto_signaltap_0"
 Info (11170): Starting IP generation for the debug fabric: alt_sld_fab.
-Info (11172): 2025.04.07.20:41:01 Progress: Loading sldbe7d4d23/alt_sld_fab_wrapper_hw.tcl
+Info (11172): 2025.04.10.15:11:35 Progress: Loading sldbe7d4d23/alt_sld_fab_wrapper_hw.tcl
 Info (11172): Alt_sld_fab.alt_sld_fab: SLD fabric agents which did not specify prefer_host were connected to JTAG
 Info (11172): Alt_sld_fab: Generating alt_sld_fab "alt_sld_fab" for QUARTUS_SYNTH
 Info (11172): Alt_sld_fab: "alt_sld_fab" instantiated alt_sld_fab "alt_sld_fab"
@@ -9020,22 +9025,22 @@ Info (12021): Found 1 design units, including 1 entities, in source file db/alts
     Info (12023): Found entity 1: altsyncram_uvj1 File: C:/M68kV6.0 - 800by480/db/altsyncram_uvj1.tdf Line: 27
 Info (17026): Resynthesizing 0 WYSIWYG logic cells and I/Os using "balanced" technology mapper which leaves 0 WYSIWYG logic cells and I/Os untouched
 Warning (13027): Removed fan-outs from the following always-disabled I/O buffers
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[15]" to the node "DataBusIn[15]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[14]" to the node "DataBusIn[14]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[13]" to the node "DataBusIn[13]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[12]" to the node "DataBusIn[12]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[11]" to the node "DataBusIn[11]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[10]" to the node "DataBusIn[10]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[9]" to the node "DataBusIn[9]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[8]" to the node "DataBusIn[8]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[7]" to the node "DataBusIn[7]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[6]" to the node "DataBusIn[6]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[5]" to the node "DataBusIn[5]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[4]" to the node "DataBusIn[4]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[3]" to the node "DataBusIn[3]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[2]" to the node "DataBusIn[2]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[1]" to the node "DataBusIn[1]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
-    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[0]" to the node "DataBusIn[0]" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[15]" to the node "DataBusIn[15]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[14]" to the node "DataBusIn[14]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[13]" to the node "DataBusIn[13]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[12]" to the node "DataBusIn[12]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[11]" to the node "DataBusIn[11]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[10]" to the node "DataBusIn[10]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[9]" to the node "DataBusIn[9]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[8]" to the node "DataBusIn[8]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[7]" to the node "DataBusIn[7]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[6]" to the node "DataBusIn[6]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[5]" to the node "DataBusIn[5]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[4]" to the node "DataBusIn[4]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[3]" to the node "DataBusIn[3]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[2]" to the node "DataBusIn[2]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[1]" to the node "DataBusIn[1]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
+    Warning (13028): Removed fan-out from the always-disabled I/O buffer "lpm_bustri:inst22|din[0]" to the node "DataBusIn[0]" File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 46
     Warning (13028): Removed fan-out from the always-disabled I/O buffer "Video_Controller800x480:inst1|GraphicsController_Verilog:inst1|DataOutToCPU[0]" to the node "DataBusIn[0]" File: C:/M68kV6.0 - 800by480/GraphicsController_Verilog.v Line: 21
     Warning (13028): Removed fan-out from the always-disabled I/O buffer "Video_Controller800x480:inst1|GraphicsController_Verilog:inst1|DataOutToCPU[15]" to the node "DataBusIn[15]" File: C:/M68kV6.0 - 800by480/GraphicsController_Verilog.v Line: 21
     Warning (13028): Removed fan-out from the always-disabled I/O buffer "Video_Controller800x480:inst1|GraphicsController_Verilog:inst1|DataOutToCPU[14]" to the node "DataBusIn[14]" File: C:/M68kV6.0 - 800by480/GraphicsController_Verilog.v Line: 21
@@ -9060,15 +9065,15 @@ Warning (13046): Tri-state node(s) do not directly drive top-level pin(s)
     Warning (13047): Converted the fan-out from the tri-state buffer "OnChipIO:inst8|Timer:Timer1|DataOut[3]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|ea_data[11]" into an OR gate File: C:/M68kV6.0 - 800by480/Timer.vhd Line: 16
     Warning (13047): Converted the fan-out from the tri-state buffer "OnChipIO:inst8|Timer:Timer1|DataOut[2]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|ea_data[10]" into an OR gate File: C:/M68kV6.0 - 800by480/Timer.vhd Line: 16
     Warning (13047): Converted the fan-out from the tri-state buffer "OnChipIO:inst8|Timer:Timer1|DataOut[1]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|ea_data[9]" into an OR gate File: C:/M68kV6.0 - 800by480/Timer.vhd Line: 16
-    Warning (13047): Converted the fan-out from the tri-state buffer "OnChipIO:inst8|lpm_bustri2:inst15|lpm_bustri:lpm_bustri_component|dout[0]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|ea_data[8]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
-    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[7]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[7]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
-    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[6]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[6]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
-    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[5]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[5]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
-    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[4]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[4]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
-    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[3]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[3]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
-    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[2]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[2]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
-    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[1]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[1]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
-    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[0]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[0]" into an OR gate File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "OnChipIO:inst8|lpm_bustri2:inst15|lpm_bustri:lpm_bustri_component|dout[0]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|ea_data[8]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[7]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[7]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[6]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[6]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[5]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[5]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[4]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[4]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[3]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[3]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[2]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[2]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[1]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[1]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
+    Warning (13047): Converted the fan-out from the tri-state buffer "AssociativeCachedDramController:inst|AssociativeDramCache:inst|lpm_bustri0:inst3|lpm_bustri:lpm_bustri_component|dout[0]" to the node "M68000CPU:inst17|TG68:inst|TG68_fast:TG68_fast_inst|last_data_read[0]" into an OR gate File: d:/intelfpga_lite/quartus/libraries/megafunctions/lpm_bustri.tdf Line: 43
 Warning (13024): Output pins are stuck at VCC or GND
     Warning (13410): Pin "VGA_SYNC_N" is stuck at GND
     Warning (13410): Pin "DRAM_CS_N" is stuck at GND
@@ -9084,18 +9089,18 @@ Info (144001): Generated suppressed messages file C:/M68kV6.0 - 800by480/MC68K.m
 Critical Warning (35025): Partially connected in-system debug instance "auto_signaltap_0" to 112 of its 113 required data inputs, trigger inputs, acquisition clocks, and dynamic pins.  There were 0 illegal, 0 inaccessible, and 1 missing sources or connections.
 Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
     Info (16011): Adding 23 node(s), including 0 DDIO, 4 PLL, 0 transceiver and 0 LCELL
-Info (21057): Implemented 11710 device resources after synthesis - the final resource count might be different
+Info (21057): Implemented 11709 device resources after synthesis - the final resource count might be different
     Info (21058): Implemented 22 input pins
     Info (21059): Implemented 202 output pins
     Info (21060): Implemented 18 bidirectional pins
-    Info (21061): Implemented 10710 logic cells
+    Info (21061): Implemented 10709 logic cells
     Info (21064): Implemented 753 RAM segments
     Info (21065): Implemented 4 PLLs
 Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 126 warnings
-    Info: Peak virtual memory: 5038 megabytes
-    Info: Processing ended: Mon Apr 07 20:43:11 2025
-    Info: Elapsed time: 00:03:01
-    Info: Total CPU time (on all processors): 00:03:16
+    Info: Peak virtual memory: 5086 megabytes
+    Info: Processing ended: Thu Apr 10 15:13:21 2025
+    Info: Elapsed time: 00:02:19
+    Info: Total CPU time (on all processors): 00:02:00
 
 
 +------------------------------------------+
