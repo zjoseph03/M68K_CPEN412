@@ -1,5 +1,6 @@
 ; C:\IDE68K\UCOSII\BIOS.C - Compiled by CC68K  Version 5.00 (c) 1991-2005  Peter J. Fondse
 ; #include <Bios.h>
+; // Global variables
 ; /*
 ; **  These basic IO routines are designed to handle input and output of characters
 ; **  via the serial port to the console of hyperternal
@@ -295,9 +296,9 @@ _Oline1:
        unlk      A6
        rts
 ; }
-; /*********************************************************************************
-; ** Timer ISR
-; **********************************************************************************/
+; // /*********************************************************************************
+; // ** Timer ISR
+; // **********************************************************************************/
 ; void Timer_ISR(void)
 ; {
        xdef      _Timer_ISR
@@ -348,10 +349,18 @@ _Timer1_Init:
 ; **
 ; **	see main below for other examples
 ; ***********************************************************************************************************************************/
-; /*
 ; void InstallExceptionHandler( void (*function_ptr)(), int level)
 ; {
+       xdef      _InstallExceptionHandler
+_InstallExceptionHandler:
+       link      A6,#-4
 ; volatile long int *RamVectorAddress = (volatile long int *)(StartOfExceptionVectorTable) ;   // pointer to the Ram based interrupt vector table created in Cstart in debug monitor
+       move.l    #184549376,-4(A6)
 ; RamVectorAddress[level] = (long int *)(function_ptr);                       // install the address of our function into the exception table
+       move.l    -4(A6),A0
+       move.l    12(A6),D0
+       lsl.l     #2,D0
+       move.l    8(A6),0(A0,D0.L)
+       unlk      A6
+       rts
 ; }
-; */
