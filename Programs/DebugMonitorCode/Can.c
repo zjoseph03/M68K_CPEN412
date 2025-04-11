@@ -601,23 +601,23 @@ void CanBus0_Receive(void)
     sensorId = Can0_RxBuffer4;
     sensorValue = Can0_RxBuffer3;
 
-    switch(sensorId) {
-        case SENSOR_ID_THERMISTOR:
-            printf("\rC0: T=%3d", sensorValue);
-            break;
-        case SENSOR_ID_POTENTIOMETER:
-            printf(" P=%3d", sensorValue);
-            break;
-        case SENSOR_ID_LIGHT:
-            printf(" L=%3d", sensorValue);
-            break;
-        case SENSOR_ID_SWITCHES:
-            printf(" SW=");
-            for(i = 7; i >= 0; i--) {
-                printf("%d", (sensorValue >> i) & 0x01);
-            }
-            break;
-    }
+    // switch(sensorId) {
+    //     case SENSOR_ID_THERMISTOR:
+    //         printf("\rC0: T=%3d", sensorValue);
+    //         break;
+    //     case SENSOR_ID_POTENTIOMETER:
+    //         printf(" P=%3d", sensorValue);
+    //         break;
+    //     case SENSOR_ID_LIGHT:
+    //         printf(" L=%3d", sensorValue);
+    //         break;
+    //     case SENSOR_ID_SWITCHES:
+    //         printf(" SW=");
+    //         for(i = 7; i >= 0; i--) {
+    //             printf("%d", (sensorValue >> i) & 0x01);
+    //         }
+    //         break;
+    // }
     
     Can0_CommandReg = RRB_Bit;
 }
@@ -634,23 +634,23 @@ void CanBus1_Receive(void)
     sensorId = Can1_RxBuffer4;
     sensorValue = Can1_RxBuffer3;
 
-    switch(sensorId) {
-        case SENSOR_ID_THERMISTOR:
-            printf("\rC1: T=%3d", sensorValue);
-            break;
-        case SENSOR_ID_POTENTIOMETER:
-            printf(" P=%3d", sensorValue);
-            break;
-        case SENSOR_ID_LIGHT:
-            printf(" L=%3d", sensorValue);
-            break;
-        case SENSOR_ID_SWITCHES:
-            printf(" SW=");
-            for(i = 7; i >= 0; i--) {
-                printf("%d", (sensorValue >> i) & 0x01);
-            }
-            break;
-    }
+    // switch(sensorId) {
+    //     case SENSOR_ID_THERMISTOR:
+    //         printf("\rC1: T=%3d", sensorValue);
+    //         break;
+    //     case SENSOR_ID_POTENTIOMETER:
+    //         printf(" P=%3d", sensorValue);
+    //         break;
+    //     case SENSOR_ID_LIGHT:
+    //         printf(" L=%3d", sensorValue);
+    //         break;
+    //     case SENSOR_ID_SWITCHES:
+    //         printf(" SW=");
+    //         for(i = 7; i >= 0; i--) {
+    //             printf("%d", (sensorValue >> i) & 0x01);
+    //         }
+    //         break;
+    // }
     
     Can1_CommandReg = RRB_Bit;
 }
@@ -745,25 +745,59 @@ void ADCRead(void) {
 
 void Timer_ISR(void)
 {
+    static unsigned char lastT = 0, lastP = 0, lastL = 0, lastSW = 0;
+    static char needsUpdate = 1;
+    int i;
+
     if(Timer1Status == 1) {       
         Timer1Control = 3;      
         Timer1Count++;           
-        if (Timer1Count % 10 == 0) {
-            unsigned char switches = GetSwitches();
-            CanBus0_Transmit(SENSOR_ID_SWITCHES, switches);
-            CanBus1_Receive();
-            ADCRead(); 
-            CanBus0_Transmit(SENSOR_ID_THERMISTOR, thermistorVal);
-            CanBus1_Receive();
-            CanBus0_Transmit(SENSOR_ID_POTENTIOMETER, potentiometerVal);
-            CanBus1_Receive();
-            CanBus0_Transmit(SENSOR_ID_LIGHT, lightSensorVal);
-            CanBus1_Receive();
+
+        if(needsUpdate) {
+            printf("\rC0: T=--- P=--- L=--- SW=--------    ");
+            needsUpdate = 0;
         }
 
+        if (Timer1Count % 200 == 0) {
+            ADCRead();
+            if(lastT != thermistorVal) {
+                printf("\rC0: T=%3d", thermistorVal);
+                CanBus0_Transmit(SENSOR_ID_THERMISTOR, thermistorVal);
+                lastT = thermistorVal;
+            }
+        }
 
-        
-        if (Timer1Count >= 100) {
+        if (Timer1Count % 20 == 0) {
+            ADCRead();
+            if(lastP != potentiometerVal) {
+                printf("\rC0: T=%3d P=%3d", lastT, potentiometerVal);
+                CanBus0_Transmit(SENSOR_ID_POTENTIOMETER, potentiometerVal);
+                lastP = potentiometerVal;
+            }
+        }
+
+        if (Timer1Count % 50 == 0) {
+            ADCRead();
+            if(lastL != lightSensorVal) {
+                printf("\rC0: T=%3d P=%3d L=%3d", lastT, lastP, lightSensorVal);
+                CanBus0_Transmit(SENSOR_ID_LIGHT, lightSensorVal);
+                lastL = lightSensorVal;
+            }
+        }
+
+        if (Timer1Count % 10 == 0) {
+            unsigned char switches = GetSwitches();
+            if(lastSW != switches) {
+                printf("\rC0: T=%3d P=%3d L=%3d SW=", lastT, lastP, lastL);
+                for(i = 7; i >= 0; i--) {
+                    printf("%d", (switches >> i) & 0x01);
+                }
+                CanBus0_Transmit(SENSOR_ID_SWITCHES, switches);
+                lastSW = switches;
+            }
+        }
+
+        if (Timer1Count >= 200) {
             Timer1Count = 0;
         }
     }
